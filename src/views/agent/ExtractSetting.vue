@@ -103,7 +103,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
             postExtractSetting(ruleForm).then(res => {
                 console.log(res)
-                router.push({name:'revenue'})
+                router.replace({name:'revenue'})
             }).catch(err => {
                 console.log(err)
             })

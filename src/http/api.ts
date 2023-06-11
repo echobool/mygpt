@@ -89,6 +89,7 @@ export const checkSubDomain = (params: any) => {
 }
 
 
+
 // 保存代理商配置
 export const postAgentSetting = (data: any) => {
     return  axios.post('/agent/setting', data)
@@ -97,4 +98,15 @@ export const postAgentSetting = (data: any) => {
 // 保存代理商提现配置
 export const postExtractSetting = (data: any) => {
     return  axios.post('/agent/extract', data)
+}
+
+// openid登录
+export const openIdLogin = (data: any) => {
+    return  axios.post('/openid', data)
+}
+
+
+// 获取用户自己的信息
+export const getUserInfo = () => {
+    return  axios.get('/user/info')
 }

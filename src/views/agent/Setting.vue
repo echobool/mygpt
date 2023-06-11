@@ -163,7 +163,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
             postAgentSetting(ruleForm).then(res => {
                 console.log(res)
-                router.push({name:'revenue'})
+                router.replace({name:'revenue'})
             }).catch(err => {
                 console.log(err)
             })

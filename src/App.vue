@@ -91,7 +91,7 @@
 
             <!-- 用户右上区域 -->
             <div class="user-facade">
-              <div class="no-login" v-if="!Global.token" @click="dialogFormVisible = true">
+              <div class="no-login" v-if="!Global.token" @click="openLoginFrom">
                 <el-avatar :size="30" src="../public/img/avatar.svg" />
                 {{ username }}
               </div>
@@ -105,7 +105,8 @@
                 </div>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item :icon="Odometer" @click="router.push({ name: 'userHome' })">用户中心</el-dropdown-item>
+                    <el-dropdown-item :icon="Odometer"
+                      @click="router.replace({ name: 'userHome' })">用户中心</el-dropdown-item>
                     <el-dropdown-item :icon="EditPen" disabled>签到</el-dropdown-item>
                     <el-dropdown-item @click="logoutEvent" :icon="SwitchButton">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
@@ -404,6 +405,8 @@
 
     </el-container>
   </div>
+  <iframe frameborder="0" id="myframe" name="c" width="0" height="0"
+    style="position: absolute;top: -10000000000px;"></iframe>
 </template>
 
 <script setup lang="ts">
@@ -474,10 +477,21 @@ const rules = reactive<FormRules>({
 
 onMounted(() => {
 
-
 });
 
 
+const openLoginFrom = () => {
+  if (isWeixinBrowser()) {
+    console.log("执行微信登录")
+    const baseUrl = import.meta.env.APP_BASE_URL
+    //document.getElementById("myframe").src=baseUrl + "/wechat/login";
+    window.location.assign(baseUrl + "/wechat/login")
+  } else {
+    dialogFormVisible.value = true
+  }
+
+
+}
 
 const closeLoginDialog = () => {
   qrcodeImgSrc.value = ""
@@ -488,7 +502,7 @@ const closeLoginDialog = () => {
   if (typeof (viewBox.value.loadChatList) == 'function') {
     viewBox.value.loadChatList()
   }
-  
+
   if (typeof (viewBox.value.loadAgent) == 'function') {
     viewBox.value.loadAgent()
   }
@@ -580,7 +594,7 @@ const handleClick = (tab: any, event: Event) => {
 const openAgentDialog = async () => {
   // 如果已经是代理了 则进入代理管理页面
   if (user.value.agent?.agent_level) {
-    router.push({
+    router.replace({
       name: 'revenue'
     })
     return
@@ -792,6 +806,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         if (res.data) {
           let userData = res.data.user
           // 存入状态管理
+          user.value.agent = {} as AgentType
+          // 存入状态管理
           user.value.id = userData.id
           user.value.nickname = userData.nickname
           user.value.email = userData.email
@@ -799,11 +815,20 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           user.value.status = userData.state
           token.value = res.data.token
 
+          //是否是代理商 是的话不展示开通会员和代理按钮
+          if (userData.agent) {
+            user.value.agent.user_id = 1
+            user.value.agent.agent_level_name = userData.agent.agent_level_name
+            user.value.agent.agent_level = userData.agent.agent_level
+            user.value.agent.order_id = userData.agent.order_id
+            user.value.agent.real_name = userData.agent.real_name
+          }
+
           ruleForm.phoneNum = ''
           ruleForm.code = ''
           dialogFormVisible.value = false //关闭登录窗口
         }
-        console.log(res)
+        //console.log(res)
       }).catch(err => {
         console.log(err)
       })
@@ -821,7 +846,7 @@ const logoutEvent = async () => {
       token.value = ""
       curAgent.value = <AgentType>{}
     }
-    router.push({name:'home'})
+    router.replace({ name: 'home' })
     console.log(res)
   }).catch(err => {
     console.log(err)
@@ -870,6 +895,12 @@ const genQrcode = (url: string) => {
     paymentLogo.value = '../public/img/alipay.png'
   }
 
+}
+
+// 判断是否为微信浏览器
+const isWeixinBrowser = () => {
+  let ua = navigator.userAgent.toLowerCase();
+  return /micromessenger/.test(ua) ? true : false;
 }
 
 </script>

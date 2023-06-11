@@ -5,21 +5,23 @@
                 <div class="card-header">
                     <div class="header-card">
                         <el-row :gutter="20">
-                            <el-col :xs="8" :sm="6" :md="5" :lg="3">
+                            <el-col :xs="9" :sm="9" :md="3" :lg="3">
                                 <el-avatar size="large" src="../public/img/avatar.svg" />
                             </el-col>
-                            <el-col :xs="12" :sm="8" :md="6" :lg="12">
-                                <h3>AI User</h3>
-                                <div>13838383838</div>
+                            <el-col :xs="15" :sm="15" :md="8" :lg="8">
+                                <h3>{{ user.nickname }}<span class="quota">额度 <b>{{ user.quota }}</b></span> </h3>
+                                <div>{{ user.phone == "" ? "--" : user.phone }}
+                                
+                                </div>
                             </el-col>
-                            <el-col :xs="12" :sm="12" :md="12" :lg="4" style="text-align: center;">
+                            <el-col :xs="9" :sm="9" :md="6" :lg="6" style="text-align: center;">
                                 <div class="tips">会员等级</div>
-                                <h3>永久会员</h3>
+                                <h3>{{ user.pkg_name == "" ? "无" : user.pkg_name }}</h3>
 
                             </el-col>
-                            <el-col :xs="12" :sm="12" :md="12" :lg="4" style="text-align: center;">
+                            <el-col :xs="15" :sm="15" :md="6" :lg="6" style="text-align: center;">
                                 <div class="tips">过期时间</div>
-                                <h3>永久会员</h3>
+                                <h3>{{ user.expiry_date == "" ? "--" : formatDateByTimestamp(user.expiry_date) }}</h3>
                             </el-col>
                         </el-row>
 
@@ -32,7 +34,7 @@
 
             <el-row class="statistic">
                 <el-col :xs="12" :sm="6" :md="6" :lg="6">
-                    <el-statistic title="聊天次数" :value="268500">
+                    <el-statistic title="聊天次数" :value=" user.qa_num ">
                         <template #suffix>
                             <el-icon style="vertical-align: -0.125em">
                                 <ChatLineRound />
@@ -41,7 +43,7 @@
                     </el-statistic>
                 </el-col>
                 <el-col :xs="12" :sm="6" :md="6" :lg="6">
-                    <el-statistic :value="138">
+                    <el-statistic :value="user.qa_log_num">
                         <template #title>
                             <div style="display: inline-flex; align-items: center">
                                 聊天记录数
@@ -53,10 +55,10 @@
                     </el-statistic>
                 </el-col>
                 <el-col :xs="12" :sm="6" :md="6" :lg="6">
-                    <el-statistic title="绘图次数" :value="172000" />
+                    <el-statistic title="绘图次数" :value="user.draw_num" />
                 </el-col>
                 <el-col :xs="12" :sm="6" :md="6" :lg="6">
-                    <el-statistic title="登录次数" :value="562">
+                    <el-statistic title="登录次数" :value="user.login_num">
 
                     </el-statistic>
                 </el-col>
@@ -75,27 +77,27 @@
                 </div>
             </template>
 
-            <el-table :data="orderList" size="large" stripe style="width: 100%" >
+            <el-table :data="orderList" size="large" stripe style="width: 100%">
                 <el-table-column fixed prop="order_no" label="订单号" width="250" />
-                <el-table-column prop="name" label="套餐"  width="100" />
+                <el-table-column prop="name" label="套餐" width="100" />
                 <!-- <el-table-column prop="genre" label="类型" /> -->
                 <el-table-column prop="expiry_date" label="时长(天)" width="100" />
                 <el-table-column prop="price" label="价格" width="100" />
-                <el-table-column  label="支付状态" width="100" >
+                <el-table-column label="支付状态" width="100">
                     <template #default="scope">
-                        
-                        <el-tag v-if="scope.row.pay_state==2">已支付</el-tag>
-                        <el-tag type="info" v-if="scope.row.pay_state==1">未支付</el-tag>
+
+                        <el-tag v-if="scope.row.pay_state == 2">已支付</el-tag>
+                        <el-tag type="info" v-if="scope.row.pay_state == 1">未支付</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column prop="number_use" label="额度" width="100" />
-                <el-table-column prop="pay_at" label="支付时间" width="150"  :formatter="formatDate" />
+                <el-table-column prop="pay_at" label="支付时间" width="150" :formatter="formatDate" />
                 <el-table-column prop="created_at" label="创建时间" width="150" :formatter="formatDate" />
 
             </el-table>
 
-            <el-pagination v-show="orderList"  small background layout="prev, pager, next" :total="dataTotal" :page-size="pageSize" class="mt-4"
-            @current-change="sizeChange" v-model="page" />
+            <el-pagination v-show="orderList" small background layout="prev, pager, next" :total="dataTotal"
+                :page-size="pageSize" class="mt-4" @current-change="sizeChange" v-model="page" />
 
         </el-card>
     </div>
@@ -103,7 +105,7 @@
 
 <script setup lang="ts">
 import { reactive, Ref, ref, computed, onMounted } from 'vue'
-import { myOrder } from '../http/api'
+import { myOrder, getUserInfo } from '../http/api'
 import { formatDateByTimestamp } from "../utils/DateTime";
 
 const orderList: any = reactive([])
@@ -111,12 +113,42 @@ const dataTotal = ref(0)
 const pageSize = ref(10)
 const page = ref(1)
 
+const user: any = reactive({})
+
 onMounted(() => {
+
+    // 获取用户实时资料
+    loadUserInfo()
 
     // 加载聊天列表
     loadMyOrder()
 
 });
+
+const loadUserInfo = async () => {
+    await getUserInfo().then(res => {
+        if (res.data) {
+            let data = res.data
+            user.nickname = data.nickname
+            user.pkg_name = data.pkg_name
+            user.expiry_date = data.expiry_date
+            user.qa_num = data.qa_num
+            user.quota = data.quota
+            user.points = data.points
+            user.status = data.status
+            user.phone = data.phone
+            user.login_num = data.login_num
+            user.draw_num = data.draw_num
+            user.qa_log_num = data.qa_log_num
+
+        }
+        console.log(res)
+    }).catch(err => {
+        console.log(err)
+    })
+}
+
+
 
 const formatDate = (_row, _column, cellValue, _index) => {
     if (cellValue != "") {
@@ -126,7 +158,7 @@ const formatDate = (_row, _column, cellValue, _index) => {
     }
 }
 
-const sizeChange = (value:number)=>{
+const sizeChange = (value: number) => {
     page.value = value
     loadMyOrder()
 }
@@ -200,6 +232,16 @@ const loadMyOrder = async () => {
     margin-bottom: 5px;
 }
 
+.quota{
+    font-size: 14px;
+    color: #888;
+    margin-left: 20px;
+}
+.quota b {
+    margin-left: 15px;
+    font-size: 18px;
+    color: #333;
+}
 
 
 .el-pagination {

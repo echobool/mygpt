@@ -26,8 +26,8 @@
                             </el-col>
                             <el-col :xs="12" :sm="12" :md="8" :lg="8">
                                 <h3>{{ agentData.agent_level_name }}</h3>
-                                <div>{{ agentData.real_name }} <el-button @click="$router.push('setting')" text
-                                        type="primary" plain>设置</el-button> </div>
+                                <div>{{ agentData.real_name }} <el-button @click="$router.replace('setting')" text
+                                        type="primary" plain>站点设置</el-button> </div>
                             </el-col>
                             <el-col :xs="6" :sm="6" :md="5" :lg="5" style="text-align: center;">
                                 <div class="tips">收益</div>
@@ -37,7 +37,7 @@
                             <el-col :xs="24" :sm="24" :md="8" :lg="8" style="text-align: center;">
                                 <div class="tips"> &nbsp;</div>
                                 <el-button  type="primary" plain>提现</el-button>
-                                <el-button @click="$router.push('extract')" text type="primary" plain>提现设置</el-button>
+                                <el-button @click="$router.replace('extract')" text type="primary" plain>提现设置</el-button>
                                 <el-button text type="primary" plain>提现日志</el-button>
 
                             </el-col>

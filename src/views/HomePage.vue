@@ -41,7 +41,7 @@
 
             <div class="account-set">
                 <span>
-                    ljy518338@163.com
+                    {{user.nickname}}
                 </span>
                 <el-tooltip class="box-item" effect="dark" content="对话参数设置" placement="top-start">
                     <el-icon :size="20" @click="openSetDialog">
