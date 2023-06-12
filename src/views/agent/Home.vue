@@ -31,12 +31,12 @@
                             </el-col>
                             <el-col :xs="6" :sm="6" :md="5" :lg="5" style="text-align: center;">
                                 <div class="tips">收益</div>
-                                <h3>{{ agentData.balance }}</h3>
+                                <h3>{{ agentData.balance ? agentData.balance : 0 }}</h3>
 
                             </el-col>
                             <el-col :xs="24" :sm="24" :md="8" :lg="8" style="text-align: center;">
                                 <div class="tips"> &nbsp;</div>
-                                <el-button  type="primary" plain>提现</el-button>
+                                <el-button type="primary" plain>提现</el-button>
                                 <el-button @click="$router.replace('extract')" text type="primary" plain>提现设置</el-button>
                                 <el-button text type="primary" plain>提现日志</el-button>
 
@@ -81,11 +81,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, Ref, ref, computed, onMounted } from 'vue'
+import { reactive,  ref,  onMounted } from 'vue'
 import { getAgentData } from '../../http/api'
 import { useGlobalStore } from '../../store'
 import { storeToRefs } from 'pinia'
-import { formatDateByTimestamp } from "../../utils/DateTime";
 import { AgentType } from '../../class/types';
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -93,10 +92,8 @@ import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps } from 'element-plus'
 
 const Global = useGlobalStore()
-const { user, token, agent , curAgent} = storeToRefs(Global)
+const { token,  curAgent } = storeToRefs(Global)
 const agentData: AgentType = reactive({} as AgentType)
-
-
 
 const imageUrl = ref('')
 const baseURL = import.meta.env.APP_BASE_URL;
@@ -110,7 +107,7 @@ const uploadHeaders = {
 
 // logo 上传
 const handleAvatarSuccess: UploadProps['onSuccess'] = (
-    response,
+    _response,
     uploadFile
 ) => {
     imageUrl.value = URL.createObjectURL(uploadFile.raw!)
@@ -135,12 +132,10 @@ onMounted(() => {
 
     // 加载代理商数据
     loadAgent()
-
 });
 
 
 const loadAgent = async () => {
-    console.log('请求代理商配置')
     await getAgentData().then(res => {
 
         if (res.data) {
@@ -176,6 +171,9 @@ const loadAgent = async () => {
         console.error(error);
     });
 }
+
+
+
 
 //在setup里边的数据是私有的，需要通过defineExpose暴露给父组件，父组件才可以使用
 defineExpose({

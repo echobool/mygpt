@@ -1,6 +1,6 @@
 import { checkSubDomain } from '../http/api'
 
-export const ValidatePhone = (rule, value, callback) => {
+export const ValidatePhone = (_rule:any, value:any, callback:any) => {
   const regExp = /^(0|86|17951)?(13[0-9]|15[012356789]|16[12567]|17[123678]|18[0-9]|19[89]|14[567])[0-9]{8}$/
   if (!regExp.test(value)) {
     callback(new Error('请输入正确的手机号'))
@@ -9,7 +9,7 @@ export const ValidatePhone = (rule, value, callback) => {
   }
 }
 
-export const ValidateDomain = (rule, value, callback) => {
+export const ValidateDomain = (_rule:any, value:any, callback:any) => {
   if (value == "") {
     callback()
   }
@@ -22,10 +22,10 @@ export const ValidateDomain = (rule, value, callback) => {
 }
 
 
-export const ValidateSubDomain = (rule, value, callback) => {
+export const ValidateSubDomain = (_rule:any, value:any, callback:any) => {
   checkSubDomain({
     subdomain: value
-  }).then((data) => {
+  }).then((_data) => {
     callback()
   }, (error) => {
     callback(new Error(error))

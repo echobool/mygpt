@@ -11,7 +11,7 @@ export const useGlobalStore = defineStore(Names.GLOBAL, {
       user: <UserType>{},
       agent: <AgentType>{},
       curAgent: <AgentType>{},  //当前代理数据
-      token: <string>""
+      token: <string>"",
     }
   },
   // 类似computed 取值

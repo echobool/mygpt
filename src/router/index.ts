@@ -7,7 +7,7 @@ const router = createRouter({
         { name: "login", path: "/login", component: () => import("../views/Login.vue"), props: route => ({ query: route.query.openid }) },
         { name: "userHome", path: "/user", component: () => import("../views/UserHome.vue") },
         {
-            name: "agentHome", path: "/agent/:id",
+            name: "agentHome", path: "/agent",
             component: () => import("../views/agent/Home.vue"),
             children: [
                 {

@@ -6,7 +6,7 @@
                     <div class="header-card">
                         <el-row :gutter="20">
                             <el-col :xs="9" :sm="9" :md="3" :lg="3">
-                                <el-avatar size="large" src="../public/img/avatar.svg" />
+                                <el-avatar size="large" src="../public/img/avatar1.svg" />
                             </el-col>
                             <el-col :xs="15" :sm="15" :md="8" :lg="8">
                                 <h3>{{ user.nickname }}<span class="quota">额度 <b>{{ user.quota }}</b></span> </h3>
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, Ref, ref, computed, onMounted } from 'vue'
+import { reactive, ref,  onMounted } from 'vue'
 import { myOrder, getUserInfo } from '../http/api'
 import { formatDateByTimestamp } from "../utils/DateTime";
 
@@ -150,7 +150,7 @@ const loadUserInfo = async () => {
 
 
 
-const formatDate = (_row, _column, cellValue, _index) => {
+const formatDate = (_row: any, _column: any, cellValue: string, _index: any) => {
     if (cellValue != "") {
         return formatDateByTimestamp(cellValue)
     } else {

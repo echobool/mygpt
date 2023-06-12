@@ -5,11 +5,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, Ref, ref, defineProps, onMounted } from 'vue'
+import {  onMounted } from 'vue'
 import { openIdLogin } from '../http/api'
 import { useGlobalStore } from '../store'
 import { storeToRefs } from 'pinia'
-import { PkgListType, UserType, AgentType } from '../class/types'
+import {  AgentType } from '../class/types'
 
 import { useRoute } from 'vue-router';
 import router from '../router'

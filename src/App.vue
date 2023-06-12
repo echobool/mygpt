@@ -9,11 +9,12 @@
         <div class="header-container">
           <div class="logo-container">
             <a href="">
-              <img class="logo" width="30" src="/ailogo.svg" alt="Element Plus Logo">
+              <img class="logo" width="30" :src="logoUrl ? logoUrl : '/ailogo.svg'" alt="ai Logo">
 
             </a>
             <span style="position: relative; font-weight: bold; margin-left: 10px; margin-top: -5px; font-size: 22px;">
-              字节点点AI</span>
+              {{ agent.site_name ? agent.site_name : '字节点点AI' }}
+            </span>
           </div>
           <div class="content">
 
@@ -92,12 +93,12 @@
             <!-- 用户右上区域 -->
             <div class="user-facade">
               <div class="no-login" v-if="!Global.token" @click="openLoginFrom">
-                <el-avatar :size="30" src="../public/img/avatar.svg" />
+                <el-avatar :size="30" src="./public/img/avatar1.svg" />
                 {{ username }}
               </div>
               <el-dropdown v-else>
                 <div class="el-dropdown-link">
-                  <el-avatar :size="30" src="../public/img/avatar.svg" />
+                  <el-avatar :size="30" src="./public/img/avatar1.svg" />
                   <span class="username">
                     {{ Global.getNickname }}
                   </span>
@@ -114,10 +115,8 @@
               </el-dropdown>
 
             </div>
-            <button class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
-              <span class="hamburger-1"></span>
-              <span class="hamburger-2"></span>
-              <span class="hamburger-3"></span>
+            <button @click="openDrawer" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
+              <el-image  fit="fill" style="width: 30px;" src="../public/img/base.svg"/>
             </button>
           </div>
 
@@ -403,6 +402,29 @@
         </template>
       </el-dialog>
 
+      <!-- 移动端兼容 -->
+      <el-drawer v-model="drawerBottom" direction="btt" title="I am the title" :with-header="false">
+        <el-menu :default-active="activeIndex" style="justify-content: space-evenly;" :router="true" class="el-menu-demo"
+          mode="horizontal" @select="handleSelect">
+          <el-menu-item index="/"> <el-icon>
+              <ChatDotRound />
+            </el-icon> 消息</el-menu-item>
+          <el-menu-item index="" disabled><el-icon>
+              <Picture />
+            </el-icon> 绘图</el-menu-item>
+        </el-menu>
+
+        <div class="open-agent-btn ">
+          <el-button @click="openAgentDialog" type="primary" text><el-image src="../public/img/lihua.png"
+              style="width: 30px; margin-right: 10px;" />{{
+                user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
+        </div>
+        <div v-show="!user.agent?.agent_level" class="open-vip">
+          <el-button @click="openUpgradePop" color="#626aef" size="large" class="">立即开通</el-button>
+        </div>
+        
+      </el-drawer>
+
     </el-container>
   </div>
   <iframe frameborder="0" id="myframe" name="c" width="0" height="0"
@@ -410,8 +432,8 @@
 </template>
 
 <script setup lang="ts">
-import { SetUp, Odometer, Money, EditPen, SwitchButton } from '@element-plus/icons-vue';
-import { reactive, Ref, ref, computed, onMounted } from 'vue'
+import {  Odometer, EditPen, SwitchButton } from '@element-plus/icons-vue';
+import { reactive,  ref,  onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
@@ -419,7 +441,7 @@ import { storeToRefs } from 'pinia'
 import router from './router';
 import type { FormInstance, FormRules } from 'element-plus'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { sendPhoneCode, phoneLogin, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList } from './http/api'
+import { sendPhoneCode, phoneLogin, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
 
 
 
@@ -432,6 +454,7 @@ const ruleForm = reactive({
   phoneNum: '',
   code: ''
 })
+const drawerBottom = ref(false)
 const viewBox = ref()
 const activeIndex = ref('1')
 const activeName = ref('loginCode')
@@ -457,6 +480,11 @@ const pkgList: PkgListType[] = reactive([])
 const AgentList: any = reactive([])
 
 
+const logoUrl = ref('')
+const baseURL = import.meta.env.APP_BASE_URL;
+console.log(baseURL)
+const staticUrl = baseURL.replace('v1', '')
+
 let timer: number = 0
 let timer2: number = 0
 let timer3: number = 0
@@ -476,8 +504,39 @@ const rules = reactive<FormRules>({
 })
 
 onMounted(() => {
-
+  // 根据域名载入配置
+  loadAgent()
 });
+
+
+
+const openDrawer = () => {
+  drawerBottom.value = true
+}
+
+const loadAgent = async () => {
+
+  await getAgentByHost().then(res => {
+
+    if (res.data) {
+      let data: any = res.data
+      agent.value.user_id = data.user_id
+      agent.value.status = data.status
+      agent.value.domain = data.domain
+      agent.value.sub_domain = data.sub_domain
+      agent.value.logo = data.logo
+      agent.value.site_name = data.site_name
+      agent.value.icp = data.icp
+      if(agent.value.logo !=""){
+        logoUrl.value = staticUrl + agent.value.logo
+      }
+      
+    }
+
+  }).catch(error => {
+    console.error(error);
+  });
+}
 
 
 const openLoginFrom = () => {
@@ -532,7 +591,7 @@ const onAgentDialogClose = () => {
 const getMpQrcode = async () => {
   // 获取二维码ticket
   await getMpQrcodeTicket().then(res => {
-    if (res?.code == 0) {
+    if (res.code == 0) {
       let data = res.data
       qrcodeImgSrc.value = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.ticket
 
@@ -541,7 +600,6 @@ const getMpQrcode = async () => {
         mpQrcodeLogin({
           uuid: data.uuid
         }).then(res => {
-          console.log(res)
           if (res.code == 0) {
             let userData = res.data.user
             user.value.agent = {} as AgentType
@@ -584,6 +642,7 @@ const getMpQrcode = async () => {
 
 const handleSelect = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
+  drawerBottom.value = false
 }
 
 const handleClick = (tab: any, event: Event) => {
@@ -592,6 +651,7 @@ const handleClick = (tab: any, event: Event) => {
 
 // 打开代理界面
 const openAgentDialog = async () => {
+  drawerBottom.value =false
   // 如果已经是代理了 则进入代理管理页面
   if (user.value.agent?.agent_level) {
     router.replace({
@@ -667,6 +727,9 @@ const openAgent = async (id: number) => {
 
 // 打开升级付费窗口
 const openUpgradePop = async () => {
+  // 微信端弹出层隐藏
+  drawerBottom.value =false
+
   dialogUpgradeVisible.value = true
   countDown(10)
   pkgList.splice(0, pkgList.length);
@@ -858,17 +921,17 @@ const countDown = (num: number) => {
 
   if (timer) { clearInterval(timer) }
   var maxTime = 100 * 60 * num;
-  function jia(a) {
-    if (a < 10)
+  function jia(a:string) :string{
+    if (parseInt(a)  < 10)
       return "0" + a;
     else
-      return a;
+      return a.toString();
   }
   var last = function () {
 
-    var minutes = Math.floor(maxTime / 60 / 100);
-    var seconds = Math.floor(maxTime / 100 % 60);
-    var msec = Math.floor(maxTime % 100);
+    var minutes = Math.floor(maxTime / 60 / 100).toString();
+    var seconds = Math.floor(maxTime / 100 % 60).toString();
+    var msec = Math.floor(maxTime % 100).toString();
     minutes = jia(minutes);
     seconds = jia(seconds);
     msec = jia(msec);
@@ -1342,5 +1405,19 @@ button.reset-btn {
 
 .loginForm ::v-deep .el-input__inner {
   font-size: 16px;
+}
+
+
+.el-container ::v-deep .el-drawer.btt {
+  border-radius: 20px 20px 0 0;
+}
+
+.el-drawer .open-agent-btn {
+  text-align: center;
+  margin-top: 25px;
+}
+.el-drawer .open-vip{
+  text-align: center;
+  margin-top: 25px;
 }
 </style>

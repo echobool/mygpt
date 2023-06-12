@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted, getCurrentInstance, inject, watch } from 'vue'
+import { reactive, ref, onMounted} from 'vue'
 import { ValidatePhone, ValidateDomain, ValidateSubDomain } from '../../utils/validate'
 import type { FormInstance, FormRules } from 'element-plus'
 import { sendPhoneCode, postAgentSetting } from '../../http/api'
@@ -67,7 +67,7 @@ import { storeToRefs } from 'pinia'
 
 
 const Global = useGlobalStore()
-const { user, token, agent , curAgent} = storeToRefs(Global)
+const {  curAgent} = storeToRefs(Global)
 
 const sendCodeDisabled = ref(false)
 const sendCodeBtnTxt = ref('发送验证码')

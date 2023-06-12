@@ -1,5 +1,5 @@
 <template>
-    <el-aside width="261px" class="aside hidden-xs-only">
+    <el-aside width="291px" class="aside hidden-xs-only" :class="{'aside-show': showAside }">
 
         <el-scrollbar>
 
@@ -8,8 +8,7 @@
             </el-affix>
 
 
-            <el-menu :default-openeds="['1', '3']"  text-color="#333" @select="chatShow"
-                active-text-color="#111">
+            <el-menu  :default-openeds="['1', '3']" text-color="#333" @select="chatShow" active-text-color="#111">
 
                 <el-menu-item-group v-for="(item, index) in chatList" :key="index" v-show="item.length > 0"
                     :title="getMenuTitle(index)">
@@ -41,7 +40,7 @@
 
             <div class="account-set">
                 <span>
-                    {{user.nickname}}
+                    {{ user.nickname }}
                 </span>
                 <el-tooltip class="box-item" effect="dark" content="对话参数设置" placement="top-start">
                     <el-icon :size="20" @click="openSetDialog">
@@ -53,16 +52,69 @@
         </el-card>
 
     </el-aside>
-    <el-container class="right-container">
+    <el-container @click="showAside= false" class="right-container">
         <el-main id="chatMain">
 
-            <el-row>
-                <el-col>
-                    <div style="display: flex; justify-content: center;">
+            <button @click="openLeftMenu" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
+                <span class="hamburger-1"></span>
+                <span class="hamburger-2"></span>
+                <span class="hamburger-3"></span>
+            </button>
 
-                    </div>
+            <el-row v-show="promptVisible" style="justify-content: center;" class="main-center">
+                <el-col :xs="24" :sm="24" :md="20" :lg="20" :xl="20">
+                    <el-row :gutter="0">
+                        <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+                            <el-card shadow="never">
+                                <div class="prompt">
+                                    <img class="logo" width="80" src="../assets/img/bot3.svg" />
+                                    <h3>方案生成</h3>
+                                    <div @click="selectPrompt" class="item">
+                                        我需要一份健身教程，向读者介绍如何进行某种运动或训练，提供详细的动作和姿势讲解，以及讲解健身原理和营养调配方法。为我撰写这份健身教程。</div>
+                                    <div @click="selectPrompt" class="item">请探讨人类对火星殖民的可能性，分析火星环境和资源条件，并讨论人类如何解决生存和发展的挑战。
+                                    </div>
+                                    <div @click="selectPrompt" class="item">我需要一篇个人陈述，向读者展示我的人生经历、个人成长和未来的规划。</div>
+                                    <div @click="selectPrompt" class="item">
+                                        我希望你能充当一个花哨的标题生成器。我会通过逗号输入关键词，然后你会回复我花哨的标题。我的第一个关键词是API，测试，自动化。</div>
+                                </div>
+                            </el-card>
+                        </el-col>
+                        <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+                            <el-card shadow="never">
+                                <div class="prompt">
+                                    <img class="logo" width="80" src="../assets/img/keyan.svg" />
+                                    <h3>科研帮助</h3>
+                                    <div @click="selectPrompt" class="item">
+                                        我希望你能充当学术论文改进者的角色。请为以下结论提供改进建议，以使其更有说服力、更具深度和逻辑性：{结论}。</div>
+                                    <div @click="selectPrompt" class="item">我希望你能帮助我提升论点清晰度，针对以下观点：{论点}。请提供更清晰、准确和更简洁的表达方式.
+                                    </div>
+                                    <div @click="selectPrompt" class="item">
+                                        我需要一篇调研报告，要求有详细的采集数据、准确的数据分析、深入的市场洞察和有价值的建议。您能够为我撰写这篇调研报告吗？</div>
+                                    <div @click="selectPrompt" class="item">
+                                        我需要一篇实验报告，要求有详细的实验设计、准确的实验数据、客观的实验分析和科学的实验结论。您能够为我撰写这篇实验报告吗？</div>
+                                </div>
+                            </el-card>
+                        </el-col>
+                        <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+                            <el-card shadow="never">
+                                <div class="prompt">
+                                    <img class="logo" width="100" src="../assets/img/yule2.svg" />
+                                    <h3>休闲娱乐</h3>
+                                    <div @click="selectPrompt" class="item">
+                                        请你扮演我妈，用我妈的口气来教育我。骂我，批评我，催我结婚，让我回家。给我讲七大姑八大姨家的孩子都结婚了，为啥就我单身，再给我安排几个相亲对象。</div>
+                                    <div @click="selectPrompt" class="item">请扮演一个酒店前台接待员，帮我办理入住手续。</div>
+                                    <div @click="selectPrompt" class="item">你现在是[公司]的[职位]面试官，请分享在[职位]面试时最常会问的[数字]个问题。</div>
+                                    <div @click="selectPrompt" class="item">
+                                        作为一名营养师，我想为两个人设计一道素食菜谱，每份大约含有500卡路里，并且具有低升糖指数。请提供一些建议好吗？</div>
+                                </div>
+                            </el-card>
+                        </el-col>
+                    </el-row>
                 </el-col>
             </el-row>
+
+
+
             <el-row class="chat-session-list">
                 <el-col :xs="24" :sm="24" :md="20" :lg="18" :xl="17">
 
@@ -70,16 +122,19 @@
 
                 </el-col>
             </el-row>
+
+
         </el-main>
 
 
         <el-footer id="chatFooter">
             <el-row style="justify-content:center; ">
-                <el-col :xs="24" :sm="24" :md="20" :lg="16" :xl="15" style="display: flex; margin-top: 10px; align-items: flex-end;">
+                <el-col :xs="24" :sm="24" :md="20" :lg="16" :xl="15"
+                    style="display: flex; margin-top: 10px; align-items: flex-end;">
 
                     <el-input id="myTextarea" class="inputQuestion" v-model="message" :autosize="{ minRows: 2, maxRows: 8 }"
-                        type="textarea" placeholder="请输入问题" @input="inputChange" :autofocus="true" resize="none"
-                        @keyup.enter="handleEnterKey" />
+                        type="textarea" placeholder="请输入问题，Shift + Enter换行，Enter发送" @input="inputChange" :autofocus="true"
+                        resize="none" @keyup.enter="handleEnterKey" />
 
                     <el-button @click="handleEnterKey" :disabled="!message"
                         style="display: flex; height: 52px; margin-left: 5px; " size="large">发送</el-button>
@@ -107,7 +162,7 @@
                 <el-divider />
                 <div class="text-item">
                     <h5>随机性</h5>
-                    <span>值越大，回复越随机，大于 1 的值可能会导致乱码</span>
+                    <span>值越大, 回复越随机, 大于 1 的值可能会导致乱码</span>
                     <div class="slider-handler">
                         <el-slider v-model="sliderRandom" :min="-2" :max="2" :step="0.1" />
                     </div>
@@ -117,7 +172,7 @@
 
                 <div class="text-item">
                     <h5>话题新鲜度</h5>
-                    <span>值越大，越有可能扩展到新话题</span>
+                    <span>值越大, 越有可能扩展到新话题</span>
                     <div class="slider-handler">
                         <el-slider v-model="sliderFresh" :min="-2" :max="2" :step="0.1" />
                     </div>
@@ -125,7 +180,7 @@
                 <el-divider />
                 <div class="text-item">
                     <h5>重复性</h5>
-                    <span>文本中重复单词和短语的频率，越大越不流畅</span>
+                    <span>文本中重复单词和短语的频率, 越大越不流畅</span>
                     <div class="slider-handler">
                         <el-slider v-model="sliderRepeat" :min="-2" :max="2" :step="0.1" />
                     </div>
@@ -167,16 +222,18 @@ import mdKatex from '@traptitech/markdown-it-katex'
 import mila from 'markdown-it-link-attributes'
 import hljs from 'highlight.js'
 
-import { reactive, ref, computed, watch, onMounted } from 'vue';
+import { reactive, ref,  onMounted } from 'vue';
 import type { Msg } from '../class/Msg'
 import Message from '../components/Message.vue';
 import { createChat, getList, delChat, getChatLog } from '../http/api'
 
 const Global = useGlobalStore()
-const { user, token } = storeToRefs(Global)
+const { user } = storeToRefs(Global)
 const model = ref('gpt-3.5-turbo')
 // 展示设置框状态
 const dialogFormVisible = ref(false)
+const promptVisible = ref(true)
+const showAside = ref(false)
 const sliderRandom = ref(0)
 const sliderFresh = ref(0)
 const sliderRepeat = ref(0)
@@ -194,7 +251,7 @@ const options = [
         label: '  GPT-4',
     },
 ]
-const chatList = reactive({
+const chatList: { today: any[], oneWeekAgo: any[], oneMonthAgo: any[], oneYearAgo: any[] } = reactive({
     today: [],
     oneWeekAgo: [],
     oneMonthAgo: [],
@@ -206,6 +263,12 @@ let chatId: string = ""
 // 模型保存
 const saveModel = (modelV: string) => {
     localStorage.setItem('model', modelV)
+}
+
+// 打开左侧side
+const openLeftMenu = (event:any) => {
+    event.stopPropagation();
+    showAside.value = true
 }
 
 // 打开设置项
@@ -242,16 +305,21 @@ const saveConfig = () => {
     dialogFormVisible.value = false
 }
 
+const selectPrompt = (event:any) => {
+    message.value = ''
+    message.value = event.target.textContent
+    inputChange()
+}
 
 
-function highlightBlock(str: string, lang: string, code: string) {
+function highlightBlock(str: string, lang: string, _code: string) {
     return `<pre class="code-block-wrapper"><div class="code-block-header"><span class="code-block-header__lang">${lang}</span><span class="code-block-header__copy">复制代码</span></div><code class="hljs code-block-body language-${lang}">${str}</code></pre>`
 }
 
 const mdi = new MarkdownIt({
     html: true,
     linkify: true,
-    highlight(code, language) {
+    highlight(code: string, language: string) {
         const validLang = !!(language && hljs.getLanguage(language))
         if (validLang) {
             const lang = language ?? ''
@@ -301,7 +369,8 @@ const handleChatList = (data: any) => {
     const oneMonthAgo = today - 30 * 24 * 60 * 60 * 1000;
     const oneYearAgo = today - 365 * 24 * 60 * 60 * 1000;
 
-    data.forEach(item => {
+
+    data.forEach((item: any) => {
         const createdAt = new Date(item.created_at).getTime();
         // console.log(createdAt)
         // console.log(oneWeekAgo)
@@ -323,6 +392,21 @@ const handleChatList = (data: any) => {
 
 const loadData = async (postData: any) => {
     try {
+
+        let dataValue: string = ""
+        var chatMain = document.getElementById("chatMain");
+        // 先插入聊天框
+
+        messageData.push({
+            id: Math.random.toString(),
+            chat_id: Math.random.toString(),
+            who: "bot",
+            content: data.value,
+            created_time: StandardTime() // 给个当前时间
+        })
+        // 移动滚动条
+        chatMain && (chatMain.scrollTop = chatMain.scrollHeight);
+
         const baseUrl = import.meta.env.APP_BASE_URL
         const response = await fetch(baseUrl + '/chat/log', {
             method: 'post',
@@ -337,16 +421,6 @@ const loadData = async (postData: any) => {
         const reader = (response as any).body.getReader()
 
 
-        messageData.push({
-            id: Math.random.toString(),
-            chat_id: Math.random.toString(),
-            who: "bot",
-            content: data.value,
-            created_time: StandardTime() // 给个当前时间
-        })
-
-        let dataValue: string = ""
-        var chatMain = document.getElementById("chatMain");
 
         while (true) {
             const { done, value } = await reader.read()
@@ -358,7 +432,7 @@ const loadData = async (postData: any) => {
             data.value += dataValue
             messageData[messageData.length - 1].content = mdi.render(data.value)
 
-            chatMain.scrollTop = chatMain.scrollHeight;
+            chatMain && (chatMain.scrollTop = chatMain.scrollHeight);
             // console.log(data)
         }
     } catch {
@@ -367,7 +441,7 @@ const loadData = async (postData: any) => {
 }
 
 
-
+// 发送消息
 const handleEnterKey = async (event: KeyboardEvent) => {
 
     if (message.value.trim() === '') {
@@ -377,13 +451,17 @@ const handleEnterKey = async (event: KeyboardEvent) => {
     }
     // 提交事件
     if (!event.shiftKey && message.value.trim() !== '') {
+        // 隐藏提示词
+        promptVisible.value = false
+
         // 清空接收的暂存消息 防止下次叠加到消息中
         data.value = ""
 
         // 发消息时将滚动条置底
         var chatMain = document.getElementById("chatMain");
-        chatMain.scrollTop = chatMain.scrollHeight;
+        chatMain && (chatMain.scrollTop = chatMain.scrollHeight);
 
+        // 不是新会话的情况
         if (chatId !== "") {
             messageData.push({
                 id: Math.round(1000000).toString(),
@@ -431,26 +509,24 @@ const handleEnterKey = async (event: KeyboardEvent) => {
     }
 }
 
+
+let windowHeight = window.innerHeight;
 // 动态处理输入框高度
 const inputChange = () => {
+
     setTimeout(() => {
-        let windowHeight = window.innerHeight;
-        console.log(windowHeight);
-
-        const textarea = document.querySelector('#myTextarea');
-        const chatMain = document.querySelector('#chatMain');
-        const chatFooter = document.querySelector('#chatFooter');
-
-        // console.log(textarea?.clientHeight)
+        const textarea = document.getElementById('myTextarea');
+        const chatMain = document.getElementById('chatMain');
+        const chatFooter = document.getElementById('chatFooter');
 
         if (textarea?.clientHeight) {
             let inputH = textarea.clientHeight + 21
             let mainH = windowHeight - inputH - 80
 
-            chatFooter.style.height = inputH + 'px';
-            chatMain.style.height = mainH + 'px';
+            chatFooter && (chatFooter.style.height = inputH + 'px');
+            chatMain && (chatMain.style.height = mainH + 'px');
         }
-    }, 10);
+    }, 100);
 }
 
 const getMenuTitle = (index: string) => {
@@ -471,8 +547,13 @@ const getMenuTitle = (index: string) => {
 const newChat = () => {
     // 将当前会话id 置空
     chatId = ""
+    message.value = ''
     // 将当前会话日志清空
     messageData.splice(0, messageData.length);
+    // 展示提示区块
+    promptVisible.value = true
+    //在移动端时关闭左侧菜单
+    showAside.value = false
 }
 
 // 删除聊天记录
@@ -493,16 +574,21 @@ const chatDelete = async (d: string) => {
 // 点击展示聊天日志
 const chatShow = async (id: string) => {
     messageData.splice(0, messageData.length);
-
+    // 隐藏提示区块
+    promptVisible.value = false
+    //在移动端时关闭左侧菜单
+    showAside.value = false
+    // 清空输入框
+    message.value = ''
     await getChatLog({
         "chat_id": id,
     }).then(res => {
         if (res.data) {
             let data = res.data
-            // 给当前chatId赋值，可以继续在这个会话下聊天
+            // 给当前chatId赋值, 可以继续在这个会话下聊天
             chatId = id
 
-            data.forEach(item => {
+            data.forEach((item: { _id: any; chat_id: any; who: string; content: string; created_at: string | undefined; }) => {
                 messageData.push({
                     id: item._id,
                     chat_id: item.chat_id,
@@ -524,11 +610,11 @@ const chatShow = async (id: string) => {
 
 const removeById = (obj: any, id: string) => {
     for (let key in obj) {
-        obj[key] = obj[key].filter(item => item._id !== id);
+        obj[key] = obj[key].filter((item: { _id: string; }) => item._id !== id);
     }
 }
 
-//在setup里边的数据是私有的，需要通过defineExpose暴露给父组件，父组件才可以使用
+//在setup里边的数据是私有的, 需要通过defineExpose暴露给父组件, 父组件才可以使用
 defineExpose({
     loadChatList
 })
@@ -570,7 +656,7 @@ defineExpose({
 }
 
 .aside .el-scrollbar {
-    
+
     height: calc(100vh - 160px);
     background-color: #fff;
 }
@@ -702,7 +788,7 @@ defineExpose({
 }
 
 .new-chat {
-    width: 230px;
+    width: 260px;
     margin: 15px;
     justify-content: start;
     background-color: rgb(241, 245, 249);
@@ -720,5 +806,81 @@ defineExpose({
     justify-content: center;
     align-items: end;
     padding: 15px 0;
+}
+
+
+
+button.reset-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    position: absolute;
+    z-index: 1;
+}
+
+.menu-hamburger {
+    width: 30px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    justify-content: center;
+    height: 30px;
+    margin: 0 14px;
+}
+
+.menu-hamburger>span {
+    background-color: #141414;
+    border-radius: 10px;
+    height: 2px;
+    margin: 2px 0;
+    transition: var(--el-transition-all);
+    width: 100%;
+}
+
+.menu-hamburger>span.hamburger-1 {
+    width: 50%;
+}
+
+.menu-hamburger>span.hamburger-3 {
+    width: 75%;
+}
+
+.el-main .main-center {
+    margin-top: 55px;
+}
+
+.el-main .main-center .el-card {
+    border: 0;
+    background-color: transparent;
+}
+
+.prompt {
+    text-align: center;
+}
+
+.prompt .item {
+    padding: 15px;
+    text-align: left;
+    background-color: #fefefe;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    color: #5a5b64;
+    cursor: pointer;
+    line-height: 160%;
+}
+
+.prompt .item:hover {
+    background-color: #333648;
+    color: #efefef;
+}
+
+
+.aside-show{
+    display: block !important;
+    position: absolute;
+    z-index: 2;
 }
 </style>

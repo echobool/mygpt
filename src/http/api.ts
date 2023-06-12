@@ -81,7 +81,16 @@ export const getAgentData = () => {
     return  axios.get('/agent/')
 }
 
+// 根据域名获取代理商信息
+export const getAgentByHost = () => {
+    return  axios.get('/agent/host')
+}
 
+
+// 获取代理商的收益信息
+export const Income = (params: any) => {
+    return  axios.get('/agent/income', { params })
+}
 
 // 查询二级域名是否被占用
 export const checkSubDomain = (params: any) => {

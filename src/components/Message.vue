@@ -19,9 +19,9 @@ const props = defineProps<{
 const isBot = computed(() => props.data?.who === 'bot');
 const avatar = computed(() => {
   if (props.data?.who === 'bot') {
-    return "/img/ai.png"
+    return "/img/bot2.svg"
   } else {
-    return "/img/avatar.png"
+    return "/img/avatar1.png"
   }
 
 });
