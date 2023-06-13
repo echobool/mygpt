@@ -444,7 +444,7 @@
               style="width: 30px; margin-right: 10px;" />{{
                 user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
         </div>
-        <div v-show="!user.agent?.agent_level" class="open-vip">
+        <div  class="open-vip">
           <el-button @click="openUpgradePop" color="#626aef" size="large" class="">购买额度</el-button>
         </div>
         
