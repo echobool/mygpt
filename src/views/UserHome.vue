@@ -9,14 +9,17 @@
                                 <el-avatar size="large" src="/img/avatar1.svg" />
                             </el-col>
                             <el-col :xs="15" :sm="15" :md="8" :lg="8">
-                                <h3>{{ user.nickname }}<span class="quota">额度 <b>{{ user.quota }}</b></span> </h3>
+                                <h3>{{ user.nickname }}<span class="quota"> 
+                                    <el-tag type="success" class="mx-1" effect="dark">
+                                            {{ user.pkg_name == "" ? "无" : user.pkg_name }}
+                                        </el-tag></span> </h3>
                                 <div>{{ user.phone == "" ? "--" : user.phone }}
-                                
+
                                 </div>
                             </el-col>
                             <el-col :xs="9" :sm="9" :md="6" :lg="6" style="text-align: center;">
-                                <div class="tips">会员等级</div>
-                                <h3>{{ user.pkg_name == "" ? "无" : user.pkg_name }}</h3>
+                                <div class="tips">额度</div>
+                                <h3>{{ user.quota }}</h3>
 
                             </el-col>
                             <el-col :xs="15" :sm="15" :md="6" :lg="6" style="text-align: center;">
@@ -34,7 +37,7 @@
 
             <el-row class="statistic">
                 <el-col :xs="12" :sm="6" :md="6" :lg="6">
-                    <el-statistic title="聊天次数" :value=" user.qa_num ">
+                    <el-statistic title="聊天次数" :value="user.qa_num">
                         <template #suffix>
                             <el-icon style="vertical-align: -0.125em">
                                 <ChatLineRound />
@@ -78,11 +81,11 @@
             </template>
 
             <el-table :data="orderList" size="large" stripe style="width: 100%">
-                <el-table-column fixed prop="order_no" label="订单号" width="250" />
+                <el-table-column fixed prop="order_no" label="订单号" width="150" show-overflow-tooltip />
                 <el-table-column prop="name" label="套餐" width="100" />
                 <!-- <el-table-column prop="genre" label="类型" /> -->
-                <el-table-column prop="expiry_date" label="时长(天)" width="100" />
-                <el-table-column prop="price" label="价格" width="100" />
+                <el-table-column prop="expiry_date" label="到期日期" width="150" :formatter="formatDate"  />
+                <el-table-column prop="price" label="价格" width="80" />
                 <el-table-column label="支付状态" width="100">
                     <template #default="scope">
 
@@ -90,7 +93,8 @@
                         <el-tag type="info" v-if="scope.row.pay_state == 1">未支付</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="number_use" label="额度" width="100" />
+                <el-table-column prop="quota" label="额度" width="100" />
+                <el-table-column prop="residue" label="余额" width="100" />
                 <el-table-column prop="pay_at" label="支付时间" width="150" :formatter="formatDate" />
                 <el-table-column prop="created_at" label="创建时间" width="150" :formatter="formatDate" />
 
@@ -104,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref,  onMounted } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { myOrder, getUserInfo } from '../http/api'
 import { formatDateByTimestamp } from "../utils/DateTime";
 
@@ -189,6 +193,8 @@ const loadMyOrder = async () => {
                     created_at: item.created_at,
                     genre: item.genre,
                     transaction_id: item.transaction_id,
+                    quota: item.quota,
+                    residue: item.residue,
                 })
             })
         }
@@ -232,14 +238,15 @@ const loadMyOrder = async () => {
     margin-bottom: 5px;
 }
 
-.quota{
+.quota {
     font-size: 14px;
     color: #888;
     margin-left: 20px;
 }
+
 .quota b {
     margin-left: 15px;
-    font-size: 18px;
+    font-size: 12px;
     color: #333;
 }
 

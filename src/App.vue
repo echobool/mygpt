@@ -54,21 +54,16 @@
                 popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;">
                 <template #reference>
                   <el-button type="warning" text><el-avatar :size="18" src="/img/diamond.png"
-                      style="" />立即开通</el-button>
+                      style="" />购买额度</el-button>
                 </template>
                 <template #default>
                   <div class="demo-rich-conent" style="display: flex; gap: 16px; flex-direction: column">
-                    <h2 style="color:#000; font-size: 18px; margin-top: 10px;">VIP尊享特权</h2>
+                    <h2 style="color:#000; font-size: 18px; margin-top: 10px;">会员尊享特权</h2>
 
                     <div class="flex-wrap">
 
                       <div class="item">
                         <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/limit.png"
-                          alt="" /> 消息次数无限发送
-                      </div>
-
-                      <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/free.png"
                           alt="" /> 会员专属客服解答
                       </div>
                       <div class="item">
@@ -80,7 +75,7 @@
                           alt="" /> APP版本免费使用
                       </div>
                     </div>
-                    <el-button @click="openUpgradePop" color="#626aef" size="large" class="">立即开通</el-button>
+                    <el-button @click="openUpgradePop" color="#626aef" size="large" class="">购买额度</el-button>
                     <el-text type="info" class="mx-1">平均每年为每个会员节省<span style="color:#9b3002">3288</span>元</el-text>
                   </div>
                 </template>
@@ -204,10 +199,10 @@
       <!-- 升级付费窗口 -->
       <el-dialog class="vipDialog" title="" v-model="dialogUpgradeVisible" @closed="onVipDialogClose" width="750"
         style="border-radius: 10px;">
-        <h1 style="color: black; margin-bottom: 35px;">选择VIP套餐</h1>
+        <h1 style="color: black; margin-bottom: 35px;">选择额度套餐</h1>
 
-        <div class="scroll">
-          <el-space size="large" alignment="flex-start">
+        <div class="scroll hidden-sm-and-down">
+          <el-space size="large" alignment="flex-start" >
             <el-card v-for="(item, index) in pkgList" :class="{ 'card-item-active': selectPkg == item.id }" :key="index"
               shadow="hover" @click="selectPkgEvt(item.id)"
               :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px' }">
@@ -225,6 +220,27 @@
           </el-space>
         </div>
 
+        <div class="scroll-y hidden-md-and-up">
+          <el-row  justify="space-around">
+            <el-col :span="12" v-for="(item, index) in pkgList"  :key="index">
+              <el-card :class="{ 'card-item-active': selectPkg == item.id }"
+              shadow="hover" @click="selectPkgEvt(item.id)"
+              :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px' }">
+
+              <div class="pkg-item">
+                <span v-if="item.recommend == 1" class="tui">推荐</span>
+                <h3>{{ item.name }}</h3>
+                <div class="mid">
+                  <b><i>￥</i>{{ item.price }}</b>
+                  <span>原价￥{{ item.old_price }}</span>
+                </div>
+                <div class="remark">{{ item.remarks }}</div>
+              </div>
+            </el-card>
+            </el-col>
+          </el-row>
+
+        </div>
         <!-- 支付方式 -->
 
         <el-card style="margin-top:10px;" shadow="hover"
@@ -245,17 +261,26 @@
                   plain><el-avatar :size="18" src="/img/alipay.png" style="" /> &nbsp;
                   支付宝支付</el-button> -->
               </div>
-              <div class="pay-info">
+
+              <div class="pay-info hidden-sm-and-down">
                 应付金额 <span>￥<b class="money">{{ selectPkgData.price }}</b></span>
                 <el-tag class="mx-1" type="danger" effect="light">
                   已优惠 ￥{{ selectPkgData.old_price - selectPkgData.price }}
                 </el-tag>
               </div>
-              <div class="pay-remark">
+
+              <div class="pay-remark hidden-sm-and-down">
                 <div class="agreement">支付视为您同意《 <el-link href="https://element-plus.org" target="_blank">会员协议</el-link> 》
                 </div>
                 <div class="pay-time">剩余支付时间： <span>{{ payCountDown }}</span> </div>
               </div>
+
+              <!-- 兼容微信 -->
+              <div class="pay-info-we hidden-md-and-up">
+                <div class="tips">二维码识别支付</div>
+                <div class="pay-time">剩余支付时间： <span>{{ payCountDown }}</span> </div>
+              </div>
+
             </div>
           </div>
 
@@ -420,7 +445,7 @@
                 user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
         </div>
         <div v-show="!user.agent?.agent_level" class="open-vip">
-          <el-button @click="openUpgradePop" color="#626aef" size="large" class="">立即开通</el-button>
+          <el-button @click="openUpgradePop" color="#626aef" size="large" class="">购买额度</el-button>
         </div>
         
       </el-drawer>
@@ -1010,6 +1035,16 @@ body {
   padding-bottom: 20px;
 }
 
+.vipDialog .scroll-y {
+  overflow-y: scroll;
+  padding-bottom: 20px;
+  height: 300px;
+}
+
+.el-container ::v-deep .scroll-y .el-col {
+  padding: 5px !important;
+}
+
 .vipDialog .el-card {
   border: 1px solid #fefefe;
   border-radius: 10px;
@@ -1154,6 +1189,22 @@ body {
 .vipDialog .pay-area .pay-right .pay-remark .pay-time {
   display: inline-flex;
   width: 140px;
+}
+.vipDialog .pay-area .pay-right .pay-info-we .tips{
+  height: 45px;
+  line-height: 45px;
+  text-align: center;
+  display: block;
+  width: 160px;
+  font-size: 16px;
+  color: #333;
+}
+.vipDialog .pay-area .pay-right .pay-info-we .pay-time {
+  text-align: center;
+  display: inline-flex;
+  width: 160px;
+  line-height: 30px;
+  justify-content: space-between;
 }
 
 .vipDialog .pay-area .pay-right .pay-remark .pay-time span {
