@@ -6,7 +6,7 @@
                     <div class="header-card">
                         <el-row :gutter="20">
                             <el-col :xs="9" :sm="9" :md="3" :lg="3">
-                                <el-avatar size="large" src="../public/img/avatar1.svg" />
+                                <el-avatar size="large" src="/img/avatar1.svg" />
                             </el-col>
                             <el-col :xs="15" :sm="15" :md="8" :lg="8">
                                 <h3>{{ user.nickname }}<span class="quota">额度 <b>{{ user.quota }}</b></span> </h3>

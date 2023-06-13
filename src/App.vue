@@ -43,7 +43,7 @@
             </el-menu>
 
             <div class="open-agent-btn hidden-xs-only">
-              <el-button @click="openAgentDialog" type="primary" text><el-image src="../public/img/lihua.png"
+              <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
                   style="width: 30px; margin-right: 10px;" />{{
                     user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
             </div>
@@ -53,7 +53,7 @@
               <el-popover :width="400" popper-class="open-vip-pop"
                 popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;">
                 <template #reference>
-                  <el-button type="warning" text><el-avatar :size="18" src="../public/img/diamond.png"
+                  <el-button type="warning" text><el-avatar :size="18" src="/img/diamond.png"
                       style="" />立即开通</el-button>
                 </template>
                 <template #default>
@@ -63,20 +63,20 @@
                     <div class="flex-wrap">
 
                       <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="../public/img/limit.png"
+                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/limit.png"
                           alt="" /> 消息次数无限发送
                       </div>
 
                       <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="../public/img/free.png"
+                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/free.png"
                           alt="" /> 会员专属客服解答
                       </div>
                       <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="../public/img/update.png"
+                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/update.png"
                           alt="" /> 永久升级免费使用
                       </div>
                       <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="../public/img/free.png"
+                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/free.png"
                           alt="" /> APP版本免费使用
                       </div>
                     </div>
@@ -93,12 +93,12 @@
             <!-- 用户右上区域 -->
             <div class="user-facade">
               <div class="no-login" v-if="!Global.token" @click="openLoginFrom">
-                <el-avatar :size="30" src="./public/img/avatar1.svg" />
+                <el-avatar :size="30" src="/img/avatar1.svg" />
                 {{ username }}
               </div>
               <el-dropdown v-else>
                 <div class="el-dropdown-link">
-                  <el-avatar :size="30" src="./public/img/avatar1.svg" />
+                  <el-avatar :size="30" src="/img/avatar1.svg" />
                   <span class="username">
                     {{ Global.getNickname }}
                   </span>
@@ -116,7 +116,7 @@
 
             </div>
             <button @click="openDrawer" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
-              <el-image  fit="fill" style="width: 30px;" src="../public/img/base.svg"/>
+              <el-image  fit="fill" style="width: 30px;" src="/img/base.svg"/>
             </button>
           </div>
 
@@ -231,7 +231,7 @@
           :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px', }">
           <div class="pay-area">
             <div class="qrcode">
-              <!-- <el-image style="width: 110px; height: 110px" src="../public/img/qrcode_chrome.png"></el-image> -->
+              <!-- <el-image style="width: 110px; height: 110px" src="/img/qrcode_chrome.png"></el-image> -->
               <vue-qr v-show="paymentLogo" :text="qrcodeText" :correctLevel="3" :size="110" :margin="0"
                 colorDark="#000000" colorLight="white" backgroundColor="white" backgroundDimming="white"
                 :logoSrc="paymentLogo" :logoScale=".2" :logoMargin="5" logoBackgroundColor="white"></vue-qr>
@@ -239,10 +239,10 @@
             <div class="pay-right">
               <div class="payment">
                 <el-button @click="changePayment('wechat')" :class="{ 'payment-active': payment == 'wechat' }"
-                  plain><el-avatar :size="18" src="../public/img/wechat.png" style="" /> &nbsp;
+                  plain><el-avatar :size="18" src="/img/wechat.png" style="" /> &nbsp;
                   微信支付</el-button>
                 <!-- <el-button @click="changePayment('alipay')" :class="{ 'payment-active': payment == 'alipay' }"
-                  plain><el-avatar :size="18" src="../public/img/alipay.png" style="" /> &nbsp;
+                  plain><el-avatar :size="18" src="/img/alipay.png" style="" /> &nbsp;
                   支付宝支付</el-button> -->
               </div>
               <div class="pay-info">
@@ -266,7 +266,7 @@
         <!-- <el-card style="margin-top:25px;" shadow="hover"
           :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px', }">
           <div class="pay-card">
-            <el-image style="width: 110px; height: 75px" src="../public/img/card.png"></el-image>
+            <el-image style="width: 110px; height: 75px" src="/img/card.png"></el-image>
             <div class="pay-card-right">
               <h3>卡密支付</h3>
               <div class="card-form">
@@ -393,7 +393,7 @@
         <div class="qrcode" style="text-align: center; height: 150px;">
           <vue-qr v-show="agentQrcodeText" :text="agentQrcodeText" :correctLevel="3" :size="150" :margin="0"
             colorDark="#000000" colorLight="white" backgroundColor="white" backgroundDimming="white"
-            logoSrc="../public/img/wechat.png" :logoScale=".2" :logoMargin="5" logoBackgroundColor="white"></vue-qr>
+            logoSrc="/img/wechat.png" :logoScale=".2" :logoMargin="5" logoBackgroundColor="white"></vue-qr>
         </div>
         <template #footer>
           <span class="dialog-footer">
@@ -415,7 +415,7 @@
         </el-menu>
 
         <div class="open-agent-btn ">
-          <el-button @click="openAgentDialog" type="primary" text><el-image src="../public/img/lihua.png"
+          <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
               style="width: 30px; margin-right: 10px;" />{{
                 user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
         </div>
@@ -953,9 +953,9 @@ const countDown = (num: number) => {
 const genQrcode = (url: string) => {
   qrcodeText.value = url
   if (payment.value == 'wechat') {
-    paymentLogo.value = '../public/img/wechat.png'
+    paymentLogo.value = '/img/wechat.png'
   } else if (payment.value == 'alipay') {
-    paymentLogo.value = '../public/img/alipay.png'
+    paymentLogo.value = '/img/alipay.png'
   }
 
 }
@@ -1021,7 +1021,7 @@ body {
 
 .vipDialog .card-item-active::after {
   content: " ";
-  background-image: url(../public/img/active.png);
+  background-image: url(/img/active.png);
   background-repeat: no-repeat;
 
 }
@@ -1041,7 +1041,7 @@ body {
 
 .vipDialog .pkg-item .tui {
   position: absolute;
-  background-image: url(../public/img/rem.png);
+  background-image: url(/img/rem.png);
   background-repeat: no-repeat;
   background-size: 100% 100%;
   color: #fff;
