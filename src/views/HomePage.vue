@@ -127,7 +127,8 @@
         </el-main>
 
 
-        <el-footer id="chatFooter">
+        <el-footer id="chatFooter" style="position: relative;">
+            <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain style="position: absolute; left: 48%; top:-50px; z-index: 2; border-radius: 10px;"> 停止接收 </el-button>
             <el-row style="justify-content:center; ">
                 <el-col :xs="24" :sm="24" :md="20" :lg="16" :xl="15"
                     style="display: flex; margin-top: 10px; align-items: flex-end;">
@@ -136,7 +137,7 @@
                         type="textarea" placeholder="请输入问题，Shift + Enter换行，Enter发送" @input="inputChange" :autofocus="true"
                         resize="none" @keyup.enter="handleEnterKey" />
 
-                    <el-button @click="handleEnterKey" :disabled="!message"
+                    <el-button @click="handleEnterKey" :disabled="!message && chatOngoing"
                         style="display: flex; height: 52px; margin-left: 5px; " size="large">发送</el-button>
                 </el-col>
             </el-row>
@@ -234,6 +235,7 @@ const model = ref('gpt-3.5-turbo')
 const dialogFormVisible = ref(false)
 const promptVisible = ref(true)
 const showAside = ref(false)
+const chatOngoing = ref(false)
 const sliderRandom = ref(0)
 const sliderFresh = ref(0)
 const sliderRepeat = ref(0)
@@ -257,7 +259,7 @@ const chatList: { today: any[], oneWeekAgo: any[], oneMonthAgo: any[], oneYearAg
     oneMonthAgo: [],
     oneYearAgo: []
 })
-let controller = new AbortController()
+
 let chatId: string = ""
 
 // 模型保存
@@ -361,6 +363,11 @@ const loadChatList = async () => {
     });
 }
 
+let controller = new AbortController()
+const abortChat =()=>{
+    controller.abort()
+    chatOngoing.value=false
+}
 
 //处理加载的会话按一天 7天 30 天 365天
 const handleChatList = (data: any) => {
@@ -368,7 +375,6 @@ const handleChatList = (data: any) => {
     const oneWeekAgo = today - 7 * 24 * 60 * 60 * 1000;
     const oneMonthAgo = today - 30 * 24 * 60 * 60 * 1000;
     const oneYearAgo = today - 365 * 24 * 60 * 60 * 1000;
-
 
     data.forEach((item: any) => {
         const createdAt = new Date(item.created_at).getTime();
@@ -389,14 +395,19 @@ const handleChatList = (data: any) => {
     //console.log(chatList)
 }
 
+const mainScroll = ()=> {
+    var chatMain = document.getElementById("chatMain");
+    chatMain && (chatMain.scrollTop = chatMain.scrollHeight );
+}
 
 const loadData = async (postData: any) => {
     try {
-
+        
         let dataValue: string = ""
-        var chatMain = document.getElementById("chatMain");
+        //显示停止接收按钮
+        chatOngoing.value=true
+        controller = new AbortController()
         // 先插入聊天框
-
         messageData.push({
             id: Math.random.toString(),
             chat_id: Math.random.toString(),
@@ -405,7 +416,7 @@ const loadData = async (postData: any) => {
             created_time: StandardTime() // 给个当前时间
         })
         // 移动滚动条
-        chatMain && (chatMain.scrollTop = chatMain.scrollHeight);
+        mainScroll()
 
         const baseUrl = import.meta.env.APP_BASE_URL
         const response = await fetch(baseUrl + '/chat/log', {
@@ -432,9 +443,12 @@ const loadData = async (postData: any) => {
             data.value += dataValue
             messageData[messageData.length - 1].content = mdi.render(data.value)
 
-            chatMain && (chatMain.scrollTop = chatMain.scrollHeight);
+            mainScroll()
             // console.log(data)
         }
+        // 隐藏停止接收
+        chatOngoing.value=false
+
     } catch {
         console.log('请求失败')
     }
@@ -458,8 +472,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
         data.value = ""
 
         // 发消息时将滚动条置底
-        var chatMain = document.getElementById("chatMain");
-        chatMain && (chatMain.scrollTop = chatMain.scrollHeight);
+        mainScroll()
 
         // 不是新会话的情况
         if (chatId !== "") {

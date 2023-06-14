@@ -68,15 +68,15 @@
                       </div>
                       <div class="item">
                         <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/update.png"
-                          alt="" /> 永久升级免费使用
+                          alt="" /> 不断升级更多功能
                       </div>
                       <div class="item">
                         <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/free.png"
-                          alt="" /> APP版本免费使用
+                          alt="" /> APP版本同步使用
                       </div>
                     </div>
                     <el-button @click="openUpgradePop" color="#626aef" size="large" class="">购买额度</el-button>
-                    <el-text type="info" class="mx-1">平均每年为每个会员节省<span style="color:#9b3002">3288</span>元</el-text>
+                    <!-- <el-text type="info" class="mx-1">平均每年为每个会员节省<span style="color:#9b3002">3288</span>元</el-text> -->
                   </div>
                 </template>
               </el-popover>
