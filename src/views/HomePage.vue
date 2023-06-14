@@ -128,7 +128,7 @@
 
 
         <el-footer id="chatFooter" style="position: relative;">
-            <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain style="position: absolute; left: 48%; top:-50px; z-index: 2; border-radius: 10px;"> 停止接收 </el-button>
+            <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain class="abort-chat-btn"> 停止接收 </el-button>
             <el-row style="justify-content:center; ">
                 <el-col :xs="24" :sm="24" :md="20" :lg="16" :xl="15"
                     style="display: flex; margin-top: 10px; align-items: flex-end;">
@@ -137,7 +137,7 @@
                         type="textarea" placeholder="请输入问题，Shift + Enter换行，Enter发送" @input="inputChange" :autofocus="true"
                         resize="none" @keyup.enter="handleEnterKey" />
 
-                    <el-button @click="handleEnterKey" :disabled="!message && chatOngoing"
+                    <el-button @click="handleEnterKey" :disabled="!message || chatOngoing"
                         style="display: flex; height: 52px; margin-left: 5px; " size="large">发送</el-button>
                 </el-col>
             </el-row>
@@ -650,12 +650,19 @@ defineExpose({
             width: 100% !important;
             text-align: center;
         }
+        ::v-deep  .abort-chat-btn{
+        position: absolute; left: 36%; top:-50px; z-index: 2; border-radius: 10px;
+    }
 
         .el-select {
             width: 100%;
         }
     }
+    
+}
 
+.abort-chat-btn{
+    position: absolute; left: 48%; top:-50px; z-index: 2; border-radius: 10px;
 }
 
 .el-container {

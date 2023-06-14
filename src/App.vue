@@ -13,14 +13,14 @@
 
             </a>
             <span style="position: relative; font-weight: bold; margin-left: 10px; margin-top: -5px; font-size: 22px;">
-              {{ agent.site_name ? agent.site_name : '字节点点AI' }}
+              {{ agent.site_name ? agent.site_name : siteName }}
             </span>
           </div>
           <div class="content">
 
             <el-menu :default-active="activeIndex" :router="true" class="el-menu-demo hidden-xs-only" mode="horizontal"
               @select="handleSelect">
-              <el-menu-item index="/"> <el-icon>
+              <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
                   <ChatDotRound />
                 </el-icon> 消息</el-menu-item>
               <el-menu-item index="" disabled><el-icon>
@@ -506,8 +506,9 @@ const AgentList: any = reactive([])
 
 
 const logoUrl = ref('')
+const siteName = ref('')
 const baseURL = import.meta.env.APP_BASE_URL;
-console.log(baseURL)
+siteName.value = import.meta.env.APP_SITE_NAME;
 const staticUrl = baseURL.replace('v1', '')
 
 let timer: number = 0
