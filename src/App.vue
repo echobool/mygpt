@@ -48,13 +48,12 @@
                     user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
             </div>
             <!-- 立即开通会员升级 -->
-            <div v-show="!user.agent?.agent_level" class="open-vip-btn hidden-xs-only">
+            <div class="open-vip-btn hidden-xs-only">
 
               <el-popover :width="400" popper-class="open-vip-pop"
                 popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;">
                 <template #reference>
-                  <el-button type="warning" text><el-avatar :size="18" src="/img/diamond.png"
-                      style="" />购买额度</el-button>
+                  <el-button type="warning" text><el-avatar :size="18" src="/img/diamond.png" style="" />购买额度</el-button>
                 </template>
                 <template #default>
                   <div class="demo-rich-conent" style="display: flex; gap: 16px; flex-direction: column">
@@ -63,16 +62,16 @@
                     <div class="flex-wrap">
 
                       <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/limit.png"
-                          alt="" /> 会员专属客服解答
+                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/limit.png" alt="" />
+                        会员专属客服解答
                       </div>
                       <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/update.png"
-                          alt="" /> 不断升级更多功能
+                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/update.png" alt="" />
+                        不断升级更多功能
                       </div>
                       <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/free.png"
-                          alt="" /> APP版本同步使用
+                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/free.png" alt="" />
+                        APP版本同步使用
                       </div>
                     </div>
                     <el-button @click="openUpgradePop" color="#626aef" size="large" class="">购买额度</el-button>
@@ -93,7 +92,7 @@
               </div>
               <el-dropdown v-else>
                 <div class="el-dropdown-link">
-                  <el-avatar :size="30" src="/img/avatar1.svg" />
+                  <el-avatar :size="30" :src="user.avatar ? user.avatar : '/img/avatar1.svg'" />
                   <span class="username">
                     {{ Global.getNickname }}
                   </span>
@@ -111,7 +110,7 @@
 
             </div>
             <button @click="openDrawer" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
-              <el-image  fit="fill" style="width: 30px;" src="/img/base.svg"/>
+              <el-image fit="fill" style="width: 30px;" src="/img/base.svg" />
             </button>
           </div>
 
@@ -125,7 +124,7 @@
 
       <el-container>
         <router-view v-slot="{ Component }">
-          <component ref="viewBox" :is="Component" />
+          <component :openLoginFrom="openLoginFrom" ref="viewBox" :is="Component" />
         </router-view>
 
       </el-container>
@@ -136,10 +135,10 @@
       <!-- 登录窗口 -->
       <el-dialog class="loginDialog" v-model="dialogFormVisible" width="480" @opened="getMpQrcode"
         @closed="closeLoginDialog" style="border-radius: 10px;" title="">
-        <h1 style="text-align: center;color: black;">欢迎来到 BYTE AI</h1>
+        <h1 style="text-align: center;color: black;">欢迎来到 {{ agent.site_name ? agent.site_name : siteName }}</h1>
 
-        <div style="display: block;width: 100%;text-align: center; line-height: 30px;">升级VIP会员权益：消息次数无限发送; 会员专属客服解答;
-          永久升级免费使用; APP版本免费使用。</div>
+        <div style="display: block;width: 100%;text-align: center; color: coral; font-size: 16px; line-height: 30px;">
+          登录就赠送免费聊天额度</div>
 
         <el-tabs style="margin-top: 30px;" v-model="activeName" class="demo-tabs" @tab-click="handleClick">
           <el-tab-pane label="微信扫码登录" name="loginCode">
@@ -202,7 +201,7 @@
         <h1 style="color: black; margin-bottom: 35px;">选择额度套餐</h1>
 
         <div class="scroll hidden-sm-and-down">
-          <el-space size="large" alignment="flex-start" >
+          <el-space size="large" alignment="flex-start">
             <el-card v-for="(item, index) in pkgList" :class="{ 'card-item-active': selectPkg == item.id }" :key="index"
               shadow="hover" @click="selectPkgEvt(item.id)"
               :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px' }">
@@ -221,22 +220,21 @@
         </div>
 
         <div class="scroll-y hidden-md-and-up">
-          <el-row  justify="space-around">
-            <el-col :span="12" v-for="(item, index) in pkgList"  :key="index">
-              <el-card :class="{ 'card-item-active': selectPkg == item.id }"
-              shadow="hover" @click="selectPkgEvt(item.id)"
-              :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px' }">
+          <el-row justify="space-around">
+            <el-col :span="12" v-for="(item, index) in pkgList" :key="index">
+              <el-card :class="{ 'card-item-active': selectPkg == item.id }" shadow="hover" @click="selectPkgEvt(item.id)"
+                :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px' }">
 
-              <div class="pkg-item">
-                <span v-if="item.recommend == 1" class="tui">推荐</span>
-                <h3>{{ item.name }}</h3>
-                <div class="mid">
-                  <b><i>￥</i>{{ item.price }}</b>
-                  <span>原价￥{{ item.old_price }}</span>
+                <div class="pkg-item">
+                  <span v-if="item.recommend == 1" class="tui">推荐</span>
+                  <h3>{{ item.name }}</h3>
+                  <div class="mid">
+                    <b><i>￥</i>{{ item.price }}</b>
+                    <span>原价￥{{ item.old_price }}</span>
+                  </div>
+                  <div class="remark">{{ item.remarks }}</div>
                 </div>
-                <div class="remark">{{ item.remarks }}</div>
-              </div>
-            </el-card>
+              </el-card>
             </el-col>
           </el-row>
 
@@ -245,7 +243,7 @@
 
         <el-card style="margin-top:10px;" shadow="hover"
           :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px', }">
-          <div class="pay-area">
+          <div class="pay-area hidden-sm-and-down">
             <div class="qrcode">
               <!-- <el-image style="width: 110px; height: 110px" src="/img/qrcode_chrome.png"></el-image> -->
               <vue-qr v-show="paymentLogo" :text="qrcodeText" :correctLevel="3" :size="110" :margin="0"
@@ -262,31 +260,27 @@
                   支付宝支付</el-button> -->
               </div>
 
-              <div class="pay-info hidden-sm-and-down">
+              <div class="pay-info ">
                 应付金额 <span>￥<b class="money">{{ selectPkgData.price }}</b></span>
                 <el-tag class="mx-1" type="danger" effect="light">
                   已优惠 ￥{{ selectPkgData.old_price - selectPkgData.price }}
                 </el-tag>
               </div>
 
-              <div class="pay-remark hidden-sm-and-down">
+              <div class="pay-remark ">
                 <div class="agreement">支付视为您同意《 <el-link href="https://element-plus.org" target="_blank">会员协议</el-link> 》
                 </div>
                 <div class="pay-time">剩余支付时间： <span>{{ payCountDown }}</span> </div>
               </div>
-
-              <!-- 兼容微信 -->
-              <div class="pay-info-we hidden-md-and-up">
-                <div class="tips">二维码识别支付</div>
-                <div class="pay-time">剩余支付时间： <span>{{ payCountDown }}</span> </div>
-              </div>
-
             </div>
           </div>
-
         </el-card>
 
-
+        <!-- jsapi 支付 -->
+        <div class="pay-area-jsapi hidden-md-and-up" style="background-color: #fff;padding: 0; ">
+          <el-button @click="onJsapiPay" :loading="JsapiPayBtnLoad" size="large" style="width: 100%;"
+            type="primary">微信支付</el-button>
+        </div>
 
         <!-- <el-card style="margin-top:25px;" shadow="hover"
           :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px', }">
@@ -344,7 +338,8 @@
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ tongPaiData.price }}</b> </div>
               <div class="agent-old-price"> <span>原价(随时恢复) </span>￥{{ tongPaiData.old_price }} </div>
-              <el-button @click="openAgent(tongPaiData.id)" size="large" type="primary">立即开通</el-button>
+              <el-button @click="openAgent(tongPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
+                type="primary">立即开通</el-button>
             </div>
 
           </el-col>
@@ -373,7 +368,8 @@
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ yinPaiData.price }}</b> </div>
               <div class="agent-old-price"> <span>原价(随时恢复) </span>￥{{ yinPaiData.old_price }} </div>
-              <el-button @click="openAgent(yinPaiData.id)" size="large" type="primary">立即开通</el-button>
+              <el-button @click="openAgent(yinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
+                type="primary">立即开通</el-button>
             </div>
           </el-col>
           <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
@@ -401,7 +397,8 @@
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ jinPaiData.price }}</b> </div>
               <div class="agent-old-price"> <span>原价(随时恢复) </span>￥{{ jinPaiData.old_price }} </div>
-              <el-button @click="openAgent(jinPaiData.id)" size="large" type="primary">立即开通</el-button>
+              <el-button @click="openAgent(jinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
+                type="primary">立即开通</el-button>
             </div>
           </el-col>
         </el-row>
@@ -444,10 +441,10 @@
               style="width: 30px; margin-right: 10px;" />{{
                 user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
         </div>
-        <div  class="open-vip">
+        <div class="open-vip">
           <el-button @click="openUpgradePop" color="#626aef" size="large" class="">购买额度</el-button>
         </div>
-        
+
       </el-drawer>
 
     </el-container>
@@ -457,8 +454,8 @@
 </template>
 
 <script setup lang="ts">
-import {  Odometer, EditPen, SwitchButton } from '@element-plus/icons-vue';
-import { reactive,  ref,  onMounted } from 'vue'
+import { Odometer, EditPen, SwitchButton } from '@element-plus/icons-vue';
+import { reactive, ref, onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
@@ -466,7 +463,7 @@ import { storeToRefs } from 'pinia'
 import router from './router';
 import type { FormInstance, FormRules } from 'element-plus'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { sendPhoneCode, phoneLogin, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
+import { sendPhoneCode, jsapiPay, phoneLogin, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
 
 
 
@@ -483,12 +480,13 @@ const drawerBottom = ref(false)
 const viewBox = ref()
 const activeIndex = ref('1')
 const activeName = ref('loginCode')
-const username = ref('立即登录')
+const username = ref('登录送额度')
 const dialogFormVisible = ref(false)
 const dialogUpgradeVisible = ref(false)
 const agentDialogVisible = ref(false)
 const agentPayDialogVisible = ref(false)
 const sendCodeDisabled = ref(false)
+const JsapiPayBtnLoad = ref(false)
 const sendCodeBtnTxt = ref('发送验证码')
 const payCountDown = ref('10:00:00')
 const qrcodeText = ref('')
@@ -532,6 +530,7 @@ const rules = reactive<FormRules>({
 onMounted(() => {
   // 根据域名载入配置
   loadAgent()
+
 });
 
 
@@ -553,10 +552,10 @@ const loadAgent = async () => {
       agent.value.logo = data.logo
       agent.value.site_name = data.site_name
       agent.value.icp = data.icp
-      if(agent.value.logo !=""){
+      if (agent.value.logo != "") {
         logoUrl.value = staticUrl + agent.value.logo
       }
-      
+
     }
 
   }).catch(error => {
@@ -574,9 +573,8 @@ const openLoginFrom = () => {
   } else {
     dialogFormVisible.value = true
   }
-
-
 }
+
 
 const closeLoginDialog = () => {
   qrcodeImgSrc.value = ""
@@ -632,6 +630,7 @@ const getMpQrcode = async () => {
             // 存入状态管理
             user.value.id = userData.id
             user.value.nickname = userData.nickname
+            user.value.avatar = userData.avatar
             user.value.email = userData.email
             user.value.phone = userData.phone
             user.value.status = userData.state
@@ -677,7 +676,14 @@ const handleClick = (tab: any, event: Event) => {
 
 // 打开代理界面
 const openAgentDialog = async () => {
-  drawerBottom.value =false
+
+  if (Global.token == "") {
+    openLoginFrom()
+    return
+  }
+
+
+  drawerBottom.value = false
   // 如果已经是代理了 则进入代理管理页面
   if (user.value.agent?.agent_level) {
     router.replace({
@@ -717,6 +723,13 @@ const openAgentDialog = async () => {
 
 // 开通代理付费窗口 并展示二维码
 const openAgent = async (id: number) => {
+  // 如果是微信浏览器 则使用jsapi支付
+  if (isWeixinBrowser()) {
+    JsapiPayBtnLoad.value = true
+    toJsapiPay(id)
+    return
+  }
+
   payment.value = 'wechat'
   agentPayDialogVisible.value = true
   agentQrcodeText.value = ''
@@ -753,8 +766,14 @@ const openAgent = async (id: number) => {
 
 // 打开升级付费窗口
 const openUpgradePop = async () => {
+
+  if (Global.token == "") {
+    // 弹出登录窗口
+    openLoginFrom()
+    return
+  }
   // 微信端弹出层隐藏
-  drawerBottom.value =false
+  drawerBottom.value = false
 
   dialogUpgradeVisible.value = true
   countDown(10)
@@ -814,8 +833,36 @@ const changePayment = (pay: string) => {
   requestPay()
 }
 
+let url = window.location.href
+const onJsapiPay = () => {
+  // 将按钮状态置为加载状态
+  JsapiPayBtnLoad.value = true
+  toJsapiPay(selectPkg.value)
+}
+const toJsapiPay = async (pkgId: number) => {
+  await jsapiPay({
+    package_id: pkgId
+  }).then(res => {
+    if (res.code == 0) {
+      let prepay_id = res.data.prepay_id
+      //跳转支付页面
+      location.href = baseURL + '/wxpay/jsapi?prepay_id=' + prepay_id + '&redirect_url=' + url + '&agent_id=' + agent.value.user_id
+    }
+    console.log(res);
+
+  }).catch(err => {
+    console.log(err);
+
+  })
+}
+
 // 向后台发起支付方式并返回支付信息
 const requestPay = async () => {
+  // 如果在微信端调用jsapi支付方式
+  if (isWeixinBrowser()) {
+    return
+  }
+
   paymentLogo.value = ''
 
   await payInfo({
@@ -899,6 +946,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           // 存入状态管理
           user.value.id = userData.id
           user.value.nickname = userData.nickname
+          user.value.avatar = userData.avatar
           user.value.email = userData.email
           user.value.phone = userData.phone
           user.value.status = userData.state
@@ -947,8 +995,8 @@ const countDown = (num: number) => {
 
   if (timer) { clearInterval(timer) }
   var maxTime = 100 * 60 * num;
-  function jia(a:string) :string{
-    if (parseInt(a)  < 10)
+  function jia(a: string): string {
+    if (parseInt(a) < 10)
       return "0" + a;
     else
       return a.toString();
@@ -1039,7 +1087,7 @@ body {
 .vipDialog .scroll-y {
   overflow-y: scroll;
   padding-bottom: 20px;
-  height: 300px;
+  height: 400px;
 }
 
 .el-container ::v-deep .scroll-y .el-col {
@@ -1191,7 +1239,8 @@ body {
   display: inline-flex;
   width: 140px;
 }
-.vipDialog .pay-area .pay-right .pay-info-we .tips{
+
+.vipDialog .pay-area .pay-right .pay-info-we .tips {
   height: 45px;
   line-height: 45px;
   text-align: center;
@@ -1200,6 +1249,7 @@ body {
   font-size: 16px;
   color: #333;
 }
+
 .vipDialog .pay-area .pay-right .pay-info-we .pay-time {
   text-align: center;
   display: inline-flex;
@@ -1367,8 +1417,8 @@ body {
   justify-content: end;
   align-items: center;
   flex-grow: 1;
-  padding-right: 15px;
-  width: 130px;
+  padding-right: 0;
+  width: 120px;
   font-size: 14px;
   color: #5f6164;
   cursor: pointer;
@@ -1468,8 +1518,8 @@ button.reset-btn {
   text-align: center;
   margin-top: 25px;
 }
-.el-drawer .open-vip{
+
+.el-drawer .open-vip {
   text-align: center;
   margin-top: 25px;
-}
-</style>
+}</style>

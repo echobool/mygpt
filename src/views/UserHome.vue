@@ -5,10 +5,10 @@
                 <div class="card-header">
                     <div class="header-card">
                         <el-row :gutter="20">
-                            <el-col :xs="9" :sm="9" :md="3" :lg="3">
-                                <el-avatar size="large" src="/img/avatar1.svg" />
+                            <el-col :xs="8" :sm="8" :md="3" :lg="3" style="text-align: center;">
+                                <el-avatar size="large" :src=" user.avatar? user.avatar:'/img/avatar1.svg'" />
                             </el-col>
-                            <el-col :xs="15" :sm="15" :md="8" :lg="8">
+                            <el-col :xs="16" :sm="16" :md="8" :lg="8">
                                 <h3>{{ user.nickname }}<span class="quota"> 
                                     <el-tag type="success" class="mx-1" effect="dark">
                                             {{ user.pkg_name == "" ? "无" : user.pkg_name }}
@@ -17,12 +17,12 @@
 
                                 </div>
                             </el-col>
-                            <el-col :xs="9" :sm="9" :md="6" :lg="6" style="text-align: center;">
+                            <el-col :xs="8" :sm="8" :md="6" :lg="6" style="text-align: center;">
                                 <div class="tips">额度</div>
                                 <h3>{{ user.quota }}</h3>
 
                             </el-col>
-                            <el-col :xs="15" :sm="15" :md="6" :lg="6" style="text-align: center;">
+                            <el-col :xs="16" :sm="16" :md="6" :lg="6" style="text-align: center;">
                                 <div class="tips">过期时间</div>
                                 <h3>{{ user.expiry_date == "" ? "--" : formatDateByTimestamp(user.expiry_date) }}</h3>
                             </el-col>
@@ -134,6 +134,7 @@ const loadUserInfo = async () => {
         if (res.data) {
             let data = res.data
             user.nickname = data.nickname
+            user.avatar = data.avatar
             user.pkg_name = data.pkg_name
             user.expiry_date = data.expiry_date
             user.qa_num = data.qa_num
@@ -209,6 +210,17 @@ const loadMyOrder = async () => {
 
 
 <style lang="scss" scoped>
+
+@media only screen and (max-width: 576px) {
+    .el-container ::v-deep .header-card{
+        margin-bottom: 0;
+    }
+  .el-container ::v-deep .header-card .el-col {
+    margin-bottom: 15px;
+
+  }
+}
+
 .el-container {
     display: block;
 }
@@ -223,7 +235,7 @@ const loadMyOrder = async () => {
 }
 
 .header-card {
-    margin: 20px 30px;
+    margin: 20px 20px;
     text-align: left;
 }
 

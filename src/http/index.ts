@@ -53,7 +53,7 @@ axios.interceptors.response.use(
                 // token 验证失败 处理用户重新登录
                 if (code == 1006) {
                     store.setToken('')
-                    const msg = "登录过期，请重新登录"
+                    const msg = "请登录"
                     ElMessage.error(`Code: ${code},  ${msg}`);
                     return Promise.reject(response.data);
                 }

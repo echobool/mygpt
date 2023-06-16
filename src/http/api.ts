@@ -119,3 +119,10 @@ export const openIdLogin = (data: any) => {
 export const getUserInfo = () => {
     return  axios.get('/user/info')
 }
+
+
+
+// jsapi支付
+export const jsapiPay = (data: any) => {
+    return  axios.post('/order/jsapi', data)
+}

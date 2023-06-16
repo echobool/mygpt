@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive,  ref,  onMounted } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { getAgentData } from '../../http/api'
 import { useGlobalStore } from '../../store'
 import { storeToRefs } from 'pinia'
@@ -92,7 +92,7 @@ import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps } from 'element-plus'
 
 const Global = useGlobalStore()
-const { token,  curAgent } = storeToRefs(Global)
+const { token, curAgent } = storeToRefs(Global)
 const agentData: AgentType = reactive({} as AgentType)
 
 const imageUrl = ref('')
@@ -161,7 +161,7 @@ const loadAgent = async () => {
             agentData.total_revenue = data.total_revenue
             agentData.extracted_money = data.extracted_money
             agentData.phone = data.phone
-            imageUrl.value = staticUrl + data.logo
+            imageUrl.value = data.logo ? staticUrl + data.logo : ""
 
             curAgent.value = agentData
             console.log(data)

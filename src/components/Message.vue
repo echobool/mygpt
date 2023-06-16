@@ -9,6 +9,8 @@
   
 <script setup lang="ts">
 import { ref, Ref, computed, watch } from 'vue';
+import { useGlobalStore } from '../store'
+const Global = useGlobalStore()
 import type { Msg } from '../class/Msg';
 import '../assets/css/md.css'
 
@@ -21,7 +23,7 @@ const avatar = computed(() => {
   if (props.data?.who === 'bot') {
     return "/img/bot2.svg"
   } else {
-    return "/img/avatar1.png"
+    return Global.user.avatar ? Global.user.avatar : "/img/avatar1.png"
   }
 
 });

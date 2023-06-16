@@ -26,7 +26,7 @@
             </el-alert>
             <el-form-item label="二级域名" prop="sub_domain">
                 <el-input v-model="ruleForm.sub_domain" size="large" input-style="width:80px">
-                    <template #append><span>.bytedots.cn</span> </template>
+                    <template #append><span>{{subDmain}}</span> </template>
                 </el-input>
             </el-form-item>
             <el-form-item label="备案号" prop="icp">
@@ -64,6 +64,7 @@ import { sendPhoneCode, postAgentSetting } from '../../http/api'
 import router from '../../router';
 import { useGlobalStore } from '../../store'
 import { storeToRefs } from 'pinia'
+const subDmain = import.meta.env.APP_SUB_DOMAIN;
 
 
 const Global = useGlobalStore()

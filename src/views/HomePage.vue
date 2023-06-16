@@ -1,5 +1,5 @@
 <template>
-    <el-aside width="291px" class="aside hidden-xs-only" :class="{'aside-show': showAside }">
+    <el-aside width="291px" class="aside hidden-xs-only" :class="{ 'aside-show': showAside }">
 
         <el-scrollbar>
 
@@ -8,7 +8,7 @@
             </el-affix>
 
 
-            <el-menu  :default-openeds="['1', '3']" text-color="#333" @select="chatShow" active-text-color="#111">
+            <el-menu :default-openeds="['1', '3']" text-color="#333" @select="chatShow" active-text-color="#111">
 
                 <el-menu-item-group v-for="(item, index) in chatList" :key="index" v-show="item.length > 0"
                     :title="getMenuTitle(index)">
@@ -40,7 +40,7 @@
 
             <div class="account-set">
                 <span>
-                    {{ user.nickname }}
+                    聊天设置
                 </span>
                 <el-tooltip class="box-item" effect="dark" content="对话参数设置" placement="top-start">
                     <el-icon :size="20" @click="openSetDialog">
@@ -52,14 +52,10 @@
         </el-card>
 
     </el-aside>
-    <el-container @click="showAside= false" class="right-container">
+    <el-container @click="showAside = false" class="right-container">
         <el-main id="chatMain">
 
-            <button @click="openLeftMenu" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
-                <span class="hamburger-1"></span>
-                <span class="hamburger-2"></span>
-                <span class="hamburger-3"></span>
-            </button>
+
 
             <el-row v-show="promptVisible" style="justify-content: center;" class="main-center">
                 <el-col :xs="24" :sm="24" :md="20" :lg="20" :xl="20">
@@ -128,17 +124,26 @@
 
 
         <el-footer id="chatFooter" style="position: relative;">
-            <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain class="abort-chat-btn"> 停止接收 </el-button>
+            <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain class="abort-chat-btn">
+                停止接收 </el-button>
             <el-row style="justify-content:center; ">
                 <el-col :xs="24" :sm="24" :md="20" :lg="16" :xl="15"
-                    style="display: flex; margin-top: 10px; align-items: flex-end;">
+                    style="display: flex; position: relative; margin-top: 10px; align-items: flex-end;">
+
+                    <button @click="openLeftMenu" class="reset-btn menu-hamburger hamburger hidden-sm-and-up"
+                        aria-label="移动端导航">
+                        <span class="hamburger-1"></span>
+                        <span class="hamburger-2"></span>
+                        <span class="hamburger-3"></span>
+                    </button>
 
                     <el-input id="myTextarea" class="inputQuestion" v-model="message" :autosize="{ minRows: 2, maxRows: 8 }"
                         type="textarea" placeholder="请输入问题，Shift + Enter换行，Enter发送" @input="inputChange" :autofocus="true"
-                        resize="none" @keyup.enter="handleEnterKey" />
-
+                        resize="none" @keyup.enter="handleEnterKey">
+                    </el-input>
                     <el-button @click="handleEnterKey" :disabled="!message || chatOngoing"
-                        style="display: flex; height: 52px; margin-left: 5px; " size="large">发送</el-button>
+                        style=" position: absolute; right: 10px; bottom: 7px; height: 40px; padding: 0; border: 0; color: rgb(116, 152, 218); background-color: transparent;" size="large"><el-icon size="30"><Promotion /></el-icon></el-button>
+
                 </el-col>
             </el-row>
 
@@ -216,20 +221,19 @@
 import { Plus } from '@element-plus/icons-vue';
 import { InfoFilled } from '@element-plus/icons-vue'
 import { StandardTime } from '../utils/DateTime'
-import { storeToRefs } from 'pinia'
 import { useGlobalStore } from '../store'
 import MarkdownIt from 'markdown-it'
 import mdKatex from '@traptitech/markdown-it-katex'
 import mila from 'markdown-it-link-attributes'
 import hljs from 'highlight.js'
 
-import { reactive, ref,  onMounted } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import type { Msg } from '../class/Msg'
 import Message from '../components/Message.vue';
 import { createChat, getList, delChat, getChatLog } from '../http/api'
 
+
 const Global = useGlobalStore()
-const { user } = storeToRefs(Global)
 const model = ref('gpt-3.5-turbo')
 // 展示设置框状态
 const dialogFormVisible = ref(false)
@@ -260,6 +264,12 @@ const chatList: { today: any[], oneWeekAgo: any[], oneMonthAgo: any[], oneYearAg
     oneYearAgo: []
 })
 
+const props = defineProps<{
+    openLoginFrom: Function
+}>();
+
+
+
 let chatId: string = ""
 
 // 模型保存
@@ -268,7 +278,7 @@ const saveModel = (modelV: string) => {
 }
 
 // 打开左侧side
-const openLeftMenu = (event:any) => {
+const openLeftMenu = (event: any) => {
     event.stopPropagation();
     showAside.value = true
 }
@@ -307,7 +317,7 @@ const saveConfig = () => {
     dialogFormVisible.value = false
 }
 
-const selectPrompt = (event:any) => {
+const selectPrompt = (event: any) => {
     message.value = ''
     message.value = event.target.textContent
     inputChange()
@@ -339,6 +349,7 @@ mdi.use(mdKatex, { blockClass: 'katex-block', errorColor: ' #cc0000', output: 'm
 onMounted(() => {
     let _model = localStorage.getItem('model')
     model.value = _model ? _model : 'gpt-3.5-turbo'
+
     // 加载聊天列表
     loadChatList()
 
@@ -347,6 +358,9 @@ onMounted(() => {
 
 // 加载聊天列表
 const loadChatList = async () => {
+    if (Global.token == "") {
+        return
+    }
     await getList({
         "page_size": 20,
         "page": 1,
@@ -364,9 +378,9 @@ const loadChatList = async () => {
 }
 
 let controller = new AbortController()
-const abortChat =()=>{
+const abortChat = () => {
     controller.abort()
-    chatOngoing.value=false
+    chatOngoing.value = false
 }
 
 //处理加载的会话按一天 7天 30 天 365天
@@ -395,17 +409,14 @@ const handleChatList = (data: any) => {
     //console.log(chatList)
 }
 
-const mainScroll = ()=> {
-    var chatMain = document.getElementById("chatMain");
-    chatMain && (chatMain.scrollTop = chatMain.scrollHeight );
-}
+
 
 const loadData = async (postData: any) => {
     try {
-        
+
         let dataValue: string = ""
         //显示停止接收按钮
-        chatOngoing.value=true
+        chatOngoing.value = true
         controller = new AbortController()
         // 先插入聊天框
         messageData.push({
@@ -432,7 +443,6 @@ const loadData = async (postData: any) => {
         const reader = (response as any).body.getReader()
 
 
-
         while (true) {
             const { done, value } = await reader.read()
             if (done) {
@@ -447,7 +457,7 @@ const loadData = async (postData: any) => {
             // console.log(data)
         }
         // 隐藏停止接收
-        chatOngoing.value=false
+        chatOngoing.value = false
 
     } catch {
         console.log('请求失败')
@@ -457,6 +467,11 @@ const loadData = async (postData: any) => {
 
 // 发送消息
 const handleEnterKey = async (event: KeyboardEvent) => {
+    if (Global.token == "") {
+        //弹出登录界面
+        props.openLoginFrom()
+        return
+    }
 
     if (message.value.trim() === '') {
         message.value = ''
@@ -522,6 +537,10 @@ const handleEnterKey = async (event: KeyboardEvent) => {
     }
 }
 
+const mainScroll = () => {
+    var chatMain = document.getElementById("chatMain");
+    chatMain && (chatMain.scrollTop = chatMain.scrollHeight);
+}
 
 let windowHeight = window.innerHeight;
 // 动态处理输入框高度
@@ -533,10 +552,10 @@ const inputChange = () => {
         const chatFooter = document.getElementById('chatFooter');
 
         if (textarea?.clientHeight) {
-            let inputH = textarea.clientHeight + 21
-            let mainH = windowHeight - inputH - 80
+            let inputH = textarea.clientHeight 
+            let mainH = windowHeight - inputH - 88
 
-            chatFooter && (chatFooter.style.height = inputH + 'px');
+            chatFooter && (chatFooter.style.height = inputH + 28+ 'px');
             chatMain && (chatMain.style.height = mainH + 'px');
         }
     }, 100);
@@ -650,19 +669,28 @@ defineExpose({
             width: 100% !important;
             text-align: center;
         }
-        ::v-deep  .abort-chat-btn{
-        position: absolute; left: 36%; top:-50px; z-index: 2; border-radius: 10px;
-    }
+
+        ::v-deep .abort-chat-btn {
+            position: absolute;
+            left: 36%;
+            top: -50px;
+            z-index: 2;
+            border-radius: 10px;
+        }
 
         .el-select {
             width: 100%;
         }
     }
-    
+
 }
 
-.abort-chat-btn{
-    position: absolute; left: 48%; top:-50px; z-index: 2; border-radius: 10px;
+.abort-chat-btn {
+    position: absolute;
+    left: 48%;
+    top: -50px;
+    z-index: 2;
+    border-radius: 10px;
 }
 
 .el-container {
@@ -672,6 +700,10 @@ defineExpose({
 
     ::v-deep .el-dialog__body {
         padding: 5px 15px;
+    }
+
+   ::v-deep .el-textarea__inner{
+        padding-right: 40px !important;
     }
 }
 
@@ -764,7 +796,7 @@ defineExpose({
 }
 
 .el-footer {
-    height: 72px;
+    height: 80px;
     background-color: #ffffff;
 }
 
@@ -836,8 +868,8 @@ button.reset-btn {
     padding: 0;
     margin: 0;
     cursor: pointer;
-    position: absolute;
     z-index: 1;
+    display: inline-flex;
 }
 
 .menu-hamburger {
@@ -846,14 +878,14 @@ button.reset-btn {
     flex-direction: column;
     cursor: pointer;
     justify-content: center;
-    height: 30px;
-    margin: 0 14px;
+    height: 50px;
+    margin-right: 10px !important;
 }
 
 .menu-hamburger>span {
-    background-color: #141414;
+    background-color: #707070;
     border-radius: 10px;
-    height: 2px;
+    height: 3px;
     margin: 2px 0;
     transition: var(--el-transition-all);
     width: 100%;
@@ -898,7 +930,7 @@ button.reset-btn {
 }
 
 
-.aside-show{
+.aside-show {
     display: block !important;
     position: absolute;
     z-index: 2;

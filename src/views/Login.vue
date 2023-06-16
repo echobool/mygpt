@@ -37,6 +37,7 @@ const OnOpenIdLogin = ()=>{
             // 存入状态管理
             user.value.id = userData.id
             user.value.nickname = userData.nickname
+            user.value.avatar = userData.avatar
             user.value.email = userData.email
             user.value.phone = userData.phone
             user.value.status = userData.state
