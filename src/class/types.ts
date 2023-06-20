@@ -12,6 +12,7 @@ export type PkgListType = {
   recommend: number
   sort: number
   gate: number
+  quota: number
 }
 
 

@@ -5,6 +5,7 @@ import 'element-plus/theme-chalk/display.css'
 import App from './App.vue'
 import router from './router'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import InfiniteScroll from "element-plus"
 
 
 // pina 插件 将状态保存到 localStorage
@@ -41,4 +42,4 @@ const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
-app.use(store).use(router).mount('#app')
+app.use(store).use(router).use(InfiniteScroll).mount('#app')

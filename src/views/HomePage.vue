@@ -1,14 +1,15 @@
 <template>
     <el-aside width="291px" class="aside hidden-xs-only" :class="{ 'aside-show': showAside }">
 
-        <el-scrollbar>
-
-            <el-affix :offset="60">
+        <div class="el-scrollbar">
+            <el-affix :offset="60" class="hidden-sm-and-down">
                 <el-button class="new-chat" @click="newChat" :icon="Plus" size="large">新建聊天</el-button>
             </el-affix>
 
 
-            <el-menu :default-openeds="['1', '3']" text-color="#333" @select="chatShow" active-text-color="#111">
+            <el-menu v-infinite-scroll="loadChatList" :infinite-scroll-disabled="disabled" infinite-scroll-distance="50"
+                style="overflow: auto;" :default-openeds="['1', '3']" text-color="#333" @select="chatShow"
+                active-text-color="#111" class="menu-scroll">
 
                 <el-menu-item-group v-for="(item, index) in chatList" :key="index" v-show="item.length > 0"
                     :title="getMenuTitle(index)">
@@ -28,8 +29,11 @@
 
                     </el-menu-item>
                 </el-menu-item-group>
+                <p class="loading" v-if="loading">Loading...</p>
+                <p class="no-more" v-if="noMore">No more</p>
             </el-menu>
-        </el-scrollbar>
+
+        </div>
 
         <el-card shadow="never" body-style="padding:10px">
             <el-tooltip class="box-item" effect="dark" content="AI模型选择" placement="top-end">
@@ -124,6 +128,9 @@
 
 
         <el-footer id="chatFooter" style="position: relative;">
+            <el-button v-show="messageData.length > 0" @click="newChat" size="large" type="primary" icon="Plus" circle
+                class="new-chat-btn hidden-sm-and-up">
+            </el-button>
             <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain class="abort-chat-btn">
                 停止接收 </el-button>
             <el-row style="justify-content:center; ">
@@ -142,7 +149,10 @@
                         resize="none" @keyup.enter="handleEnterKey">
                     </el-input>
                     <el-button @click="handleEnterKey" :disabled="!message || chatOngoing"
-                        style=" position: absolute; right: 10px; bottom: 7px; height: 40px; padding: 0; border: 0; color: rgb(116, 152, 218); background-color: transparent;" size="large"><el-icon size="30"><Promotion /></el-icon></el-button>
+                        style=" position: absolute; right: 10px; bottom: 7px; height: 40px; padding: 0; border: 0; color: rgb(116, 152, 218); background-color: transparent;"
+                        size="large"><el-icon size="30">
+                            <Promotion />
+                        </el-icon></el-button>
 
                 </el-col>
             </el-row>
@@ -227,7 +237,7 @@ import mdKatex from '@traptitech/markdown-it-katex'
 import mila from 'markdown-it-link-attributes'
 import hljs from 'highlight.js'
 
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, computed } from 'vue';
 import type { Msg } from '../class/Msg'
 import Message from '../components/Message.vue';
 import { createChat, getList, delChat, getChatLog } from '../http/api'
@@ -247,6 +257,13 @@ const sliderLimit = ref(2000)
 const message = ref('')
 const data = ref('');
 const messageData: Msg[] = reactive([])
+
+const chatCount = ref(0)
+const chatLoadCount = ref(0)
+const loading = ref(false)
+const noMore = computed(() => chatLoadCount.value >= chatCount.value)
+const disabled = computed(() => loading.value || noMore.value)
+
 const options = [
     {
         value: 'gpt-3.5-turbo',
@@ -263,7 +280,7 @@ const chatList: { today: any[], oneWeekAgo: any[], oneMonthAgo: any[], oneYearAg
     oneMonthAgo: [],
     oneYearAgo: []
 })
-
+const page = ref(1)
 const props = defineProps<{
     openLoginFrom: Function
 }>();
@@ -361,15 +378,24 @@ const loadChatList = async () => {
     if (Global.token == "") {
         return
     }
+    loading.value = true
     await getList({
         "page_size": 20,
-        "page": 1,
+        "page": page.value,
     }).then(res => {
-
+        loading.value = false
         // console.log(res)
         if (res.data) {
+            if (page.value == 1) {
+                chatList.today.splice(0, chatList.today.length)
+                chatList.oneWeekAgo.splice(0, chatList.oneWeekAgo.length)
+                chatList.oneMonthAgo.splice(0, chatList.oneMonthAgo.length)
+                chatList.oneYearAgo.splice(0, chatList.oneYearAgo.length)
+            }
             handleChatList(res.data)
+            page.value++
         }
+        chatCount.value = res.ext.count
         //  console.log(chatList)
 
     }).catch(error => {
@@ -391,6 +417,7 @@ const handleChatList = (data: any) => {
     const oneYearAgo = today - 365 * 24 * 60 * 60 * 1000;
 
     data.forEach((item: any) => {
+        chatLoadCount.value++
         const createdAt = new Date(item.created_at).getTime();
         // console.log(createdAt)
         // console.log(oneWeekAgo)
@@ -531,6 +558,10 @@ const handleEnterKey = async (event: KeyboardEvent) => {
             message.value = ""
             // 发消息后处理下排版
             inputChange()
+            // 重新载入历史聊天数据
+            page.value = 1
+            loading.value = true
+            loadChatList()
         }).catch(error => {
             console.error(error);
         });
@@ -552,10 +583,10 @@ const inputChange = () => {
         const chatFooter = document.getElementById('chatFooter');
 
         if (textarea?.clientHeight) {
-            let inputH = textarea.clientHeight 
+            let inputH = textarea.clientHeight
             let mainH = windowHeight - inputH - 88
 
-            chatFooter && (chatFooter.style.height = inputH + 28+ 'px');
+            chatFooter && (chatFooter.style.height = inputH + 28 + 'px');
             chatMain && (chatMain.style.height = mainH + 'px');
         }
     }, 100);
@@ -663,11 +694,23 @@ defineExpose({
             margin-top: 60px;
         }
 
+        .menu-scroll{
+            border-right: 0;
+            height: calc(100vh - 160px) !important;
+        }
+
         ::v-deep .slider-handler {
             position: relative;
             display: block;
             width: 100% !important;
             text-align: center;
+        }
+
+        ::v-deep .new-chat-btn {
+            position: absolute;
+            left: 1%;
+            top: -80px;
+            z-index: 1;
         }
 
         ::v-deep .abort-chat-btn {
@@ -702,7 +745,7 @@ defineExpose({
         padding: 5px 15px;
     }
 
-   ::v-deep .el-textarea__inner{
+    ::v-deep .el-textarea__inner {
         padding-right: 40px !important;
     }
 }
@@ -711,10 +754,26 @@ defineExpose({
 
     height: calc(100vh - 160px);
     background-color: #fff;
+    border-right: 1px solid #dedede;
 }
 
-.aside .el-menu {
+.aside .no-more {
+
+    color: #aaa;
+    font-size: 12px;
+    text-align: center;
+}
+
+.aside .loading {
+
+    color: #c6b79e;
+    font-size: 12px;
+    text-align: center;
+}
+
+.aside .menu-scroll {
     border-right: 0;
+    height: calc(100vh - 230px);
 }
 
 .aside .el-card {
@@ -800,10 +859,7 @@ defineExpose({
     background-color: #ffffff;
 }
 
-.el-scrollbar {
-    height: calc(100vh - 60px);
-    border-right: 1px solid #dedede;
-}
+
 
 .el-menu-item {
     margin: 0 10px;

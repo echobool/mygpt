@@ -12,7 +12,7 @@
               <img class="logo" width="30" :src="logoUrl ? logoUrl : '/ailogo.svg'" alt="ai Logo">
 
             </a>
-            <span style="position: relative; font-weight: bold; margin-left: 10px; margin-top: -5px; font-size: 22px;">
+            <span style="position: relative; font-weight: bold; margin-left: 10px; margin-top: -5px; font-size: 20px;">
               {{ agent.site_name ? agent.site_name : siteName }}
             </span>
           </div>
@@ -53,7 +53,7 @@
               <el-popover :width="400" popper-class="open-vip-pop"
                 popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;">
                 <template #reference>
-                  <el-button type="warning" text><el-avatar :size="18" src="/img/diamond.png" style="" />购买额度</el-button>
+                  <el-button type="warning" text><el-avatar :size="18" src="/img/diamond.png" style="" />用户充值</el-button>
                 </template>
                 <template #default>
                   <div class="demo-rich-conent" style="display: flex; gap: 16px; flex-direction: column">
@@ -74,7 +74,7 @@
                         APP版本同步使用
                       </div>
                     </div>
-                    <el-button @click="openUpgradePop" color="#626aef" size="large" class="">购买额度</el-button>
+                    <el-button @click="openUpgradePop" color="#626aef" size="large" class="">用户充值</el-button>
                     <!-- <el-text type="info" class="mx-1">平均每年为每个会员节省<span style="color:#9b3002">3288</span>元</el-text> -->
                   </div>
                 </template>
@@ -100,8 +100,9 @@
                 </div>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item :icon="Odometer"
-                      @click="router.replace({ name: 'userHome' })">用户中心</el-dropdown-item>
+                    <el-dropdown-item :icon="Odometer" @click="router.replace({ name: 'userHome' })">用户中心</el-dropdown-item>
+                    <el-dropdown-item class="hidden-sm-and-up" :icon="Odometer" @click="openUpgradePop">用户充值</el-dropdown-item>
+                      
                     <el-dropdown-item :icon="EditPen" disabled>签到</el-dropdown-item>
                     <el-dropdown-item @click="logoutEvent" :icon="SwitchButton">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
@@ -213,7 +214,7 @@
                   <b><i>￥</i>{{ item.price }}</b>
                   <span>原价￥{{ item.old_price }}</span>
                 </div>
-                <div class="remark">{{ item.remarks }}</div>
+                <div class="remark">{{ item.quota }}条</div>
               </div>
             </el-card>
           </el-space>
@@ -232,7 +233,7 @@
                     <b><i>￥</i>{{ item.price }}</b>
                     <span>原价￥{{ item.old_price }}</span>
                   </div>
-                  <div class="remark">{{ item.remarks }}</div>
+                  <div class="remark">{{ item.quota }}条</div>
                 </div>
               </el-card>
             </el-col>
@@ -263,7 +264,7 @@
               <div class="pay-info ">
                 应付金额 <span>￥<b class="money">{{ selectPkgData.price }}</b></span>
                 <el-tag class="mx-1" type="danger" effect="light">
-                  已优惠 ￥{{ selectPkgData.old_price - selectPkgData.price }}
+                  已优惠 ￥{{ (selectPkgData.old_price - selectPkgData.price).toFixed(2) }}
                 </el-tag>
               </div>
 
@@ -329,15 +330,13 @@
                 <p>提现10%手续费</p>
               </li>
               <li>
-                <p>获得本站二级域名</p>
+                <p>获得代理独立站</p>
               </li>
-              <li>
-                <p>无独立域名</p>
-              </li>
+              
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ tongPaiData.price }}</b> </div>
-              <div class="agent-old-price"> <span>原价(随时恢复) </span>￥{{ tongPaiData.old_price }} </div>
+              <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ tongPaiData.old_price }} </div>
               <el-button @click="openAgent(tongPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
                 type="primary">立即开通</el-button>
             </div>
@@ -359,15 +358,13 @@
                 <p>提现10%手续费</p>
               </li>
               <li>
-                <p>获得本站二级域名</p>
+                <p>获得代理独立站</p>
               </li>
-              <li>
-                <p>可绑定独立域名</p>
-              </li>
+              
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ yinPaiData.price }}</b> </div>
-              <div class="agent-old-price"> <span>原价(随时恢复) </span>￥{{ yinPaiData.old_price }} </div>
+              <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ yinPaiData.old_price }} </div>
               <el-button @click="openAgent(yinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
                 type="primary">立即开通</el-button>
             </div>
@@ -388,15 +385,13 @@
                 <p>提现10%手续费</p>
               </li>
               <li>
-                <p>获得本站二级域名</p>
+                <p>获得代理独立站</p>
               </li>
-              <li>
-                <p>可绑定独立域名</p>
-              </li>
+              
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ jinPaiData.price }}</b> </div>
-              <div class="agent-old-price"> <span>原价(随时恢复) </span>￥{{ jinPaiData.old_price }} </div>
+              <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ jinPaiData.old_price }} </div>
               <el-button @click="openAgent(jinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
                 type="primary">立即开通</el-button>
             </div>
@@ -436,15 +431,16 @@
             </el-icon> 绘图</el-menu-item>
         </el-menu>
 
+        <div class="open-vip">
+          <el-button @click="openUpgradePop" color="#626aef" size="large" class="">用户充值</el-button>
+        </div>
+
         <div class="open-agent-btn ">
           <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
               style="width: 30px; margin-right: 10px;" />{{
                 user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
         </div>
-        <div class="open-vip">
-          <el-button @click="openUpgradePop" color="#626aef" size="large" class="">购买额度</el-button>
-        </div>
-
+        
       </el-drawer>
 
     </el-container>
@@ -799,6 +795,7 @@ const openUpgradePop = async () => {
           recommend: item.recommend,
           sort: item.sort,
           gate: item.gate,
+          quota:item.quota,
         })
       })
       selectPkgEvt(5) // 默认选中一个套餐
@@ -858,6 +855,7 @@ const toJsapiPay = async (pkgId: number) => {
 
 // 向后台发起支付方式并返回支付信息
 const requestPay = async () => {
+  clearInterval(timer3)
   // 如果在微信端调用jsapi支付方式
   if (isWeixinBrowser()) {
     return
@@ -1432,13 +1430,14 @@ body {
 
 .user-facade .username {
   display: inline-flex;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
   min-width: 50px;
-  max-width: 150px;
+  max-width: 60px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: left;
 }
 
 .user-facade .el-avatar {
