@@ -81,8 +81,7 @@
             </template>
 
             <el-table :data="orderList" size="large" stripe style="width: 100%">
-                <el-table-column fixed prop="order_no" label="订单号" width="150" show-overflow-tooltip />
-                <el-table-column prop="name" label="套餐" width="100" />
+                <el-table-column fixed prop="name" label="套餐" width="100" />
                 <!-- <el-table-column prop="genre" label="类型" /> -->
                 <el-table-column prop="expiry_date" label="到期日期" width="150" :formatter="formatDate"  />
                 <el-table-column prop="price" label="价格" width="80" />
@@ -97,6 +96,7 @@
                 <el-table-column prop="residue" label="余额" width="100" />
                 <el-table-column prop="pay_at" label="支付时间" width="150" :formatter="formatDate" />
                 <el-table-column prop="created_at" label="创建时间" width="150" :formatter="formatDate" />
+                <el-table-column  prop="order_no" label="订单号" width="150" show-overflow-tooltip />
 
             </el-table>
 

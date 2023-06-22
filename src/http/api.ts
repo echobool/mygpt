@@ -91,6 +91,10 @@ export const getAgentByHost = () => {
 export const Income = (params: any) => {
     return  axios.get('/agent/income', { params })
 }
+// 获取代理商提现记录
+export const extractListApi = (params: any) => {
+    return  axios.get('/agent/extract', { params })
+}
 
 // 查询二级域名是否被占用
 export const checkSubDomain = (params: any) => {
@@ -107,6 +111,11 @@ export const postAgentSetting = (data: any) => {
 // 保存代理商提现配置
 export const postExtractSetting = (data: any) => {
     return  axios.post('/agent/extract', data)
+}
+
+// 申请提现
+export const postExtractApply = (data: any) => {
+    return  axios.post('/agent/extract/apply', data)
 }
 
 // openid登录

@@ -19,6 +19,10 @@ const router = createRouter({
                 {
                     name: "extract", path: "/agent/extract", component:  () => import("../views/agent/ExtractSetting.vue"),
                 },
+                
+                {
+                    name: "extlist", path: "/agent/extlist", component:  () => import("../views/agent/ExtractList.vue"),
+                },
             ]
         },
 

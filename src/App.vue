@@ -100,9 +100,11 @@
                 </div>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item :icon="Odometer" @click="router.replace({ name: 'userHome' })">用户中心</el-dropdown-item>
-                    <el-dropdown-item class="hidden-sm-and-up" :icon="Odometer" @click="openUpgradePop">用户充值</el-dropdown-item>
-                      
+                    <el-dropdown-item :icon="Odometer"
+                      @click="router.replace({ name: 'userHome' })">用户中心</el-dropdown-item>
+                    <el-dropdown-item class="hidden-sm-and-up" :icon="Odometer"
+                      @click="openUpgradePop">用户充值</el-dropdown-item>
+
                     <el-dropdown-item :icon="EditPen" disabled>签到</el-dropdown-item>
                     <el-dropdown-item @click="logoutEvent" :icon="SwitchButton">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
@@ -332,7 +334,7 @@
               <li>
                 <p>获得代理独立站</p>
               </li>
-              
+
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ tongPaiData.price }}</b> </div>
@@ -360,7 +362,7 @@
               <li>
                 <p>获得代理独立站</p>
               </li>
-              
+
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ yinPaiData.price }}</b> </div>
@@ -387,7 +389,7 @@
               <li>
                 <p>获得代理独立站</p>
               </li>
-              
+
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ jinPaiData.price }}</b> </div>
@@ -440,7 +442,7 @@
               style="width: 30px; margin-right: 10px;" />{{
                 user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
         </div>
-        
+
       </el-drawer>
 
     </el-container>
@@ -559,13 +561,13 @@ const loadAgent = async () => {
   });
 }
 
-
+const host = new URL(window.location.href).hostname;
 const openLoginFrom = () => {
   if (isWeixinBrowser()) {
     console.log("执行微信登录")
     const baseUrl = import.meta.env.APP_BASE_URL
     //document.getElementById("myframe").src=baseUrl + "/wechat/login";
-    window.location.assign(baseUrl + "/wechat/login")
+    window.location.assign(baseUrl + "/wechat/login?host=" + host)
   } else {
     dialogFormVisible.value = true
   }
@@ -795,7 +797,7 @@ const openUpgradePop = async () => {
           recommend: item.recommend,
           sort: item.sort,
           gate: item.gate,
-          quota:item.quota,
+          quota: item.quota,
         })
       })
       selectPkgEvt(5) // 默认选中一个套餐
@@ -977,7 +979,7 @@ const logoutEvent = async () => {
   await logout().then(res => {
     if (res.code == 0) {
       user.value = <UserType>{}
-      agent.value = <AgentType>{}
+     // agent.value = <AgentType>{} // 代理站点不能清除
       token.value = ""
       curAgent.value = <AgentType>{}
     }
@@ -1371,6 +1373,7 @@ body {
   align-items: center;
   flex-grow: 1;
   padding-right: 15px;
+  max-width: 120px;
 }
 
 .header-container .open-vip-btn {

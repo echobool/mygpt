@@ -54,19 +54,19 @@ axios.interceptors.response.use(
                 if (code == 1006) {
                     store.setToken('')
                     const msg = "请登录"
-                    ElMessage.error(`Code: ${code},  ${msg}`);
+                    ElMessage.error(`${code},  ${msg}`);
                     return Promise.reject(response.data);
                 }
                 if (code == 10061) {
                     store.setToken('')
                     const msg = "用户在其它地方登录，您已被踢下线！"
-                    ElMessage.error(`Code: ${code},  ${msg}`);
+                    ElMessage.error(`${code},  ${msg}`);
                     return Promise.reject(response.data);
                 }
                 if (code == 11031 || code == 2019) {
                     return response.data;
                 }
-                ElMessage.error(`Code: ${code}, Message: ${msg}`);
+                ElMessage.error(`${code}, ${msg}`);
                 //console.error(`request err: `, msg);
                 return Promise.reject(response.data);
             }
@@ -80,8 +80,8 @@ axios.interceptors.response.use(
         if (error.response && error.response.data) {
             const status = error.response.status;
             const msg = error.response.data.message;
-            ElMessage.error(`Code: ${status}, Message: ${msg}`);
-            console.error(`[Axios Error]`, error.response);
+            ElMessage.error(`${status}, ${msg}`);
+            console.error(`[网络错误]`, error.response);
         } else {
             ElMessage.error(`${error}`);
         }

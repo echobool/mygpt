@@ -36,9 +36,9 @@
                             </el-col>
                             <el-col :xs="24" :sm="24" :md="8" :lg="8" style="text-align: center;">
                                 <div class="tips"> &nbsp;</div>
-                                <el-button type="primary" plain>提现</el-button>
+                                <el-button @click="openExtractDialog = true" type="primary" plain>提现</el-button>
                                 <el-button @click="$router.replace('extract')" text type="primary" plain>提现设置</el-button>
-                                <el-button text type="primary" plain>提现日志</el-button>
+                                <el-button  @click="$router.replace('extlist')" text type="primary" plain>提现日志</el-button>
 
                             </el-col>
                         </el-row>
@@ -75,32 +75,160 @@
             </router-view>
         </el-container>
 
-
+        <el-dialog class="agentDialog" :close-on-click-modal="false" title="提现" v-model="openExtractDialog" @closed=""
+        width="550" style="border-radius: 10px;">
+        
+        <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm"
+            :size="formSize">
+            
+            <el-alert type="warning" show-icon :closable="false" style="margin-bottom: 20px;">
+                <p>注意：提现金额最小100元，每周二开启提现功能，申请提现后会在三个工作日内完成打款操作。</p>
+            </el-alert>
+            <el-form-item label="提现金额" prop="amount">
+                <el-input type="number" min="100"  v-model.number="ruleForm.amount" size="large" input-style="max-width:300px" >
+                    <template #append>
+                        <el-button size="large" :disabled="sendCodeDisabled" type="primary" @click="extractAll">
+                            全部提现
+                        </el-button>
+                    </template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="手机号" prop="phone">
+                <el-input type="number" disabled v-model="ruleForm.phone" size="large" input-style="max-width:300px"  />
+            </el-form-item>
+            <el-form-item label="验证码" prop="code">
+                <el-input v-model="ruleForm.code" size="large" input-style="width:80px">
+                    <template #append>
+                        <el-button size="large" :disabled="sendCodeDisabled" type="primary" @click="sendCode(ruleFormRef)">
+                            {{ sendCodeBtnTxt }}
+                        </el-button>
+                    </template>
+                </el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="submitForm(ruleFormRef)">
+                    保存
+                </el-button>
+            </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+          </span>
+        </template>
+      </el-dialog>
 
     </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import { getAgentData } from '../../http/api'
+import { getAgentData,sendPhoneCode , postExtractApply} from '../../http/api'
 import { useGlobalStore } from '../../store'
 import { storeToRefs } from 'pinia'
 import { AgentType } from '../../class/types';
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-
+import type { FormInstance, FormRules } from 'element-plus'
 import type { UploadProps } from 'element-plus'
+
+import { ValidatePhone} from '../../utils/validate'
 
 const Global = useGlobalStore()
 const { token, curAgent } = storeToRefs(Global)
 const agentData: AgentType = reactive({} as AgentType)
 
+const openExtractDialog = ref(false)
 const imageUrl = ref('')
 const baseURL = import.meta.env.APP_BASE_URL;
 const staticUrl = baseURL.replace('v1', '')
 const uploadHeaders = {
     'Authorization': token.value
 }
+
+const sendCodeDisabled = ref(false)
+const sendCodeBtnTxt = ref('发送验证码')
+const formSize = ref('default')
+const ruleFormRef = ref<FormInstance>()
+const ruleForm = reactive({
+    amount: 0,
+    phone: '',
+    code: '',
+})
+
+const extractAll =()=>{
+    ruleForm.amount =  agentData.balance?agentData.balance:0
+}
+
+const rules = reactive<FormRules>({
+    amount: [
+        { required: true, message: '请输入提现金额', trigger: 'blur' },
+        { type:'number', min: 100, max: 100000, message: '提现金额最少100元', trigger: 'blur' },
+    ],
+    phone: [
+        { required: true, message: '请输入手机号码', trigger: 'blur' },
+        { validator: ValidatePhone, trigger: 'blur' },
+    ],
+    code: [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
+        { min: 4, max: 4, message: '请输入正确的验证码', trigger: 'blur' },
+    ],
+})
+
+
+
+const sendCode = async (formEl: FormInstance | undefined) => {
+    if (!formEl) return
+    await formEl.validateField(["phone"], (valid: any, fields: any) => {
+        if (valid) {
+            // 先禁用按钮
+            sendCodeDisabled.value = true
+
+            sendPhoneCode({
+                phone: ruleForm.phone
+            }).then(res => {
+                if (res.code == 0) {
+                    let sec = 60
+                    const timer = setInterval(() => {
+                        sec--
+                        sendCodeBtnTxt.value = `${sec}s 后重新发送`
+                        if (sec <= 0) {
+                            sec = 60
+                            clearInterval(timer)
+                            sendCodeBtnTxt.value = `发送验证码`
+                            sendCodeDisabled.value = false
+                        }
+                    }, 1000)
+                }
+                console.log(res)
+            }).catch(err => {
+                console.log(err)
+            })
+        } else {
+            console.log('error submit!', fields)
+        }
+    })
+}
+
+
+
+const submitForm = async (formEl: FormInstance | undefined) => {
+    if (!formEl) return
+    await formEl.validate((valid, fields) => {
+        if (valid) {
+            postExtractApply(ruleForm).then(res=>{
+                if(res.code == 0){
+                    openExtractDialog.value = false
+                }
+            }).catch(err=>{
+                console.log(err);
+                
+            })
+        } else {
+            console.log('error submit!', fields)
+        }
+    })
+}
+
 
 
 
@@ -165,6 +293,7 @@ const loadAgent = async () => {
 
             curAgent.value = agentData
             console.log(data)
+            ruleForm.phone =  agentData.phone
         }
 
     }).catch(error => {
