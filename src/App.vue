@@ -105,7 +105,7 @@
                   <el-dropdown-menu>
                     <el-dropdown-item :icon="Odometer"
                       @click="router.replace({ name: 'userHome' })">用户中心</el-dropdown-item>
-                    <el-dropdown-item class="hidden-sm-and-up" :icon="Odometer"
+                    <el-dropdown-item class="hidden-sm-and-up" :icon="Lollipop"
                       @click="openUpgradePop">用户充值</el-dropdown-item>
 
                     <el-dropdown-item :icon="EditPen" disabled>签到</el-dropdown-item>
@@ -460,7 +460,7 @@
 </template>
 
 <script setup lang="ts">
-import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu } from '@element-plus/icons-vue';
+import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu, Lollipop } from '@element-plus/icons-vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
