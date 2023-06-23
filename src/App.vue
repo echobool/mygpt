@@ -42,6 +42,9 @@
                 项目地址</el-menu-item> -->
             </el-menu>
 
+            <div class="hidden-xs-only"><el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
+                style="margin:0 24px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
+                :active-icon="Moon" :inactive-icon="Sunny" /></div>
             <div class="open-agent-btn hidden-xs-only">
               <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
                   style="width: 30px; margin-right: 10px;" />{{
@@ -57,7 +60,7 @@
                 </template>
                 <template #default>
                   <div class="demo-rich-conent" style="display: flex; gap: 16px; flex-direction: column">
-                    <h2 style="color:#000; font-size: 18px; margin-top: 10px;">会员尊享特权</h2>
+                    <h2 style=" font-size: 18px; margin-top: 10px;">会员尊享特权</h2>
 
                     <div class="flex-wrap">
 
@@ -113,7 +116,9 @@
 
             </div>
             <button @click="openDrawer" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
-              <el-image fit="fill" style="width: 30px;" src="/img/base.svg" />
+              <el-icon style="font-size: 25px;" class="el-icon--right">
+                <Menu />
+              </el-icon>
             </button>
           </div>
 
@@ -138,7 +143,7 @@
       <!-- 登录窗口 -->
       <el-dialog class="loginDialog" v-model="dialogFormVisible" width="480" @opened="getMpQrcode"
         @closed="closeLoginDialog" style="border-radius: 10px;" title="">
-        <h1 style="text-align: center;color: black;">欢迎来到 {{ agent.site_name ? agent.site_name : siteName }}</h1>
+        <h1 style="text-align: center;">欢迎来到 {{ agent.site_name ? agent.site_name : siteName }}</h1>
 
         <div style="display: block;width: 100%;text-align: center; color: coral; font-size: 16px; line-height: 30px;">
           登录就赠送免费聊天额度</div>
@@ -201,13 +206,13 @@
       <!-- 升级付费窗口 -->
       <el-dialog class="vipDialog" title="" v-model="dialogUpgradeVisible" @closed="onVipDialogClose" width="750"
         style="border-radius: 10px;">
-        <h1 style="color: black; margin-bottom: 35px;">选择额度套餐</h1>
+        <h1 style=" margin-bottom: 35px; margin-top: 0;">选择额度套餐</h1>
 
         <div class="scroll hidden-sm-and-down">
           <el-space size="large" alignment="flex-start">
             <el-card v-for="(item, index) in pkgList" :class="{ 'card-item-active': selectPkg == item.id }" :key="index"
-              shadow="hover" @click="selectPkgEvt(item.id)"
-              :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px' }">
+              shadow="hover" @click="selectPkgEvt(item.id)" class="vip-card"
+              :body-style="{ padding: '0px', marginBottom: '1px' }">
 
               <div class="pkg-item">
                 <span v-if="item.recommend == 1" class="tui">推荐</span>
@@ -226,7 +231,7 @@
           <el-row justify="space-around">
             <el-col :span="12" v-for="(item, index) in pkgList" :key="index">
               <el-card :class="{ 'card-item-active': selectPkg == item.id }" shadow="hover" @click="selectPkgEvt(item.id)"
-                :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px' }">
+                :body-style="{ padding: '0px', marginBottom: '1px' }">
 
                 <div class="pkg-item">
                   <span v-if="item.recommend == 1" class="tui">推荐</span>
@@ -244,9 +249,9 @@
         </div>
         <!-- 支付方式 -->
 
-        <el-card style="margin-top:10px;" shadow="hover"
-          :body-style="{ padding: '0px', backgroundColor: '#f5f5f5', marginBottom: '1px', }">
-          <div class="pay-area hidden-sm-and-down">
+        <el-card class="hidden-sm-and-down" style="margin-top:10px;" shadow="hover"
+          :body-style="{ padding: '0px', marginBottom: '1px', }">
+          <div class="pay-area ">
             <div class="qrcode">
               <!-- <el-image style="width: 110px; height: 110px" src="/img/qrcode_chrome.png"></el-image> -->
               <vue-qr v-show="paymentLogo" :text="qrcodeText" :correctLevel="3" :size="110" :margin="0"
@@ -280,7 +285,7 @@
         </el-card>
 
         <!-- jsapi 支付 -->
-        <div class="pay-area-jsapi hidden-md-and-up" style="background-color: #fff;padding: 0; ">
+        <div class="pay-area-jsapi hidden-md-and-up" style="padding: 0; margin-top: 20px; ">
           <el-button @click="onJsapiPay" :loading="JsapiPayBtnLoad" size="large" style="width: 100%;"
             type="primary">微信支付</el-button>
         </div>
@@ -313,7 +318,7 @@
       <!-- 代理窗口 -->
       <el-dialog class="agentDialog" :close-on-click-modal="false" title="" v-model="agentDialogVisible" @closed=""
         width="850" style="border-radius: 10px;">
-        <h1 style="color: black; text-align: center; margin-bottom: 35px;">入驻本站代理商，你将获得</h1>
+        <h1 style=" text-align: center; margin-bottom: 35px; margin-top: 0;">入驻本站代理商，你将获得</h1>
 
         <el-row :gutter="20">
           <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
@@ -425,16 +430,19 @@
       <el-drawer v-model="drawerBottom" direction="btt" title="I am the title" :with-header="false">
         <el-menu :default-active="activeIndex" style="justify-content: space-evenly;" :router="true" class="el-menu-demo"
           mode="horizontal" @select="handleSelect">
-          <el-menu-item index="/"> <el-icon>
+          <el-menu-item  @click="router.replace({ name: 'home' })"> <el-icon>
               <ChatDotRound />
             </el-icon> 消息</el-menu-item>
-          <el-menu-item index="" disabled><el-icon>
+          <el-menu-item  @click="router.replace({ name: 'draw' })" disabled><el-icon>
               <Picture />
             </el-icon> 绘图</el-menu-item>
         </el-menu>
 
         <div class="open-vip">
-          <el-button @click="openUpgradePop" color="#626aef" size="large" class="">用户充值</el-button>
+          <el-button @click="openUpgradePop" type="warning" size="large"  link>用户充值</el-button>
+          <el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
+            style="margin:0 24px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
+            :active-icon="Moon" :inactive-icon="Sunny" />
         </div>
 
         <div class="open-agent-btn ">
@@ -452,7 +460,7 @@
 </template>
 
 <script setup lang="ts">
-import { Odometer, EditPen, SwitchButton } from '@element-plus/icons-vue';
+import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu } from '@element-plus/icons-vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
@@ -460,10 +468,13 @@ import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
 import type { FormInstance, FormRules } from 'element-plus'
+import { useDark, useToggle } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { sendPhoneCode, jsapiPay, phoneLogin, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
 
-
+const isDark = useDark()
+isDark.value = true
+const toggleDark = useToggle(isDark)
 
 const Global = useGlobalStore()
 const { user, token, agent, curAgent } = storeToRefs(Global)
@@ -979,7 +990,7 @@ const logoutEvent = async () => {
   await logout().then(res => {
     if (res.code == 0) {
       user.value = <UserType>{}
-     // agent.value = <AgentType>{} // 代理站点不能清除
+      // agent.value = <AgentType>{} // 代理站点不能清除
       token.value = ""
       curAgent.value = <AgentType>{}
     }
@@ -1095,8 +1106,11 @@ body {
 }
 
 .vipDialog .el-card {
-  border: 1px solid #fefefe;
+  border: 1px solid var(--el-border-color);
   border-radius: 10px;
+  padding: 0;
+  background-color: var(--el-color-primary-light-9);
+  margin-bottom: 1px;
 }
 
 .vipDialog .card-item-active {
@@ -1291,7 +1305,7 @@ body {
 
 
 .agentDialog ol li {
-  color: #c18204;
+  color: var(--el-color-warning);
   line-height: 30px;
 }
 
@@ -1341,8 +1355,7 @@ body {
 
 
 .el-header {
-  border-bottom: 1px solid #ddd;
-  background-color: #fff;
+  border-bottom: 1px solid var(--el-border-color);
 }
 
 .header-container {
@@ -1372,7 +1385,7 @@ body {
   justify-content: end;
   align-items: center;
   flex-grow: 1;
-  padding-right: 15px;
+  padding-right: 10px;
   max-width: 120px;
 }
 
@@ -1409,7 +1422,7 @@ body {
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
-  color: #772d0a;
+  color: var(--el-color-warning);
   margin-bottom: 1em;
 }
 
@@ -1421,7 +1434,7 @@ body {
   padding-right: 0;
   width: 120px;
   font-size: 14px;
-  color: #5f6164;
+  color: var(--el-menu-text-color);
   cursor: pointer;
 }
 
@@ -1466,6 +1479,7 @@ button.reset-btn {
   padding: 0;
   margin: 0;
   cursor: pointer;
+  color: var(--el-text-color-regular);
 }
 
 .menu-hamburger {
@@ -1479,7 +1493,6 @@ button.reset-btn {
 }
 
 .menu-hamburger>span {
-  background-color: #141414;
   border-radius: 10px;
   height: 2px;
   margin: 2px 0;
@@ -1524,4 +1537,5 @@ button.reset-btn {
 .el-drawer .open-vip {
   text-align: center;
   margin-top: 25px;
-}</style>
+}
+</style>

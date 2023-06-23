@@ -21,7 +21,7 @@ const props = defineProps<{
 const isBot = computed(() => props.data?.who === 'bot');
 const avatar = computed(() => {
   if (props.data?.who === 'bot') {
-    return "/img/bot2.svg"
+    return "/img/ailogo.png"
   } else {
     return Global.user.avatar ? Global.user.avatar : "/img/avatar1.png"
   }
@@ -53,7 +53,7 @@ watch(() => props.data, (newData: Msg) => {
   align-items: top;
   width: 100%;
   padding: 20px 0;
-  color: #373543;
+
   font-size: 16px;
 }
 
@@ -86,11 +86,11 @@ watch(() => props.data, (newData: Msg) => {
 }
 
 .msg-content {
-  border: 1px solid #dfdcdc;
+  border: 1px solid var(--el-border-color);
   padding: 10px 15px;
   border-radius: 10px;
   border-top-right-radius: 0;
-  background-color: #ffffff;
+  background-color: var(--el-color-info-light-8);
   max-width: 80%;
   line-height: 150%;
 }
@@ -98,8 +98,8 @@ watch(() => props.data, (newData: Msg) => {
 .msg-item-bot .msg-content {
   border-radius: 10px;
   border-top-left-radius: 0;
-  border: 1px solid #dfdcdc;
-  background-color: #dfe9fa;
+  border: 1px solid var(--el-border-color);
+  background-color: var(--el-color-primary-light-8);
 }
 
 .msg-item-bot .chat-time {

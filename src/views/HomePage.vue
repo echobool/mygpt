@@ -8,8 +8,7 @@
 
 
             <el-menu v-infinite-scroll="loadChatList" :infinite-scroll-disabled="disabled" infinite-scroll-distance="50"
-                style="overflow: auto;" :default-openeds="['1', '3']" text-color="#333" @select="chatShow"
-                active-text-color="#111" class="menu-scroll">
+                style="overflow: auto;" :default-openeds="['1', '3']" @select="chatShow" class="menu-scroll">
 
                 <el-menu-item-group v-for="(item, index) in chatList" :key="index" v-show="item.length > 0"
                     :title="getMenuTitle(index)">
@@ -694,7 +693,7 @@ defineExpose({
             margin-top: 60px;
         }
 
-        .menu-scroll{
+        .menu-scroll {
             border-right: 0;
             height: calc(100vh - 160px) !important;
         }
@@ -753,20 +752,19 @@ defineExpose({
 .aside .el-scrollbar {
 
     height: calc(100vh - 160px);
-    background-color: #fff;
-    border-right: 1px solid #dedede;
+    border-right: 1px solid var(--el-border-color);
 }
 
 .aside .no-more {
 
-    color: #aaa;
+    color: var(--el-color-info-dark-2);
     font-size: 12px;
     text-align: center;
 }
 
 .aside .loading {
 
-    color: #c6b79e;
+    color: var(--el-color-warning);
     font-size: 12px;
     text-align: center;
 }
@@ -779,10 +777,10 @@ defineExpose({
 .aside .el-card {
     border-radius: 0;
     border: 0;
-    border-top: 1px solid #dedede;
-    border-right: 1px solid #dedede;
+    border-top: 1px solid var(--el-border-color);
+    border-right: 1px solid var(--el-border-color);
     height: 99px;
-    background-color: #ffffff;
+    background-color: var(--el-color-primary-light-9);
 }
 
 
@@ -851,15 +849,22 @@ defineExpose({
 
 .el-main {
     height: calc(100vh - 140px);
-    background-color: rgb(242 244 246);
+    background-color: var(--el-color-primary-light-9)
 }
 
 .el-footer {
     height: 80px;
-    background-color: #ffffff;
+    background-color: var(--el-color-info-light-9);
+    border-top: 1px solid var(--el-border-color);
 }
 
+.el-aside {
+    background-color: var(--el-color-info-light-9);
+}
 
+.el-aside .el-menu {
+    background-color: transparent;
+}
 
 .el-menu-item {
     margin: 0 10px;
@@ -888,26 +893,22 @@ defineExpose({
 }
 
 .el-menu-item.is-active {
-    background-color: rgba(169, 175, 195, 0.5);
+    background-color: var(--el-menu-item-hover-fill);
 }
 
 .el-menu-item:hover {
-    background-color: rgba(169, 175, 195, 0.3);
+    background-color: var(--el-menu-item-hover-fill);
 }
 
 .new-chat {
     width: 260px;
     margin: 15px;
     justify-content: start;
-    background-color: rgb(241, 245, 249);
-    border: 1px solid #c2c2c2;
-    color: #2b2c33;
+
+
 }
 
-.new-chat:hover {
-    background-color: rgb(255, 255, 255);
-    color: #333;
-}
+.new-chat:hover {}
 
 
 .chat-session-list {
@@ -971,18 +972,17 @@ button.reset-btn {
 .prompt .item {
     padding: 15px;
     text-align: left;
-    background-color: #fefefe;
+    background-color: var(--el-color-info-light-8);
     margin-bottom: 15px;
     border-radius: 15px;
     font-size: 14px;
-    color: #5a5b64;
     cursor: pointer;
     line-height: 160%;
 }
 
 .prompt .item:hover {
-    background-color: #333648;
-    color: #efefef;
+    background-color: var(--el-color-info-light-9);
+
 }
 
 
