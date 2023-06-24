@@ -42,9 +42,11 @@
                 项目地址</el-menu-item> -->
             </el-menu>
 
-            <div class="hidden-xs-only"><el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
-                style="margin:0 24px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
-                :active-icon="Moon" :inactive-icon="Sunny" /></div>
+
+
+
+
+
             <div class="open-agent-btn hidden-xs-only">
               <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
                   style="width: 30px; margin-right: 10px;" />{{
@@ -120,12 +122,18 @@
                 <Menu />
               </el-icon>
             </button>
+
+
+            <div class="hidden-xs-only"><el-switch @change="toggleDark" v-model="isDark" class="mt-2"
+                style="margin:0 10px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
+                :active-icon="Moon" :inactive-icon="Sunny" /></div>
+            <div class="hidden-xs-only" style="margin: 5px 10px 0 10px;  cursor: pointer;"><el-icon size="20"
+                @click="toggle">
+                <FullScreen />
+              </el-icon></div>
+
+
           </div>
-
-
-
-
-
         </div>
 
       </el-header>
@@ -322,24 +330,11 @@
 
         <el-row :gutter="20">
           <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-            <h3 style="text-align: center;">铜牌</h3>
+            <h3 style="text-align: center;">{{ tongPaiData.name }}</h3>
             <ol>
-              <li>
-                <p>终身免费使用本站服务</p>
+              <li v-for="(item, index) in tongPaiData.intro_arr">
+                <p :key="index">{{ item }}</p>
               </li>
-              <li>
-                <p>享受开通会员套餐价格20%返佣</p>
-              </li>
-              <li>
-                <p>享受开通代理20%返佣</p>
-              </li>
-              <li>
-                <p>提现10%手续费</p>
-              </li>
-              <li>
-                <p>获得代理独立站</p>
-              </li>
-
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ tongPaiData.price }}</b> </div>
@@ -350,24 +345,11 @@
 
           </el-col>
           <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-            <h3 style="text-align: center;">银牌</h3>
+            <h3 style="text-align: center;">{{ yinPaiData.name }}</h3>
             <ol>
-              <li>
-                <p>终身免费使用本站服务</p>
+              <li v-for="(item, index) in yinPaiData.intro_arr">
+                <p :key="index">{{ item }}</p>
               </li>
-              <li>
-                <p>享受开通会员套餐价格20%返佣</p>
-              </li>
-              <li>
-                <p>享受开通代理20%返佣</p>
-              </li>
-              <li>
-                <p>提现10%手续费</p>
-              </li>
-              <li>
-                <p>获得代理独立站</p>
-              </li>
-
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ yinPaiData.price }}</b> </div>
@@ -377,24 +359,11 @@
             </div>
           </el-col>
           <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-            <h3 style="text-align: center;">金牌</h3>
+            <h3 style="text-align: center;">{{ jinPaiData.name }}</h3>
             <ol>
-              <li>
-                <p>终身免费使用本站服务</p>
+              <li v-for="(item, index) in jinPaiData.intro_arr">
+                <p :key="index">{{ item }}</p>
               </li>
-              <li>
-                <p>享受开通会员套餐价格20%返佣</p>
-              </li>
-              <li>
-                <p>享受开通代理20%返佣</p>
-              </li>
-              <li>
-                <p>提现10%手续费</p>
-              </li>
-              <li>
-                <p>获得代理独立站</p>
-              </li>
-
             </ol>
             <div class="agent-item">
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ jinPaiData.price }}</b> </div>
@@ -430,16 +399,16 @@
       <el-drawer v-model="drawerBottom" direction="btt" title="I am the title" :with-header="false">
         <el-menu :default-active="activeIndex" style="justify-content: space-evenly;" :router="true" class="el-menu-demo"
           mode="horizontal" @select="handleSelect">
-          <el-menu-item  @click="router.replace({ name: 'home' })"> <el-icon>
+          <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
               <ChatDotRound />
             </el-icon> 消息</el-menu-item>
-          <el-menu-item  @click="router.replace({ name: 'draw' })" disabled><el-icon>
+          <el-menu-item @click="router.replace({ name: 'draw' })" disabled><el-icon>
               <Picture />
             </el-icon> 绘图</el-menu-item>
         </el-menu>
 
         <div class="open-vip">
-          <el-button @click="openUpgradePop" type="warning" size="large"  link>用户充值</el-button>
+          <el-button @click="openUpgradePop" type="warning" size="large" link>用户充值</el-button>
           <el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
             style="margin:0 24px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
             :active-icon="Moon" :inactive-icon="Sunny" />
@@ -468,9 +437,20 @@ import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
 import type { FormInstance, FormRules } from 'element-plus'
-import { useDark, useToggle } from '@vueuse/core'
+import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { sendPhoneCode, jsapiPay, phoneLogin, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
+import { sendPhoneCode, jsapiPay, phoneLogin, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
+
+const { toggle } = useFullscreen()
+
+const logoUrl = ref('')
+const siteName = ref('')
+const baseURL = import.meta.env.APP_BASE_URL;
+siteName.value = import.meta.env.APP_SITE_NAME;
+const staticUrl = baseURL.replace('v1', '')
+
+const title = useTitle()
+
 
 const isDark = useDark()
 isDark.value = true
@@ -478,6 +458,8 @@ const toggleDark = useToggle(isDark)
 
 const Global = useGlobalStore()
 const { user, token, agent, curAgent } = storeToRefs(Global)
+title.value = agent.value.site_name ? agent.value.site_name : siteName.value
+
 const formSize = ref('default')
 const qrcodeImgSrc = ref('')
 const ruleFormRef = ref<FormInstance>()
@@ -512,11 +494,10 @@ const pkgList: PkgListType[] = reactive([])
 const AgentList: any = reactive([])
 
 
-const logoUrl = ref('')
-const siteName = ref('')
-const baseURL = import.meta.env.APP_BASE_URL;
-siteName.value = import.meta.env.APP_SITE_NAME;
-const staticUrl = baseURL.replace('v1', '')
+console.log();
+
+
+
 
 let timer: number = 0
 let timer2: number = 0
@@ -564,7 +545,7 @@ const loadAgent = async () => {
       if (agent.value.logo != "") {
         logoUrl.value = staticUrl + agent.value.logo
       }
-
+      title.value = agent.value.site_name ? agent.value.site_name : siteName.value
     }
 
   }).catch(error => {
@@ -713,15 +694,28 @@ const openAgentDialog = async () => {
         AgentList.push({
           id: item.id,
           name: item.name,
+          c_name: item.c_name,
           gate: item.gate,
           old_price: item.old_price,
           price: item.price,
-          sort: item.sort
+          sort: item.sort,
+          intro: item.intro,
         })
       })
-      tongPaiData = AgentList.find((item: PkgListType) => item.sort === 1);
-      yinPaiData = AgentList.find((item: PkgListType) => item.sort === 2);
-      jinPaiData = AgentList.find((item: PkgListType) => item.sort === 3);
+
+      if (agent.value.status == 1) {
+        tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai_2");
+        yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai_2");
+        jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai_2");
+      } else {
+        tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai");
+        yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai");
+        jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai");
+      }
+
+      tongPaiData.intro_arr = tongPaiData.intro.split('\n')
+      yinPaiData.intro_arr = yinPaiData.intro.split('\n')
+      jinPaiData.intro_arr = jinPaiData.intro.split('\n')
 
       agentDialogVisible.value = true
     }
@@ -761,6 +755,8 @@ const openAgent = async (id: number) => {
             agentPayDialogVisible.value = false
             agentDialogVisible.value = false
             // 调用充值成功后的状态更新等
+            //重新获取用户信息
+            requestGetUserInfo()
           }
         }).catch(err => {
           console.log(err)
@@ -772,6 +768,37 @@ const openAgent = async (id: number) => {
     console.log(err)
   })
 }
+
+
+
+// 请求用户信息
+const requestGetUserInfo = async () => {
+  await getUserInfo().then(res => {
+    console.log(res);
+    let userData = res.data
+    user.value.agent = {} as AgentType
+    // 存入状态管理
+    user.value.id = userData.id
+    user.value.nickname = userData.nickname
+    user.value.avatar = userData.avatar
+    user.value.email = userData.email
+    user.value.phone = userData.phone
+    user.value.status = userData.state
+    //是否是代理商 是的话不展示开通会员和代理按钮
+    if (userData.agent) {
+      user.value.agent.user_id = 1
+      user.value.agent.agent_level_name = userData.agent.agent_level_name
+      user.value.agent.agent_level = userData.agent.agent_level
+      user.value.agent.order_id = userData.agent.order_id
+      user.value.agent.real_name = userData.agent.real_name
+    }
+  }).catch(err => {
+    console.log(err);
+
+  })
+}
+
+
 
 // 打开升级付费窗口
 const openUpgradePop = async () => {
@@ -797,6 +824,7 @@ const openUpgradePop = async () => {
         pkgList.push({
           id: item.id,
           name: item.name,
+          c_name: item.c_name,
           genre: item.genre,
           created_at: item.created_at,
           expiry_date: item.expiry_date,
@@ -809,6 +837,8 @@ const openUpgradePop = async () => {
           sort: item.sort,
           gate: item.gate,
           quota: item.quota,
+          intro: item.intro,
+          intro_arr: [],
         })
       })
       selectPkgEvt(5) // 默认选中一个套餐
@@ -837,11 +867,14 @@ const selectPkgEvt = (id: number) => {
   requestPay()
 }
 
+
 const changePayment = (pay: string) => {
   payment.value = pay
   // 请求支付信息
   requestPay()
 }
+
+
 
 let url = window.location.href
 const onJsapiPay = () => {
@@ -849,6 +882,9 @@ const onJsapiPay = () => {
   JsapiPayBtnLoad.value = true
   toJsapiPay(selectPkg.value)
 }
+
+
+
 const toJsapiPay = async (pkgId: number) => {
   await jsapiPay({
     package_id: pkgId

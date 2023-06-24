@@ -1,6 +1,7 @@
 export type PkgListType = {
   id: number
   name: string
+  c_name: string
   genre: string
   created_at: number
   expiry_date: number
@@ -13,6 +14,8 @@ export type PkgListType = {
   sort: number
   gate: number
   quota: number
+  intro: string
+  intro_arr: any
 }
 
 
