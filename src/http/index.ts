@@ -1,5 +1,6 @@
 import Axios from 'axios';
 import { useGlobalStore } from '../store'
+import { UserType } from '../class/types';
 
 
 
@@ -53,12 +54,14 @@ axios.interceptors.response.use(
                 // token 验证失败 处理用户重新登录
                 if (code == 1006) {
                     store.setToken('')
+                    store.setUser({} as UserType)
                     const msg = "请登录"
                     ElMessage.error(`${code},  ${msg}`);
                     return Promise.reject(response.data);
                 }
                 if (code == 10061) {
                     store.setToken('')
+                    store.setUser({} as UserType)
                     const msg = "用户在其它地方登录，您已被踢下线！"
                     ElMessage.error(`${code},  ${msg}`);
                     return Promise.reject(response.data);

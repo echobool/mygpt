@@ -30,6 +30,11 @@ export const phoneLogin =  (data: any) => {
     return  axios.post('/phone', data)
 }
 
+// 手机短信登录
+export const phoneBind =  (data: any) => {
+    return  axios.post('/bind', data)
+}
+
 // 退出登录
 export const logout =  () => {
     return  axios.post('/user/logout')

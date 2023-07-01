@@ -538,7 +538,11 @@ const handleEnterKey = async (event: KeyboardEvent) => {
 
         await createChat({
             "model": model.value,
-            "content": message.value
+            "content": message.value,
+            "slider_random": sliderRandom.value,
+            "slider_fresh": sliderFresh.value,
+            "slider_repeat": sliderRepeat.value,
+            "slider_limit": sliderLimit.value,
         }).then(res => {
             chatId = res.data?.chat_id
             messageData.push({

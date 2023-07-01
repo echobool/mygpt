@@ -8,6 +8,7 @@ export type PkgListType = {
   number_use: number
   old_price: number
   price: number
+  lifespan: number
   remarks: string
   state: number
   recommend: number
@@ -54,5 +55,6 @@ export type AgentType = {
   total_revenue:number
   extracted_money:number
   phone: string
+  review_reason: string
 }
 

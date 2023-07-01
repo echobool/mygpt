@@ -18,7 +18,7 @@
                                 </div>
                             </el-col>
                             <el-col :xs="8" :sm="8" :md="6" :lg="6" style="text-align: center;">
-                                <div class="tips">额度</div>
+                                <div class="tips">剩余额度</div>
                                 <h3>{{ user.quota }}</h3>
 
                             </el-col>

@@ -25,20 +25,38 @@
 
                             </el-col>
                             <el-col :xs="12" :sm="12" :md="8" :lg="8">
-                                <h3>{{ agentData.agent_level_name }}</h3>
-                                <div>{{ agentData.real_name }} <el-button @click="$router.replace('setting')" text
-                                        type="primary" plain>站点设置</el-button> </div>
+                                <h3>{{ agentData.agent_level_name }}
+                                    <el-tag v-show="agentData.status == 0" type="info" effect="light" round>
+                                        等待审核
+                                    </el-tag>
+                                    <el-tag v-show="agentData.status == 1" effect="light" round>
+                                        审核通过
+                                    </el-tag>
+                                    <el-tag v-show="agentData.status == 2" @click="viewReason" style="cursor: pointer;" type="danger" effect="light" round>
+                                        审核失败
+                                    </el-tag>
+                                    <el-tag v-show="agentData.status == 3" type="warning" effect="light" round>
+                                        禁用状态
+                                    </el-tag>
+                                </h3>
+                                <div>{{ agentData.real_name }} </div>
+
                             </el-col>
-                            <el-col :xs="6" :sm="6" :md="5" :lg="5" style="text-align: center;">
+                            <el-col :xs="6" :sm="6" :md="5" :lg="5">
                                 <div class="tips">收益</div>
-                                <h3>{{ agentData.balance ? agentData.balance : 0 }}</h3>
+                                <h3>{{ agentData.balance ? agentData.balance : 0 }}
+                                    <el-button @click="openExtractDialog = true" type="primary" text>提现</el-button>
+                                </h3>
 
                             </el-col>
                             <el-col :xs="24" :sm="24" :md="8" :lg="8" style="text-align: center;">
                                 <div class="tips"> &nbsp;</div>
-                                <el-button @click="openExtractDialog = true" type="primary" plain>提现</el-button>
-                                <el-button @click="$router.replace('extract')" text type="primary" plain>提现设置</el-button>
-                                <el-button  @click="$router.replace('extlist')" text type="primary" plain>提现日志</el-button>
+                                <el-button @click="$router.replace('setting')" style="margin-left: 0;" text type="primary"
+                                    plain>站点设置</el-button>
+                                <el-button @click="$router.replace('extract')" style="margin-left: 0;" text type="primary"
+                                    plain>提现设置</el-button>
+                                <el-button @click="$router.replace('extlist')" style="margin-left: 0;" text type="primary"
+                                    plain>提现记录</el-button>
 
                             </el-col>
                         </el-row>
@@ -76,53 +94,55 @@
         </el-container>
 
         <el-dialog class="agentDialog" :close-on-click-modal="false" title="提现" v-model="openExtractDialog" @closed=""
-        width="550" style="border-radius: 10px;">
-        
-        <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm"
-            :size="formSize">
-            
-            <el-alert type="warning" show-icon :closable="false" style="margin-bottom: 20px;">
-                <p>注意：提现金额最小100元，每周二开启提现功能，申请提现后会在三个工作日内完成打款操作。</p>
-            </el-alert>
-            <el-form-item label="提现金额" prop="amount">
-                <el-input type="number" min="100"  v-model.number="ruleForm.amount" size="large" input-style="max-width:300px" >
-                    <template #append>
-                        <el-button size="large" :disabled="sendCodeDisabled" type="primary" @click="extractAll">
-                            全部提现
-                        </el-button>
-                    </template>
-                </el-input>
-            </el-form-item>
-            <el-form-item label="手机号" prop="phone">
-                <el-input type="number" disabled v-model="ruleForm.phone" size="large" input-style="max-width:300px"  />
-            </el-form-item>
-            <el-form-item label="验证码" prop="code">
-                <el-input v-model="ruleForm.code" size="large" input-style="width:80px">
-                    <template #append>
-                        <el-button size="large" :disabled="sendCodeDisabled" type="primary" @click="sendCode(ruleFormRef)">
-                            {{ sendCodeBtnTxt }}
-                        </el-button>
-                    </template>
-                </el-input>
-            </el-form-item>
-            <el-form-item>
-                <el-button type="primary" @click="submitForm(ruleFormRef)">
-                    保存
-                </el-button>
-            </el-form-item>
-        </el-form>
-        <template #footer>
-          <span class="dialog-footer">
-          </span>
-        </template>
-      </el-dialog>
+            width="550" style="border-radius: 10px;">
+
+            <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm"
+                :size="formSize">
+
+                <el-alert type="warning" show-icon :closable="false" style="margin-bottom: 20px;">
+                    <p>注意：提现金额最小100元，每周二开启提现功能，申请提现后会在三个工作日内完成打款操作。</p>
+                </el-alert>
+                <el-form-item label="提现金额" prop="amount">
+                    <el-input type="number" min="100" v-model.number="ruleForm.amount" size="large"
+                        input-style="max-width:300px">
+                        <template #append>
+                            <el-button size="large" :disabled="sendCodeDisabled" type="primary" @click="extractAll">
+                                全部提现
+                            </el-button>
+                        </template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="手机号" prop="phone">
+                    <el-input type="number" disabled v-model="ruleForm.phone" size="large" input-style="max-width:300px" />
+                </el-form-item>
+                <el-form-item label="验证码" prop="code">
+                    <el-input v-model="ruleForm.code" size="large" input-style="width:80px">
+                        <template #append>
+                            <el-button size="large" :disabled="sendCodeDisabled" type="primary"
+                                @click="sendCode(ruleFormRef)">
+                                {{ sendCodeBtnTxt }}
+                            </el-button>
+                        </template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="submitForm(ruleFormRef)">
+                        保存
+                    </el-button>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                </span>
+            </template>
+        </el-dialog>
 
     </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import { getAgentData,sendPhoneCode , postExtractApply} from '../../http/api'
+import { getAgentData, sendPhoneCode, postExtractApply } from '../../http/api'
 import { useGlobalStore } from '../../store'
 import { storeToRefs } from 'pinia'
 import { AgentType } from '../../class/types';
@@ -131,7 +151,7 @@ import { Plus } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { UploadProps } from 'element-plus'
 
-import { ValidatePhone} from '../../utils/validate'
+import { ValidatePhone } from '../../utils/validate'
 
 const Global = useGlobalStore()
 const { token, curAgent } = storeToRefs(Global)
@@ -155,14 +175,14 @@ const ruleForm = reactive({
     code: '',
 })
 
-const extractAll =()=>{
-    ruleForm.amount =  agentData.balance?agentData.balance:0
+const extractAll = () => {
+    ruleForm.amount = agentData.balance ? agentData.balance : 0
 }
 
 const rules = reactive<FormRules>({
     amount: [
         { required: true, message: '请输入提现金额', trigger: 'blur' },
-        { type:'number', min: 100, max: 100000, message: '提现金额最少100元', trigger: 'blur' },
+        { type: 'number', min: 100, max: 100000, message: '提现金额最少100元', trigger: 'blur' },
     ],
     phone: [
         { required: true, message: '请输入手机号码', trigger: 'blur' },
@@ -215,13 +235,13 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (valid) {
-            postExtractApply(ruleForm).then(res=>{
-                if(res.code == 0){
+            postExtractApply(ruleForm).then(res => {
+                if (res.code == 0) {
                     openExtractDialog.value = false
                 }
-            }).catch(err=>{
+            }).catch(err => {
                 console.log(err);
-                
+
             })
         } else {
             console.log('error submit!', fields)
@@ -262,6 +282,17 @@ onMounted(() => {
     loadAgent()
 });
 
+const viewReason = () =>{
+    ElMessageBox.alert(
+      agentData.review_reason,
+      '审核失败原因',
+      {
+        confirmButtonText: '确定',
+        type: 'warning',
+      })
+    return
+}
+
 
 const loadAgent = async () => {
     await getAgentData().then(res => {
@@ -289,11 +320,12 @@ const loadAgent = async () => {
             agentData.total_revenue = data.total_revenue
             agentData.extracted_money = data.extracted_money
             agentData.phone = data.phone
+            agentData.review_reason = data.review_reason
             imageUrl.value = data.logo ? staticUrl + data.logo : ""
 
             curAgent.value = agentData
             console.log(data)
-            ruleForm.phone =  agentData.phone
+            ruleForm.phone = agentData.phone
         }
 
     }).catch(error => {
@@ -346,6 +378,7 @@ defineExpose({
     color: #888;
     font-size: 12px;
     margin-bottom: 5px;
+    text-align: left;
 }
 
 

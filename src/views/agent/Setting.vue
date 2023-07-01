@@ -9,29 +9,29 @@
 
         <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm"
             :size="formSize">
-            <el-form-item label="站点logo" >
+            <el-form-item label="站点logo">
                 请点击上方logo 上传
             </el-form-item>
             <el-form-item label="站点名称" prop="site_name">
                 <el-input v-model="ruleForm.site_name" size="large" />
             </el-form-item>
-            <el-alert type="info" show-icon :closable="false">
+            <!-- <el-alert type="info" show-icon :closable="false">
                 <p>注意：独立域名一旦设置请勿随意更改，否则你用户就无法使用之前的域名了。例：www.baidu.com 配置好后将域名 CNAME 到下面二级域名上。</p>
             </el-alert>
             <el-form-item label="独立域名" prop="domain">
                 <el-input v-model="ruleForm.domain" size="large" />
-            </el-form-item>
+            </el-form-item> -->
             <el-alert type="info" show-icon :closable="false">
                 <p>注意：二级域名一旦设置请勿随意更改，否则你用户就无法使用之前的域名了。</p>
             </el-alert>
             <el-form-item label="二级域名" prop="sub_domain">
                 <el-input v-model="ruleForm.sub_domain" size="large" input-style="width:80px">
-                    <template #append><span>{{subDmain}}</span> </template>
+                    <template #append><span>{{ subDmain }}</span> </template>
                 </el-input>
             </el-form-item>
-            <el-form-item label="备案号" prop="icp">
+            <!-- <el-form-item label="备案号" prop="icp">
                 <el-input v-model="ruleForm.icp" size="large" />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="手机号" prop="phone">
                 <el-input v-model="ruleForm.phone" size="large" />
             </el-form-item>
@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted} from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { ValidatePhone, ValidateDomain, ValidateSubDomain } from '../../utils/validate'
 import type { FormInstance, FormRules } from 'element-plus'
 import { sendPhoneCode, postAgentSetting } from '../../http/api'
@@ -68,7 +68,7 @@ const subDmain = import.meta.env.APP_SUB_DOMAIN;
 
 
 const Global = useGlobalStore()
-const {  curAgent} = storeToRefs(Global)
+const { user, curAgent } = storeToRefs(Global)
 
 const sendCodeDisabled = ref(false)
 const sendCodeBtnTxt = ref('发送验证码')
@@ -93,7 +93,7 @@ onMounted(() => {
     ruleForm.domain = curAgent.value.domain
     ruleForm.sub_domain = curAgent.value.sub_domain
     ruleForm.icp = curAgent.value.icp
-    ruleForm.phone = curAgent.value.phone
+    ruleForm.phone = curAgent.value.phone ? curAgent.value.phone : user.value.phone
 });
 
 const rules = reactive<FormRules>({
@@ -164,7 +164,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
             postAgentSetting(ruleForm).then(res => {
                 console.log(res)
-                router.replace({name:'revenue'})
+                router.replace({ name: 'revenue' })
             }).catch(err => {
                 console.log(err)
             })

@@ -1,17 +1,10 @@
-
-
 <template>
   <div class="common-layout">
     <el-container>
       <el-header class="">
-
-
         <div class="header-container">
-          <div class="logo-container">
-            <a href="">
-              <img class="logo" width="30" :src="logoUrl ? logoUrl : '/ailogo.svg'" alt="ai Logo">
-
-            </a>
+          <div class="logo-container" style="cursor: pointer;" @click="router.replace({ name: 'home' })">
+            <img class="logo" width="30" :src="logoUrl ? logoUrl : '/ailogo.svg'" alt="ai Logo">
             <span style="position: relative; font-weight: bold; margin-left: 10px; margin-top: -5px; font-size: 20px;">
               {{ agent.site_name ? agent.site_name : siteName }}
             </span>
@@ -44,9 +37,6 @@
 
 
 
-
-
-
             <div class="open-agent-btn hidden-xs-only">
               <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
                   style="width: 30px; margin-right: 10px;" />{{
@@ -54,37 +44,8 @@
             </div>
             <!-- 立即开通会员升级 -->
             <div class="open-vip-btn hidden-xs-only">
-
-              <el-popover :width="400" popper-class="open-vip-pop"
-                popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;">
-                <template #reference>
-                  <el-button type="warning" text><el-avatar :size="18" src="/img/diamond.png" style="" />用户充值</el-button>
-                </template>
-                <template #default>
-                  <div class="demo-rich-conent" style="display: flex; gap: 16px; flex-direction: column">
-                    <h2 style=" font-size: 18px; margin-top: 10px;">会员尊享特权</h2>
-
-                    <div class="flex-wrap">
-
-                      <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/limit.png" alt="" />
-                        会员专属客服解答
-                      </div>
-                      <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/update.png" alt="" />
-                        不断升级更多功能
-                      </div>
-                      <div class="item">
-                        <el-image style="width: 30px; height: 30px; margin-right: 6px;" src="/img/free.png" alt="" />
-                        APP版本同步使用
-                      </div>
-                    </div>
-                    <el-button @click="openUpgradePop" color="#626aef" size="large" class="">用户充值</el-button>
-                    <!-- <el-text type="info" class="mx-1">平均每年为每个会员节省<span style="color:#9b3002">3288</span>元</el-text> -->
-                  </div>
-                </template>
-              </el-popover>
-
+              <el-button @click="openUpgradePop" type="warning" text><el-avatar :size="18" src="/img/diamond.png"
+                  style="" />用户充值</el-button>
             </div>
 
 
@@ -139,6 +100,9 @@
       </el-header>
 
       <el-container>
+        <!-- 完善代理信息提示 -->
+        <el-alert v-show="agentTipsVisible" title="请完善代理信息设置，否则站点无法访问" center type="error" class="agent-tips" />
+
         <router-view v-slot="{ Component }">
           <component :openLoginFrom="openLoginFrom" ref="viewBox" :is="Component" />
         </router-view>
@@ -209,9 +173,45 @@
       </el-dialog>
 
 
+      <!-- 绑定手机号窗口 -->
+      <el-dialog class="loginDialog" v-model="dialogBindVisible" width="480"
+        style="border-radius: 10px; text-align: center; " title="绑定手机号">
 
+        <el-form ref="ruleFormRef" label-position="top" :model="ruleForm" :rules="rules" label-width="120px"
+          style="margin-top: 25px;" class="loginForm" :size="formSize">
+          <el-form-item prop="phoneNum">
+            <el-input v-model="ruleForm.phoneNum" size="large" placeholder="请输入手机号" />
+          </el-form-item>
+          <el-form-item style="margin-bottom: 20px;">
+            <el-col :span="14">
+              <el-form-item prop="code">
+                <el-input v-model="ruleForm.code" size="large" placeholder="请输入验证码" />
+              </el-form-item>
+            </el-col>
+            <el-col class="text-center" :span="1"></el-col>
+            <el-col :span="9">
+              <el-form-item>
+                <el-button size="large" :disabled="sendCodeDisabled" type="primary" @click="sendCode(ruleFormRef)">
+                  {{ sendCodeBtnTxt }}
+                </el-button>
+              </el-form-item>
+            </el-col>
+          </el-form-item>
+          <el-form-item style="margin-bottom: 0; margin-top: 0;">
+            <el-button size="large" style="width: 100%; font-size: 18px;" type="primary"
+              @click="submitBindForm(ruleFormRef)">
+              提交
+            </el-button>
+          </el-form-item>
+        </el-form>
 
-      <!-- 升级付费窗口 -->
+        <template #footer>
+          <span class="dialog-footer">
+          </span>
+        </template>
+      </el-dialog>
+
+      <!-- 用户充值付费窗口 -->
       <el-dialog class="vipDialog" title="" v-model="dialogUpgradeVisible" @closed="onVipDialogClose" width="750"
         style="border-radius: 10px;">
         <h1 style=" margin-bottom: 35px; margin-top: 0;">选择额度套餐</h1>
@@ -229,7 +229,8 @@
                   <b><i>￥</i>{{ item.price }}</b>
                   <span>原价￥{{ item.old_price }}</span>
                 </div>
-                <div class="remark">{{ item.quota }}条</div>
+                <div class="remark">折合 {{ (item.price / item.lifespan).toFixed(2) }}元/天 <br> 赠送4.0额度 {{ item.quota }}条
+                </div>
               </div>
             </el-card>
           </el-space>
@@ -248,16 +249,25 @@
                     <b><i>￥</i>{{ item.price }}</b>
                     <span>原价￥{{ item.old_price }}</span>
                   </div>
-                  <div class="remark">{{ item.quota }}条</div>
+                  <div class="remark">折合 {{ (item.price / item.lifespan).toFixed(2) }}元/天 <br> 赠送4.0额度 {{ item.quota }}条
+                  </div>
                 </div>
               </el-card>
             </el-col>
           </el-row>
 
         </div>
+        <el-card class="hidden-sm-and-down" style="margin-top:10px; background-color: transparent; border: 0;"
+          shadow="never" v-if="Global.token == ''"
+          :body-style="{ padding: '0px', marginBottom: '1px', textAlign: 'center' }">
+          <el-button @click="openLoginFrom(); dialogUpgradeVisible = false" size="large" style="width: 20%;"
+            type="primary">请登录</el-button>
+
+        </el-card>
+
         <!-- 支付方式 -->
 
-        <el-card class="hidden-sm-and-down" style="margin-top:10px;" shadow="hover"
+        <el-card class="hidden-sm-and-down" style="margin-top:10px;" shadow="hover" v-if="Global.token != ''"
           :body-style="{ padding: '0px', marginBottom: '1px', }">
           <div class="pay-area ">
             <div class="qrcode">
@@ -325,11 +335,11 @@
 
       <!-- 代理窗口 -->
       <el-dialog class="agentDialog" :close-on-click-modal="false" title="" v-model="agentDialogVisible" @closed=""
-        width="850" style="border-radius: 10px;">
+        :width="span == 6 ? 1150 : 950" style="border-radius: 10px;">
         <h1 style=" text-align: center; margin-bottom: 35px; margin-top: 0;">入驻本站代理商，你将获得</h1>
 
         <el-row :gutter="20">
-          <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+          <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
             <h3 style="text-align: center;">{{ tongPaiData.name }}</h3>
             <ol>
               <li v-for="(item, index) in tongPaiData.intro_arr">
@@ -344,7 +354,7 @@
             </div>
 
           </el-col>
-          <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+          <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
             <h3 style="text-align: center;">{{ yinPaiData.name }}</h3>
             <ol>
               <li v-for="(item, index) in yinPaiData.intro_arr">
@@ -358,7 +368,7 @@
                 type="primary">立即开通</el-button>
             </div>
           </el-col>
-          <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+          <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
             <h3 style="text-align: center;">{{ jinPaiData.name }}</h3>
             <ol>
               <li v-for="(item, index) in jinPaiData.intro_arr">
@@ -369,6 +379,20 @@
               <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ jinPaiData.price }}</b> </div>
               <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ jinPaiData.old_price }} </div>
               <el-button @click="openAgent(jinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
+                type="primary">立即开通</el-button>
+            </div>
+          </el-col>
+          <el-col v-show="span == 6" :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
+            <h3 style="text-align: center;">{{ heHuoRenData.name }}</h3>
+            <ol>
+              <li v-for="(item, index) in heHuoRenData.intro_arr">
+                <p :key="index">{{ item }}</p>
+              </li>
+            </ol>
+            <div class="agent-item">
+              <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ heHuoRenData.price }}</b> </div>
+              <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ heHuoRenData.old_price }} </div>
+              <el-button @click="openAgent(heHuoRenData.id)" :loading="JsapiPayBtnLoad" size="large"
                 type="primary">立即开通</el-button>
             </div>
           </el-col>
@@ -424,8 +448,6 @@
 
     </el-container>
   </div>
-  <iframe frameborder="0" id="myframe" name="c" width="0" height="0"
-    style="position: absolute;top: -10000000000px;"></iframe>
 </template>
 
 <script setup lang="ts">
@@ -436,10 +458,10 @@ import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
-import type { FormInstance, FormRules } from 'element-plus'
+import { type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { sendPhoneCode, jsapiPay, phoneLogin, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
+import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
 
 const { toggle } = useFullscreen()
 
@@ -473,9 +495,11 @@ const activeIndex = ref('1')
 const activeName = ref('loginCode')
 const username = ref('登录送额度')
 const dialogFormVisible = ref(false)
+const dialogBindVisible = ref(false)
 const dialogUpgradeVisible = ref(false)
 const agentDialogVisible = ref(false)
 const agentPayDialogVisible = ref(false)
+const agentTipsVisible = ref(false)
 const sendCodeDisabled = ref(false)
 const JsapiPayBtnLoad = ref(false)
 const sendCodeBtnTxt = ref('发送验证码')
@@ -489,12 +513,12 @@ const selectPkgData: PkgListType = reactive({} as PkgListType)
 let tongPaiData: PkgListType = reactive({} as PkgListType)
 let yinPaiData: PkgListType = reactive({} as PkgListType)
 let jinPaiData: PkgListType = reactive({} as PkgListType)
+let heHuoRenData: PkgListType = reactive({} as PkgListType)
 
 const pkgList: PkgListType[] = reactive([])
 const AgentList: any = reactive([])
+const span = ref(8)
 
-
-console.log();
 
 
 
@@ -520,9 +544,16 @@ const rules = reactive<FormRules>({
 onMounted(() => {
   // 根据域名载入配置
   loadAgent()
-
+  checkAgentTips()
 });
 
+
+
+const checkAgentTips=()=>{
+  if(typeof user.value.agent === 'object' ){
+    agentTipsVisible.value = user.value.agent.agent_level != "" && !user.value.agent.site_name 
+  }
+}
 
 
 const openDrawer = () => {
@@ -535,6 +566,15 @@ const loadAgent = async () => {
 
     if (res.data) {
       let data: any = res.data
+
+      // 如果中间件发现没有此二级域名则重定向到官方站
+      if (data.domain != "") {
+        window.location.href = 'http://' + data.domain
+        return
+      }
+
+      agent.value.agent_level = data.agent_level
+      agent.value.agent_level_name = data.agent_level_name
       agent.value.user_id = data.user_id
       agent.value.status = data.status
       agent.value.domain = data.domain
@@ -602,6 +642,7 @@ const onAgentDialogClose = () => {
 
 }
 
+// 二维码登录
 const getMpQrcode = async () => {
   // 获取二维码ticket
   await getMpQrcodeTicket().then(res => {
@@ -615,6 +656,14 @@ const getMpQrcode = async () => {
           uuid: data.uuid
         }).then(res => {
           if (res.code == 0) {
+
+            let domain = res.data.domain
+            if (domain && domain != "" && domain != host) {
+              redirect(domain)
+              return
+            }
+
+
             let userData = res.data.user
             user.value.agent = {} as AgentType
             // 存入状态管理
@@ -634,7 +683,9 @@ const getMpQrcode = async () => {
               user.value.agent.agent_level = userData.agent.agent_level
               user.value.agent.order_id = userData.agent.order_id
               user.value.agent.real_name = userData.agent.real_name
+              user.value.agent.site_name = userData.agent.site_name
 
+              checkAgentTips()
             }
 
             ruleForm.phoneNum = ''
@@ -655,6 +706,13 @@ const getMpQrcode = async () => {
   })
 }
 
+
+const redirect = (domain: string) => {
+  window.location.href = "https://" + domain
+}
+
+
+
 const handleSelect = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
   drawerBottom.value = false
@@ -672,6 +730,11 @@ const openAgentDialog = async () => {
     return
   }
 
+  // 如果用户手机号为空则弹出绑定手机号
+  if (user.value.phone == "") {
+    dialogBindVisible.value = true
+    return
+  }
 
   drawerBottom.value = false
   // 如果已经是代理了 则进入代理管理页面
@@ -679,6 +742,19 @@ const openAgentDialog = async () => {
     router.replace({
       name: 'revenue'
     })
+    return
+  }
+
+
+
+  if (agent.value.site_name !== "" && agent.value.status !== 1) {
+    ElMessageBox.alert(
+      '该商家未通过审核，不能进行操作',
+      '警告',
+      {
+        confirmButtonText: '确定',
+        type: 'warning',
+      })
     return
   }
 
@@ -698,24 +774,35 @@ const openAgentDialog = async () => {
           gate: item.gate,
           old_price: item.old_price,
           price: item.price,
+          lifespan: item.lifespan,
           sort: item.sort,
           intro: item.intro,
         })
       })
 
-      if (agent.value.status == 1) {
+
+      if (agent.value.agent_level == 'hehuoren'
+        || agent.value.agent_level == 'tongpai_2'
+        || agent.value.agent_level == 'yinpai_2'
+        || agent.value.agent_level == 'jinpai_2') {
+        span.value = 8
         tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai_2");
         yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai_2");
         jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai_2");
+
       } else {
+        span.value = 6
         tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai");
         yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai");
         jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai");
+        heHuoRenData = AgentList.find((item: PkgListType) => item.c_name === "hehuoren");
+
       }
 
       tongPaiData.intro_arr = tongPaiData.intro.split('\n')
       yinPaiData.intro_arr = yinPaiData.intro.split('\n')
       jinPaiData.intro_arr = jinPaiData.intro.split('\n')
+      heHuoRenData.intro_arr = heHuoRenData.intro ? heHuoRenData.intro.split('\n') : null;
 
       agentDialogVisible.value = true
     }
@@ -791,6 +878,8 @@ const requestGetUserInfo = async () => {
       user.value.agent.agent_level = userData.agent.agent_level
       user.value.agent.order_id = userData.agent.order_id
       user.value.agent.real_name = userData.agent.real_name
+      user.value.agent.site_name = userData.agent.site_name
+      checkAgentTips()
     }
   }).catch(err => {
     console.log(err);
@@ -803,11 +892,24 @@ const requestGetUserInfo = async () => {
 // 打开升级付费窗口
 const openUpgradePop = async () => {
 
-  if (Global.token == "") {
-    // 弹出登录窗口
-    openLoginFrom()
+  // if (Global.token == "") {
+  //   // 弹出登录窗口
+  //   openLoginFrom()
+  //   return
+  // }
+
+  if (agent.value.site_name !== "" && agent.value.status !== 1) {
+    ElMessageBox.alert(
+      '该商家未通过审核，不能进行充值',
+      '警告',
+      {
+        confirmButtonText: '确定',
+        type: 'warning',
+      })
     return
   }
+
+
   // 微信端弹出层隐藏
   drawerBottom.value = false
 
@@ -831,6 +933,7 @@ const openUpgradePop = async () => {
           number_use: item.number_use,
           old_price: item.old_price,
           price: item.price,
+          lifespan: item.lifespan,
           remarks: item.remarks,
           state: item.state,
           recommend: item.recommend,
@@ -841,7 +944,10 @@ const openUpgradePop = async () => {
           intro_arr: [],
         })
       })
-      selectPkgEvt(5) // 默认选中一个套餐
+
+      if (Global.token != "") {
+        selectPkgEvt(5) // 默认选中一个套餐
+      }
     }
   }).catch(err => {
     console.log(err)
@@ -977,7 +1083,7 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 }
 
 
-
+// 手机登录
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid: any, fields: any) => {
@@ -987,6 +1093,13 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         code: ruleForm.code
       }).then(res => {
         if (res.data) {
+
+          let domain = res.data.domain
+          if (domain && domain != "" && domain != host) {
+            redirect(domain)
+            return
+          }
+
           let userData = res.data.user
           // 存入状态管理
           user.value.agent = {} as AgentType
@@ -1011,6 +1124,34 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           ruleForm.phoneNum = ''
           ruleForm.code = ''
           dialogFormVisible.value = false //关闭登录窗口
+        }
+        //console.log(res)
+      }).catch(err => {
+        console.log(err)
+      })
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
+}
+
+// 绑定手机
+const submitBindForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid: any, fields: any) => {
+    if (valid) {
+      phoneBind({
+        phone: ruleForm.phoneNum,
+        code: ruleForm.code,
+        user_id: user.value.id
+      }).then(res => {
+        if (res.code == 0) {
+          // 存入状态管理
+          user.value.phone = ruleForm.phoneNum
+
+          ruleForm.phoneNum = ''
+          ruleForm.code = ''
+          dialogBindVisible.value = false //关闭绑定窗口
         }
         //console.log(res)
       }).catch(err => {
@@ -1107,6 +1248,15 @@ body {
     margin: 0 !important;
   }
 
+}
+
+
+.agent-tips {
+  max-width: 600px;
+  top: 70px;
+  z-index: 10;
+  right: calc((100vw - 600px)/2);
+  position: absolute;
 }
 
 .open-agent-btn {
@@ -1339,6 +1489,9 @@ body {
   height: 40px;
 }
 
+.agentDialog ol {
+  min-height: 260px !important;
+}
 
 .agentDialog ol li {
   color: var(--el-color-warning);

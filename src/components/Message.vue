@@ -53,14 +53,13 @@ watch(() => props.data, (newData: Msg) => {
   align-items: top;
   width: 100%;
   padding: 20px 0;
-
   font-size: 16px;
 }
 
 .chat-time {
   position: absolute;
   font-size: 12px;
-  color: #aaa;
+  color: var(--el-text-color-primary);
   top: 0px;
   right: 50px;
 }
@@ -93,6 +92,7 @@ watch(() => props.data, (newData: Msg) => {
   background-color: var(--el-color-info-light-8);
   max-width: 80%;
   line-height: 150%;
+  color: var(--el-text-color-primary)
 }
 
 .msg-item-bot .msg-content {
