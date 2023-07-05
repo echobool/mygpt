@@ -372,6 +372,7 @@ mdi.use(mdKatex, { blockClass: 'katex-block', errorColor: ' #cc0000', output: 'm
 
 
 
+
 onMounted(() => {
     let _model = localStorage.getItem('model')
     model.value = _model ? _model : 'gpt-3.5-turbo'

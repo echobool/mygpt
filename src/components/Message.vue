@@ -1,6 +1,7 @@
 <template>
-  <div  class="msg-item msg-item-bot">
+  <div class="msg-item msg-item-bot" ref="markdownBodyRef">
     <span class="chat-time">{{ msg.created_time }}</span>
+    <span v-if="isBot" class="copy-btn"><el-icon><CopyDocument /></el-icon> 复制内容 </span>
     <el-avatar :size="35" :src="avatar" />
     <div v-if="isBot" class="msg-content markdown-body" v-html="msg.content"></div>
     <div v-if="!isBot" class="msg-content markdown-body nobot">{{ msg.content }}</div>
@@ -8,11 +9,114 @@
 </template>
   
 <script setup lang="ts">
-import { ref, Ref, computed, watch } from 'vue';
+import { ref, Ref, computed, watch, onMounted, onUnmounted, onUpdated } from 'vue';
 import { useGlobalStore } from '../store'
+import { copyToClipboard } from '../utils/string'
 const Global = useGlobalStore()
 import type { Msg } from '../class/Msg';
 import '../assets/css/md.css'
+
+
+const markdownBodyRef: any = ref(null)
+
+const addCopyEvents = () => {
+  if (markdownBodyRef.value) {
+    const copyBtns = markdownBodyRef.value.querySelectorAll('.code-block-header__copy')
+    copyBtns.forEach((btn: any) => {
+      btn.addEventListener('click', handleClick)
+    })
+  }
+}
+
+const removeCopyEvents = () => {
+  if (markdownBodyRef.value) {
+    const copyBtns = markdownBodyRef.value.querySelectorAll('.code-block-header__copy')
+    copyBtns.forEach((btn: any) => {
+      btn.removeEventListener('click', ()=>{})
+    })
+  }
+}
+
+const handleClick = (event: any) => {
+  const code = event.target.parentElement?.nextElementSibling?.textContent
+  if (code) {
+    copyToClipboard(code)
+      .then(() => {
+        ElMessage({
+          message: '复制成功.',
+          type: 'success',
+        })
+
+      })
+      .catch(() => {
+        ElMessage({
+          message: '复制失败.',
+          type: 'warning',
+        })
+      })
+  }
+}
+
+
+
+const addCopyBodyEvents = () => {
+  if (markdownBodyRef.value) {
+    const copyBtns = markdownBodyRef.value.querySelectorAll('.copy-btn')
+    
+    copyBtns.forEach((btn: any) => {
+      btn.addEventListener('click', handleBodyClick)
+    })
+  }
+}
+
+const removeCopyBodyEvents = () => {
+  if (markdownBodyRef.value) {
+    const copyBtns = markdownBodyRef.value.querySelectorAll('.copy-btn')
+    copyBtns.forEach((btn: any) => {
+      btn.removeEventListener('click', ()=>{})
+    })
+  }
+}
+
+const handleBodyClick = (event: any) => {
+  console.log('copy');
+
+  const code = event.target.parentElement?.querySelector('.markdown-body').textContent
+  if (code) {
+    copyToClipboard(code)
+      .then(() => {
+        ElMessage({
+          message: '复制成功.',
+          type: 'success',
+        })
+
+      })
+      .catch(() => {
+        ElMessage({
+          message: '复制失败.',
+          type: 'warning',
+        })
+      })
+  }
+}
+
+
+onMounted(() => {
+  addCopyEvents()
+  addCopyBodyEvents()
+})
+
+onUnmounted(() => {
+  removeCopyEvents()
+  removeCopyBodyEvents()
+})
+
+onUpdated(() => {
+  addCopyEvents()
+  addCopyBodyEvents()
+})
+
+
 
 const props = defineProps<{
   data: Msg
@@ -43,8 +147,17 @@ watch(() => props.data, (newData: Msg) => {
 },
   { immediate: true }
 );
+
+
+
+
 </script>
   
+
+
+
+
+
 <style lang="scss" scoped>
 .msg-item {
   position: relative;
@@ -66,6 +179,24 @@ watch(() => props.data, (newData: Msg) => {
   color: var(--el-text-chat-time-color);
   top: 0px;
   right: 50px;
+}
+
+.copy-btn {
+  position: absolute;
+  font-size: 14px;
+  color: var(--el-color-primary);
+  top: 0px;
+  right: 15%;
+  cursor: pointer;
+}
+
+.copy-btn b {
+  line-height: 14px;
+  font-weight: normal;
+  margin-left: 5px;
+  position: absolute;
+  display: inline-flex;
+  width: 100px;
 }
 
 .el-avatar {
