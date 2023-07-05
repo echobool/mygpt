@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'msg-item-bot': isBot }" class="msg-item">
+  <div  class="msg-item msg-item-bot">
     <span class="chat-time">{{ msg.created_time }}</span>
     <el-avatar :size="35" :src="avatar" />
     <div v-if="isBot" class="msg-content markdown-body" v-html="msg.content"></div>
@@ -56,10 +56,14 @@ watch(() => props.data, (newData: Msg) => {
   font-size: 16px;
 }
 
+.markdown-body {
+  background-color: transparent;
+}
+
 .chat-time {
   position: absolute;
-  font-size: 12px;
-  color: var(--el-text-color-primary);
+  font-size: 14px;
+  color: var(--el-text-chat-time-color);
   top: 0px;
   right: 50px;
 }
@@ -85,25 +89,18 @@ watch(() => props.data, (newData: Msg) => {
 }
 
 .msg-content {
-  border: 1px solid var(--el-border-color);
+
   padding: 10px 15px;
-  border-radius: 10px;
   border-top-right-radius: 0;
-  background-color: var(--el-color-info-light-8);
+
   max-width: 80%;
   line-height: 150%;
   color: var(--el-text-color-primary)
 }
 
-.msg-item-bot .msg-content {
-  border-radius: 10px;
-  border-top-left-radius: 0;
-  border: 1px solid var(--el-border-color);
-  background-color: var(--el-color-primary-light-8);
-}
 
 .msg-item-bot .chat-time {
-  left: 50px;
+  left: 60px;
 }
 
 .nobot {

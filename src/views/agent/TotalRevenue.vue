@@ -9,6 +9,7 @@
         <el-table :data="IncomeList" size="large" stripe style="width: 100%">
                 <el-table-column fixed prop="id" label="编号" width="100" />
                 <el-table-column prop="order_id" label="订单号" width="100" />
+                <el-table-column prop="user_id" label="会员ID" width="100" />
                 <el-table-column prop="pkg_name" label="套餐" width="150" />
                 <el-table-column prop="price" label="价格" width="120" />
                 <el-table-column prop="rebate" label="返佣比例" width="150" />
@@ -52,10 +53,11 @@ const getIncome = async () => {
             dataTotal.value = res.ext.count
             let data = res.data
             
-            data.forEach((item: { id: any; order_id: any; price: any; pkg_name: any; rebate: any; amount: any; created_at: any; }) => {
+            data.forEach((item: any) => {
                 IncomeList.push({
                     id: item.id,
                     order_id: item.order_id,
+                    user_id: item.user_id,
                     price: item.price,
                     pkg_name: item.pkg_name,
                     rebate: item.rebate,

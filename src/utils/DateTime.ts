@@ -22,3 +22,7 @@ export function StandardTime(timeStr: string = ''){
 export function formatDateByTimestamp(nS:string):string{
      return new Date(parseInt(nS) * 1000).toLocaleString().replace(/:\d{1,2}$/,' ');  
 }
+
+export function formatDateByTimestamp2(nS:string):string{
+     return new Date(parseInt(nS) * 1000).toLocaleDateString();
+}

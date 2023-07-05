@@ -10,7 +10,7 @@
         <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm"
             :size="formSize">
             <el-form-item label="站点logo">
-                请点击上方logo 上传
+                请点击上方（logo 虚线➕号方框）上传LOGO图片
             </el-form-item>
             <el-form-item label="站点名称" prop="site_name">
                 <el-input v-model="ruleForm.site_name" size="large" />

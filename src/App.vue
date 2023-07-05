@@ -4,8 +4,8 @@
       <el-header class="">
         <div class="header-container">
           <div class="logo-container" style="cursor: pointer;" @click="router.replace({ name: 'home' })">
-            <img class="logo" width="30" :src="logoUrl ? logoUrl : '/ailogo.svg'" alt="ai Logo">
-            <span style="position: relative; font-weight: bold; margin-left: 10px; margin-top: -5px; font-size: 20px;">
+            <img class="logo" width="30" :src="logoUrl ? logoUrl : '/img/ailogo300.png'" alt="ai Logo">
+            <span style="position: relative; font-weight: bold; margin-left: 10px;font-size: 20px;">
               {{ agent.site_name ? agent.site_name : siteName }}
             </span>
           </div>
@@ -17,12 +17,13 @@
                   <ChatDotRound />
                 </el-icon> 消息</el-menu-item>
               <el-menu-item index="" disabled><el-icon>
+                  <Apple />
+                </el-icon> AI应用</el-menu-item>
+              <el-menu-item index="" disabled><el-icon>
                   <Picture />
                 </el-icon> 绘图</el-menu-item>
 
-              <!-- <el-menu-item index="3"><el-icon>
-                  <Goods />
-                </el-icon> 商城</el-menu-item> -->
+
               <!-- <el-menu-item index="4">
                 <i class="el-icon" style="font-size:24px;" data-v-6c8d2bba=""><svg
                     preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="1.2em" height="1.2em"
@@ -215,48 +216,105 @@
       <el-dialog class="vipDialog" title="" v-model="dialogUpgradeVisible" @closed="onVipDialogClose" width="750"
         style="border-radius: 10px;">
         <h1 style=" margin-bottom: 35px; margin-top: 0;">选择额度套餐</h1>
+        <el-tabs type="border-card" v-model="curModel" @tab-click="changPkgTab">
+          <el-tab-pane label="会员时长套餐" name="gpt3.5">
+            <!-- pc端 -->
+            <div class="scroll hidden-sm-and-down">
+              <el-space size="large" alignment="flex-start">
+                <el-card v-for="(item, index) in pkgList" :class="{ 'card-item-active': selectPkg == item.id }"
+                  :key="index" shadow="hover" @click="selectPkgEvt(item.id)" class="vip-card"
+                  :body-style="{ padding: '0px', marginBottom: '1px' }">
 
-        <div class="scroll hidden-sm-and-down">
-          <el-space size="large" alignment="flex-start">
-            <el-card v-for="(item, index) in pkgList" :class="{ 'card-item-active': selectPkg == item.id }" :key="index"
-              shadow="hover" @click="selectPkgEvt(item.id)" class="vip-card"
-              :body-style="{ padding: '0px', marginBottom: '1px' }">
-
-              <div class="pkg-item">
-                <span v-if="item.recommend == 1" class="tui">推荐</span>
-                <h3>{{ item.name }}</h3>
-                <div class="mid">
-                  <b><i>￥</i>{{ item.price }}</b>
-                  <span>原价￥{{ item.old_price }}</span>
-                </div>
-                <div class="remark">折合 {{ (item.price / item.lifespan).toFixed(2) }}元/天 <br> 赠送4.0额度 {{ item.quota }}条
-                </div>
-              </div>
-            </el-card>
-          </el-space>
-        </div>
-
-        <div class="scroll-y hidden-md-and-up">
-          <el-row justify="space-around">
-            <el-col :span="12" v-for="(item, index) in pkgList" :key="index">
-              <el-card :class="{ 'card-item-active': selectPkg == item.id }" shadow="hover" @click="selectPkgEvt(item.id)"
-                :body-style="{ padding: '0px', marginBottom: '1px' }">
-
-                <div class="pkg-item">
-                  <span v-if="item.recommend == 1" class="tui">推荐</span>
-                  <h3>{{ item.name }}</h3>
-                  <div class="mid">
-                    <b><i>￥</i>{{ item.price }}</b>
-                    <span>原价￥{{ item.old_price }}</span>
+                  <div class="pkg-item">
+                    <span v-if="item.recommend == 1" class="tui">推荐</span>
+                    <h3>{{ item.name }}</h3>
+                    <div class="mid">
+                      <b><i>￥</i>{{ item.price.toFixed(2) }}</b>
+                      <span>原价￥{{ item.old_price.toFixed(2) }}</span>
+                    </div>
+                    <div class="remark">折合 {{ (item.price / item.lifespan).toFixed(2) }}元/天 <br> <b>赠送4.0额度 {{ item.quota
+                    }}条</b>
+                    </div>
                   </div>
-                  <div class="remark">折合 {{ (item.price / item.lifespan).toFixed(2) }}元/天 <br> 赠送4.0额度 {{ item.quota }}条
-                  </div>
-                </div>
-              </el-card>
-            </el-col>
-          </el-row>
+                </el-card>
+              </el-space>
+            </div>
+            <!-- 移动端 -->
+            <div class="scroll-y hidden-md-and-up">
+              <el-row justify="space-around">
+                <el-col :span="12" v-for="(item, index) in pkgList" :key="index">
+                  <el-card :class="{ 'card-item-active': selectPkg == item.id }" shadow="hover"
+                    @click="selectPkgEvt(item.id)" :body-style="{ padding: '0px', marginBottom: '1px' }">
 
-        </div>
+                    <div class="pkg-item">
+                      <span v-if="item.recommend == 1" class="tui">推荐</span>
+                      <h3>{{ item.name }}</h3>
+                      <div class="mid">
+                        <b><i>￥</i>{{ item.price.toFixed(2) }}</b>
+                        <span>原价￥{{ item.old_price.toFixed(2) }}</span>
+                      </div>
+                      <div class="remark">折合 {{ (item.price / item.lifespan).toFixed(2) }}元/天 <br> <b>赠送4.0额度 {{
+                        item.quota }}条</b>
+                      </div>
+                    </div>
+                  </el-card>
+                </el-col>
+              </el-row>
+            </div>
+
+          </el-tab-pane>
+
+          <el-tab-pane label="GPT-4套餐包" name="gpt4">
+            <!-- pc端 -->
+            <div class="scroll hidden-sm-and-down">
+              <el-space size="large" alignment="flex-start">
+                <el-card v-for="(item, index) in pkgList" :class="{ 'card-item-active': selectPkg == item.id }"
+                  :key="index" shadow="hover" @click="selectPkgEvt(item.id)" class="vip-card"
+                  :body-style="{ padding: '0px', marginBottom: '1px' }">
+
+                  <div class="pkg-item">
+                    <span v-if="item.recommend == 1" class="tui">推荐</span>
+                    <h3>{{ item.name }}</h3>
+                    <div class="mid">
+                      <b><i>￥</i>{{ item.price.toFixed(2) }}</b>
+                      <span>原价￥{{ item.old_price.toFixed(2) }}</span>
+                    </div>
+                    <div class="remark"><b>4.0额度 {{ item.quota }}条</b>
+                    </div>
+                  </div>
+                </el-card>
+              </el-space>
+            </div>
+            <!-- 移动端 -->
+            <div class="scroll-y hidden-md-and-up">
+              <el-row justify="space-around">
+                <el-col :span="12" v-for="(item, index) in pkgList" :key="index">
+                  <el-card :class="{ 'card-item-active': selectPkg == item.id }" shadow="hover"
+                    @click="selectPkgEvt(item.id)" :body-style="{ padding: '0px', marginBottom: '1px' }">
+
+                    <div class="pkg-item">
+                      <span v-if="item.recommend == 1" class="tui">推荐</span>
+                      <h3>{{ item.name }}</h3>
+                      <div class="mid">
+                        <b><i>￥</i>{{ item.price.toFixed(2) }}</b>
+                        <span>原价￥{{ item.old_price.toFixed(2) }}</span>
+                      </div>
+                      <div class="remark"><b>4.0额度 {{ item.quota }}条</b>
+                      </div>
+                    </div>
+                  </el-card>
+                </el-col>
+              </el-row>
+            </div>
+
+
+
+          </el-tab-pane>
+
+        </el-tabs>
+
+
+
         <el-card class="hidden-sm-and-down" style="margin-top:10px; background-color: transparent; border: 0;"
           shadow="never" v-if="Global.token == ''"
           :body-style="{ padding: '0px', marginBottom: '1px', textAlign: 'center' }">
@@ -451,14 +509,14 @@
 </template>
 
 <script setup lang="ts">
-import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu, Lollipop } from '@element-plus/icons-vue';
+import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu, Lollipop, Apple } from '@element-plus/icons-vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
-import { type FormInstance, type FormRules } from 'element-plus'
+import { TabsPaneContext, type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
@@ -519,7 +577,7 @@ const pkgList: PkgListType[] = reactive([])
 const AgentList: any = reactive([])
 const span = ref(8)
 
-
+const curModel = ref('gpt3.5')
 
 
 
@@ -549,9 +607,15 @@ onMounted(() => {
 
 
 
-const checkAgentTips=()=>{
-  if(typeof user.value.agent === 'object' ){
-    agentTipsVisible.value = user.value.agent.agent_level != "" && !user.value.agent.site_name 
+const checkAgentTips = () => {
+  if (typeof user.value.agent === 'object') {
+    if (user.value.agent.agent_level != "" && user.value.agent.site_name == "") {
+      agentTipsVisible.value = true
+    } else {
+      agentTipsVisible.value = false
+    }
+  } else {
+    agentTipsVisible.value = false
   }
 }
 
@@ -620,6 +684,67 @@ const closeLoginDialog = () => {
     viewBox.value.loadAgent()
   }
 
+}
+
+
+// 套餐切换事件
+const changPkgTab = async (pane: TabsPaneContext, _ev: Event) => {
+  curModel.value = pane.paneName as string
+
+  if (pane.paneName == 'gpt3.5') {
+    requestPkgData(1)
+  } else if (pane.paneName == 'gpt4') {
+    requestPkgData(2)
+  }
+
+
+}
+
+
+const requestPkgData = async (pkg_type: number) => {
+  countDown(10)
+  pkgList.splice(0, pkgList.length);
+  // 请求后台套餐数据
+  await getPkgList({
+    page: 1,
+    page_size: 20,
+    pkg_type: pkg_type
+  }).then(res => {
+    if (res.data) {
+      let defaultPkgId = 0
+      res.data.forEach((item: PkgListType) => {
+        if (item.recommend === 1 && defaultPkgId == 0) {
+          defaultPkgId = item.id
+        }
+        pkgList.push({
+          id: item.id,
+          name: item.name,
+          c_name: item.c_name,
+          genre: item.genre,
+          created_at: item.created_at,
+          expiry_date: item.expiry_date,
+          number_use: item.number_use,
+          old_price: item.old_price,
+          price: item.price,
+          lifespan: item.lifespan,
+          remarks: item.remarks,
+          state: item.state,
+          recommend: item.recommend,
+          sort: item.sort,
+          gate: item.gate,
+          quota: item.quota,
+          intro: item.intro,
+          intro_arr: [],
+        })
+      })
+
+      if (Global.token != "") {
+        defaultPkgId > 0 && selectPkgEvt(defaultPkgId) // 默认选中一个推荐的套餐
+      }
+    }
+  }).catch(err => {
+    console.log(err)
+  })
 }
 
 // vip窗口关闭时执行
@@ -814,7 +939,7 @@ const openAgentDialog = async () => {
 // 开通代理付费窗口 并展示二维码
 const openAgent = async (id: number) => {
   // 如果是微信浏览器 则使用jsapi支付
-  if (isWeixinBrowser()) {
+  if (!isPc()) {
     JsapiPayBtnLoad.value = true
     toJsapiPay(id)
     return
@@ -914,44 +1039,14 @@ const openUpgradePop = async () => {
   drawerBottom.value = false
 
   dialogUpgradeVisible.value = true
-  countDown(10)
-  pkgList.splice(0, pkgList.length);
-  // 请求后台套餐数据
-  await getPkgList({
-    page: 1,
-    page_size: 20
-  }).then(res => {
-    if (res.data) {
-      res.data.forEach((item: PkgListType) => {
-        pkgList.push({
-          id: item.id,
-          name: item.name,
-          c_name: item.c_name,
-          genre: item.genre,
-          created_at: item.created_at,
-          expiry_date: item.expiry_date,
-          number_use: item.number_use,
-          old_price: item.old_price,
-          price: item.price,
-          lifespan: item.lifespan,
-          remarks: item.remarks,
-          state: item.state,
-          recommend: item.recommend,
-          sort: item.sort,
-          gate: item.gate,
-          quota: item.quota,
-          intro: item.intro,
-          intro_arr: [],
-        })
-      })
 
-      if (Global.token != "") {
-        selectPkgEvt(5) // 默认选中一个套餐
-      }
-    }
-  }).catch(err => {
-    console.log(err)
-  })
+  // 默认加载
+  if (curModel.value == 'gpt3.5') {
+    requestPkgData(1)
+  } else if (curModel.value == 'gpt4') {
+    requestPkgData(2)
+  }
+
 }
 
 const selectPkgEvt = (id: number) => {
@@ -1011,8 +1106,8 @@ const toJsapiPay = async (pkgId: number) => {
 // 向后台发起支付方式并返回支付信息
 const requestPay = async () => {
   clearInterval(timer3)
-  // 如果在微信端调用jsapi支付方式
-  if (isWeixinBrowser()) {
+  // 如果在微信端调用jsapi支付方式 如果是桌面端则按桌面端 扫码处理
+  if (!isPc()) {
     return
   }
 
@@ -1228,6 +1323,31 @@ const isWeixinBrowser = () => {
   return /micromessenger/.test(ua) ? true : false;
 }
 
+
+// 判断是pc 微信浏览器 还是手机微信浏览器
+function isPc() {
+  var system = {
+    win: false,
+    mac: false,
+    xll: false,
+    ipad: false
+  };
+
+  // 检测网页运行平台
+  var p = window.navigator.platform;
+  system.win = p.indexOf("Win") == 0; // windows
+  system.mac = p.indexOf("Mac") == 0; // 苹果
+  system.xll = p == "X11" || p.indexOf("Linux") == 0; // Linux
+  system.ipad = navigator.userAgent.match(/iPad/i) != null ? true : false;  // iPad
+  if (system.win || system.mac || system.xll || system.ipad) {  // 在PC端上打开的
+    return true;
+  } else { 
+    let ua = navigator.userAgent.toLowerCase();
+    return /micromessenger/.test(ua) ? false : true;
+  }
+}
+
+
 </script>
 
 <style lang="scss" scoped>
@@ -1372,6 +1492,11 @@ body {
   display: inline-block;
   font-size: 12px;
   color: #777;
+  line-height: 25px;
+}
+
+.vipDialog .pkg-item .remark {
+  color: #a5a5a5;
 }
 
 .vipDialog .pay-area {
@@ -1540,6 +1665,11 @@ body {
 .el-container ::v-deep .el-tabs__nav {
   float: none;
   justify-content: center;
+}
+
+.el-container ::v-deep .vipDialog .el-tabs__nav {
+  float: none;
+  justify-content: left;
 }
 
 

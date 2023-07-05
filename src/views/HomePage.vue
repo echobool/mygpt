@@ -12,7 +12,8 @@
 
                 <el-menu-item-group v-for="(item, index) in chatList" :key="index" v-show="item.length > 0"
                     :title="getMenuTitle(index)">
-                    <el-menu-item v-for="(menu, index1) in item" :key="index1" :index="menu._id">
+                    <el-menu-item v-for="(menu, index1) in item" :key="index1" :index-path="menu.config.model_name"
+                        :index="menu._id">
                         <span class="title">{{ menu.title }}</span>
 
 
@@ -35,11 +36,11 @@
         </div>
 
         <el-card shadow="never" body-style="padding:10px">
-            <el-tooltip class="box-item" effect="dark" content="AI模型选择" placement="top-end">
+            <!-- <el-tooltip class="box-item" effect="dark" content="AI模型选择" placement="top-end">
                 <el-select v-model="model" @change="saveModel" class="m-2" placeholder="Select" size="large">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
-            </el-tooltip>
+            </el-tooltip> -->
 
             <div class="account-set">
                 <span>
@@ -58,10 +59,23 @@
     <el-container @click="showAside = false" class="right-container">
         <el-main id="chatMain">
 
+            <div v-show="promptVisible" style="justify-content: center; display: flex; padding: 20px;">
+                <el-radio-group v-model="model" size="large">
+                    <el-radio-button v-for="item in options" :label="item.value">
+                        <template #default>
+                            <component :is="item.icon"></component>{{ item.label }}
+                        </template>
+                    </el-radio-button>
+                </el-radio-group>
+            </div>
+            <div v-show="!promptVisible" style="justify-content: center; display: flex; padding: 20px;"
+                class="home-msg-item-bot">
+                Model: {{curModelName}}
+            </div>
 
 
             <el-row v-show="promptVisible" style="justify-content: center;" class="main-center">
-                <el-col :xs="24" :sm="24" :md="20" :lg="20" :xl="20">
+                <el-col :xs="24" :sm="24" :md="20" :lg="18" :xl="16">
                     <el-row :gutter="0">
                         <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                             <el-card shadow="never">
@@ -114,10 +128,11 @@
 
 
 
-            <el-row class="chat-session-list">
-                <el-col :xs="24" :sm="24" :md="20" :lg="18" :xl="17">
+            <el-row class="chat-session-list" v-for="item in messageData" :key="item.id"
+                :class="{ 'home-msg-item-bot': item.who === 'bot' }">
+                <el-col :xs="24" :sm="24" :md="20" :lg="15" :xl="14">
 
-                    <Message v-for="item in messageData" :key="item.id" :data="item" />
+                    <Message :data="item" />
 
                 </el-col>
             </el-row>
@@ -133,7 +148,7 @@
             <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain class="abort-chat-btn">
                 停止接收 </el-button>
             <el-row style="justify-content:center; ">
-                <el-col :xs="24" :sm="24" :md="20" :lg="16" :xl="15"
+                <el-col :xs="24" :sm="24" :md="20" :lg="14" :xl="13"
                     style="display: flex; position: relative; margin-top: 10px; align-items: flex-end;">
 
                     <button @click="openLeftMenu" class="reset-btn menu-hamburger hamburger hidden-sm-and-up"
@@ -165,15 +180,7 @@
 
         <el-dialog v-model="dialogFormVisible" style="border-radius: 10px;" title="Chat 配置">
             <el-card shadow="never" body-style="padding:0 10px;">
-                <div class="text-item">
-                    <h5>GPT模型</h5>
-                    <span>设置默认聊天使用的GPT模型</span>
-                    <div class="slider-handler" style="width: 200px;">
-                        <el-select v-model="model" class="m-2" placeholder="Select" size="large">
-                            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
-                        </el-select>
-                    </div>
-                </div>
+
                 <el-divider />
                 <div class="text-item">
                     <h5>随机性</h5>
@@ -256,6 +263,7 @@ const sliderLimit = ref(2000)
 const message = ref('')
 const data = ref('');
 const messageData: Msg[] = reactive([])
+const curModelName = ref('')
 
 const chatCount = ref(0)
 const chatLoadCount = ref(0)
@@ -267,10 +275,12 @@ const options = [
     {
         value: 'gpt-3.5-turbo',
         label: '  GPT-3.5',
+        icon: 'Lightning'
     },
     {
         value: 'gpt-4',
         label: '  GPT-4',
+        icon: 'ChromeFilled'
     },
 ]
 const chatList: { today: any[], oneWeekAgo: any[], oneMonthAgo: any[], oneYearAgo: any[] } = reactive({
@@ -289,9 +299,9 @@ const props = defineProps<{
 let chatId: string = ""
 
 // 模型保存
-const saveModel = (modelV: string) => {
-    localStorage.setItem('model', modelV)
-}
+// const saveModel = (modelV: string) => {
+//     localStorage.setItem('model', modelV)
+// }
 
 // 打开左侧side
 const openLeftMenu = (event: any) => {
@@ -535,7 +545,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
             return
         }
 
-
+        curModelName.value = modelName(model.value)
         await createChat({
             "model": model.value,
             "content": message.value,
@@ -611,6 +621,7 @@ const getMenuTitle = (index: string) => {
 
 // 创建新的聊天
 const newChat = () => {
+    model.value = 'gpt-3.5-turbo'
     // 将当前会话id 置空
     chatId = ""
     message.value = ''
@@ -639,6 +650,7 @@ const chatDelete = async (d: string) => {
 
 // 点击展示聊天日志
 const chatShow = async (id: string) => {
+    curModelName.value = getModelNameById(chatList, id)
     messageData.splice(0, messageData.length);
     // 隐藏提示区块
     promptVisible.value = false
@@ -680,6 +692,28 @@ const removeById = (obj: any, id: string) => {
     }
 }
 
+const getModelNameById = (obj: any, id: string) => {
+    let model_name = ""
+    for (let key in obj) {
+        let it: any = obj[key].filter((item: { _id: string; }) => item._id === id);
+        if (it.length > 0) {
+            model_name = it[0].config.model_name
+            break
+        }
+    }
+    return modelName(model_name)
+}
+
+
+const modelName=(model_name:string)=>{
+    if (model_name == "gpt-4") {
+        return "GPT-4"
+    } else if (model_name == "gpt-3.5-turbo") {
+        return "Default (GPT-3.5)"
+    }
+    return ""
+}
+
 //在setup里边的数据是私有的, 需要通过defineExpose暴露给父组件, 父组件才可以使用
 defineExpose({
     loadChatList
@@ -699,7 +733,7 @@ defineExpose({
 
         .menu-scroll {
             border-right: 0;
-            height: calc(100vh - 160px) !important;
+            height: calc(100vh - 120px) !important;
         }
 
         ::v-deep .slider-handler {
@@ -711,7 +745,7 @@ defineExpose({
 
         ::v-deep .new-chat-btn {
             position: absolute;
-            left: 1%;
+            left: 3%;
             top: -80px;
             z-index: 1;
         }
@@ -730,6 +764,7 @@ defineExpose({
     }
 
 }
+
 
 .abort-chat-btn {
     position: absolute;
@@ -750,13 +785,52 @@ defineExpose({
 
     ::v-deep .el-textarea__inner {
         padding-right: 40px !important;
+        background-color: var(--el-textarea-inner-color);
+        border-radius: 10px;
+    }
+
+    ::v-deep .el-radio-button .el-radio-button__inner {
+        color: var(--el-text-color-primary);
+        background-color: var(--el-border-aside-color);
+    }
+
+    ::v-deep .el-radio-button:first-child .el-radio-button__inner {
+        border-radius: 10px !important;
+        border: 0;
+    }
+
+    ::v-deep .el-radio-button:last-child .el-radio-button__inner {
+        border-radius: 10px !important;
+        margin-left: 15px;
+        border: 0;
+    }
+
+    ::v-deep .el-radio-button__original-radio:checked+.el-radio-button__inner {
+        background-color: var(--el-msg-item-bot-color);
+        box-shadow: none;
     }
 }
 
+
+
+.el-radio-group {
+    background-color: var(--el-border-aside-color);
+    padding: 5px 5px;
+    border-radius: 15px;
+}
+
+
+.el-radio-group svg {
+    height: 16px;
+}
+
+
+
+
 .aside .el-scrollbar {
 
-    height: calc(100vh - 160px);
-    border-right: 1px solid var(--el-border-color);
+    height: calc(100vh - 120px);
+    border-right: 1px solid var(--el-border-aside-color);
 }
 
 .aside .no-more {
@@ -775,16 +849,16 @@ defineExpose({
 
 .aside .menu-scroll {
     border-right: 0;
-    height: calc(100vh - 230px);
+    height: calc(100vh - 190px);
 }
 
 .aside .el-card {
     border-radius: 0;
     border: 0;
     border-top: 1px solid var(--el-border-color);
-    border-right: 1px solid var(--el-border-color);
-    height: 99px;
-    background-color: var(--el-color-primary-light-9);
+    border-right: 1px solid var(--el-border-aside-color);
+    height: 59px;
+    // background-color: var(--el-bg-color);
 }
 
 
@@ -853,13 +927,14 @@ defineExpose({
 
 .el-main {
     height: calc(100vh - 140px);
-    background-color: var(--el-color-primary-light-9)
+    background-color: var(--el-bg-color);
+    padding: 0 0 20px 0;
 }
 
 .el-footer {
     height: 80px;
-    background-color: var(--el-color-info-light-9);
-    border-top: 1px solid var(--el-border-color);
+    background-color: var(--el-bg-color);
+    // border-top: 1px solid var(--el-border-color);
 }
 
 .el-aside {
@@ -897,11 +972,12 @@ defineExpose({
 }
 
 .el-menu-item.is-active {
-    background-color: var(--el-menu-item-hover-fill);
+    background-color: var(--el-menu-item-hover-fill-bg);
+    color: var(--el-menu-item-hover-color);
 }
 
 .el-menu-item:hover {
-    background-color: var(--el-menu-item-hover-fill);
+    background-color: var(--el-menu-item-hover-fill-bg);
 }
 
 .new-chat {
@@ -918,10 +994,15 @@ defineExpose({
 .chat-session-list {
     justify-content: center;
     align-items: end;
-    padding: 15px 0;
+    padding: 15px;
+
 }
 
-
+.home-msg-item-bot {
+    background-color: var(--el-msg-item-bot-color);
+    border-top: 1px solid var(--el-msg-item-bot-border-color);
+    border-bottom: 1px solid var(--el-msg-item-bot-border-color);
+}
 
 button.reset-btn {
     background: none;
@@ -967,6 +1048,7 @@ button.reset-btn {
 .el-main .main-center .el-card {
     border: 0;
     background-color: transparent;
+    padding: 0;
 }
 
 .prompt {
@@ -976,7 +1058,7 @@ button.reset-btn {
 .prompt .item {
     padding: 15px;
     text-align: left;
-    background-color: var(--el-color-info-light-8);
+    background-color: var(--el-prompt-item-color);
     margin-bottom: 15px;
     border-radius: 15px;
     font-size: 14px;
@@ -994,5 +1076,4 @@ button.reset-btn {
     display: block !important;
     position: absolute;
     z-index: 2;
-}
-</style>
+}</style>

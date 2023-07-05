@@ -21,6 +21,9 @@ export const useGlobalStore = defineStore(Names.GLOBAL, {
       },
       getNickname(): string {
         if(this.user.nickname){
+          if(this.user.nickname == 'AI User'){
+            return '个人中心'
+          }
           return this.user.nickname
         }else if(this.user.phone){
           return this.user.phone

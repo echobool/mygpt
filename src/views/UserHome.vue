@@ -18,13 +18,13 @@
                                 </div>
                             </el-col>
                             <el-col :xs="8" :sm="8" :md="6" :lg="6" style="text-align: center;">
-                                <div class="tips">剩余额度</div>
-                                <h3>{{ user.quota }}</h3>
+                                <div class="tips">剩余4.0额度</div>
+                                <h3>{{ user.quota }} 条</h3>
 
                             </el-col>
                             <el-col :xs="16" :sm="16" :md="6" :lg="6" style="text-align: center;">
-                                <div class="tips">过期时间</div>
-                                <h3>{{ user.expiry_date == "" ? "--" : formatDateByTimestamp(user.expiry_date) }}</h3>
+                                <div class="tips">会员到期</div>
+                                <h3>{{ user.expiry_date == "" ? "--" : formatDateByTimestamp2(user.expiry_date) }}</h3>
                             </el-col>
                         </el-row>
 
@@ -110,7 +110,7 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { myOrder, getUserInfo } from '../http/api'
-import { formatDateByTimestamp } from "../utils/DateTime";
+import { formatDateByTimestamp ,formatDateByTimestamp2} from "../utils/DateTime";
 
 const orderList: any = reactive([])
 const dataTotal = ref(0)
