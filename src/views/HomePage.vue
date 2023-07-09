@@ -183,10 +183,11 @@
 
                 <el-divider />
                 <div class="text-item">
+                    <!-- Temperature -->
                     <h5>随机性</h5>
                     <span>值越大, 回复越随机, 大于 1 的值可能会导致乱码</span>
                     <div class="slider-handler">
-                        <el-slider v-model="sliderRandom" :min="-2" :max="2" :step="0.1" />
+                        <el-slider v-model="sliderRandom" :min="0" :max="2" :step="0.1" />
                     </div>
 
                 </div>
@@ -212,7 +213,7 @@
                     <h5>单次回复限制</h5>
                     <span>单次交互所用的最大 Token 数</span>
                     <div class="slider-handler">
-                        <el-slider v-model="sliderLimit" :min="200" :max="3500" :step="10" />
+                        <el-slider v-model="sliderLimit" :min="500" :max="4000" :step="10" />
                     </div>
                 </div>
                 <el-divider />
@@ -256,7 +257,7 @@ const dialogFormVisible = ref(false)
 const promptVisible = ref(true)
 const showAside = ref(false)
 const chatOngoing = ref(false)
-const sliderRandom = ref(0)
+const sliderRandom = ref(0.8)
 const sliderFresh = ref(0)
 const sliderRepeat = ref(0)
 const sliderLimit = ref(2000)
@@ -317,7 +318,7 @@ const openSetDialog = () => {
     let limit = localStorage.getItem('sliderLimit')
     let _model = localStorage.getItem('model')
     model.value = _model ? _model : 'gpt-3.5-turbo'
-    sliderRandom.value = random ? parseFloat(random) : 0
+    sliderRandom.value = random ? parseFloat(random) : 0.8
     sliderFresh.value = freash ? parseFloat(freash) : 0
     sliderRepeat.value = repeat ? parseFloat(repeat) : 0
     sliderLimit.value = limit ? parseFloat(limit) : 2000
@@ -327,7 +328,7 @@ const openSetDialog = () => {
 // 恢复默认设置
 const setDefault = () => {
     model.value = 'gpt-3.5-turbo'
-    sliderRandom.value = 0
+    sliderRandom.value = 0.8
     sliderFresh.value = 0
     sliderRepeat.value = 0
     sliderLimit.value = 2000

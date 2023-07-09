@@ -155,7 +155,14 @@ watch(() => props.data, (newData: Msg) => {
   
 
 
+<style>
 
+.markdown-body table {color:var(--el-text-color-primary);border-width: 1px;border-color: var(--el-border-color);border-collapse: collapse;}
+
+.markdown-body table th {border-width: 1px;padding: 8px;border-style: solid;border-color: var(--el-border-color);background-color: var(--el-bg-color);}
+
+.markdown-body table td {border-width: 1px;padding: 8px;border-style: solid;border-color: var(--el-border-color);background-color: var(--el-bg-color);}
+</style>
 
 
 <style lang="scss" scoped>
@@ -172,6 +179,7 @@ watch(() => props.data, (newData: Msg) => {
 .markdown-body {
   background-color: transparent;
 }
+
 
 .chat-time {
   position: absolute;
