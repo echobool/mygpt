@@ -258,7 +258,7 @@ const promptVisible = ref(true)
 const showAside = ref(false)
 const chatOngoing = ref(false)
 const sliderRandom = ref(0.8)
-const sliderFresh = ref(0)
+const sliderFresh = ref(0.8)
 const sliderRepeat = ref(0)
 const sliderLimit = ref(2000)
 const message = ref('')
@@ -319,7 +319,7 @@ const openSetDialog = () => {
     let _model = localStorage.getItem('model')
     model.value = _model ? _model : 'gpt-3.5-turbo'
     sliderRandom.value = random ? parseFloat(random) : 0.8
-    sliderFresh.value = freash ? parseFloat(freash) : 0
+    sliderFresh.value = freash ? parseFloat(freash) : 0.8
     sliderRepeat.value = repeat ? parseFloat(repeat) : 0
     sliderLimit.value = limit ? parseFloat(limit) : 2000
     dialogFormVisible.value = true
@@ -329,7 +329,7 @@ const openSetDialog = () => {
 const setDefault = () => {
     model.value = 'gpt-3.5-turbo'
     sliderRandom.value = 0.8
-    sliderFresh.value = 0
+    sliderFresh.value = 0.8
     sliderRepeat.value = 0
     sliderLimit.value = 2000
 }
