@@ -140,3 +140,16 @@ export const getUserInfo = () => {
 export const jsapiPay = (data: any) => {
     return  axios.post('/order/jsapi', data)
 }
+
+
+
+
+// 获取所有应用
+export const getAllApp = (params: any) => {
+    return  axios.get('/app/list', { params })
+}
+
+// 获取应用信息
+export const getAppInfo = (params: any) => {
+    return  axios.get('/app/info', { params })
+}

@@ -929,13 +929,13 @@ defineExpose({
 
 .el-main {
     height: calc(100vh - 140px);
-    background-color: var(--el-bg-color);
+    background-color: var(--el-bg-chat-color);
     padding: 0 0 20px 0;
 }
 
 .el-footer {
     height: 80px;
-    background-color: var(--el-bg-color);
+    background-color: var(--el-bg-chat-color);
     // border-top: 1px solid var(--el-border-color);
 }
 

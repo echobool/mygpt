@@ -16,7 +16,7 @@
               <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
                   <ChatDotRound />
                 </el-icon> 消息</el-menu-item>
-              <el-menu-item index="" disabled><el-icon>
+              <el-menu-item @click=" aiClick()" ><el-icon>
                   <Apple />
                 </el-icon> AI应用</el-menu-item>
               <el-menu-item index="" disabled><el-icon>
@@ -516,11 +516,15 @@ import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
+import { useRoute } from 'vue-router';
+
 import { TabsPaneContext, type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
 
+
+const route = useRoute();
 const { toggle } = useFullscreen()
 
 const logoUrl = ref('')
@@ -684,6 +688,17 @@ const closeLoginDialog = () => {
     viewBox.value.loadAgent()
   }
 
+}
+
+// 用于点击 AI栏目时执行一下 内容的方法 加载应用
+const aiClick = () =>{
+  router.replace({ name: 'ai' })
+  
+ // console.log(typeof viewBox.value.setShowApp);
+   if (typeof viewBox.value.setShowApp == 'function') {
+    viewBox.value.setShowApp(true)
+   }
+    
 }
 
 
