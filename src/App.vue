@@ -1,7 +1,7 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header class="">
+      <el-header class="hidden-xs-only">
         <div class="header-container">
           <div class="logo-container" style="cursor: pointer;" @click="router.replace({ name: 'home' })">
             <img class="logo" width="30" :src="logoUrl ? logoUrl : '/img/ailogo300.png'" alt="ai Logo">
@@ -16,7 +16,7 @@
               <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
                   <ChatDotRound />
                 </el-icon> 消息</el-menu-item>
-              <el-menu-item @click=" aiClick()" ><el-icon>
+              <el-menu-item @click=" aiClick()"><el-icon>
                   <Apple />
                 </el-icon> AI应用</el-menu-item>
               <el-menu-item index="" disabled><el-icon>
@@ -479,16 +479,6 @@
 
       <!-- 移动端兼容 -->
       <el-drawer v-model="drawerBottom" direction="btt" title="I am the title" :with-header="false">
-        <el-menu :default-active="activeIndex" style="justify-content: space-evenly;" :router="true" class="el-menu-demo"
-          mode="horizontal" @select="handleSelect">
-          <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
-              <ChatDotRound />
-            </el-icon> 消息</el-menu-item>
-          <el-menu-item @click="router.replace({ name: 'draw' })" disabled><el-icon>
-              <Picture />
-            </el-icon> 绘图</el-menu-item>
-        </el-menu>
-
         <div class="open-vip">
           <el-button @click="openUpgradePop" type="warning" size="large" link>用户充值</el-button>
           <el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
@@ -503,7 +493,27 @@
         </div>
 
       </el-drawer>
+      <el-footer class="app-footer hidden-md-and-up">
+        <el-menu :default-active="activeIndex" :ellipsis="false" class="el-menu-demo " mode="horizontal"
+          @select="handleSelect">
+          <el-menu-item @click="router.replace({ name: 'home' })">
+            <el-icon>
+              <ChatDotRound />
+            </el-icon>
+            <span>消息</span>
+          </el-menu-item>
+          <el-menu-item @click=" aiClick()"><el-icon>
+              <Apple />
+            </el-icon><span>AI应用</span> </el-menu-item>
+          <el-menu-item disabled><el-icon>
+              <Picture />
+            </el-icon> <span>绘图</span></el-menu-item>
+          <el-menu-item @click="drawerBottom = true"><el-icon>
+              <User />
+            </el-icon> <span>个人中心</span> </el-menu-item>
+        </el-menu>
 
+      </el-footer>
     </el-container>
   </div>
 </template>
@@ -516,7 +526,6 @@ import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
-import { useRoute } from 'vue-router';
 
 import { TabsPaneContext, type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
@@ -524,7 +533,6 @@ import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
 
 
-const route = useRoute();
 const { toggle } = useFullscreen()
 
 const logoUrl = ref('')
@@ -691,14 +699,14 @@ const closeLoginDialog = () => {
 }
 
 // 用于点击 AI栏目时执行一下 内容的方法 加载应用
-const aiClick = () =>{
+const aiClick = () => {
   router.replace({ name: 'ai' })
-  
- // console.log(typeof viewBox.value.setShowApp);
-   if (typeof viewBox.value.setShowApp == 'function') {
+
+  // console.log(typeof viewBox.value.setShowApp);
+  if (typeof viewBox.value.setShowApp == 'function') {
     viewBox.value.setShowApp(true)
-   }
-    
+  }
+
 }
 
 
@@ -1356,7 +1364,7 @@ function isPc() {
   system.ipad = navigator.userAgent.match(/iPad/i) != null ? true : false;  // iPad
   if (system.win || system.mac || system.xll || system.ipad) {  // 在PC端上打开的
     return true;
-  } else { 
+  } else {
     let ua = navigator.userAgent.toLowerCase();
     return /micromessenger/.test(ua) ? false : true;
   }
@@ -1871,5 +1879,24 @@ button.reset-btn {
 .el-drawer .open-vip {
   text-align: center;
   margin-top: 25px;
+}
+
+
+.app-footer {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.app-footer .el-menu-item {
+  flex-direction: column;
+  width: 25%;
+  padding: 10px 15px;
+}
+
+.app-footer .el-menu-item span {
+  height: 20px;
+  line-height: 20px;
+  color: var(--el-text-color-regular);
+  font-size: 12px;
 }
 </style>

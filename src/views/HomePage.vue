@@ -460,6 +460,7 @@ const loadData = async (postData: any) => {
         messageData.push({
             id: Math.random.toString(),
             chat_id: Math.random.toString(),
+            chat_type: 'chat',
             who: "bot",
             content: data.value,
             created_time: StandardTime() // 给个当前时间
@@ -534,6 +535,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
                 chat_id: chatId,
                 who: "user",
                 content: message.value,
+                chat_type: 'chat',
                 created_time: StandardTime() // 给个当前时间
             })
             loadData({
@@ -550,6 +552,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
         curModelName.value = modelName(model.value)
         await createChat({
             "model": model.value,
+            "chat_type": 'chat',
             "content": message.value,
             "slider_random": sliderRandom.value,
             "slider_fresh": sliderFresh.value,
@@ -560,6 +563,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
             messageData.push({
                 id: chatId,
                 chat_id: chatId,
+                chat_type: 'chat',
                 who: "user",
                 content: message.value,
                 created_time: StandardTime(res.data?.created_at)
