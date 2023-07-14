@@ -54,14 +54,12 @@
 
                             <!-- 展示应用 -->
                             <div v-for="(cate, index) in cates" :key="index" class="app-item">
-                                <h4>{{ cate.cate_name }}</h4>
+                                <h4> <span>{{ cate.cate_name }}</span></h4>
                                 <el-row>
-                                    <el-col style="text-align: center;" v-for="(app, k) in cate.app" :key="k" :xs="8"
-                                        :sm="8" :md="6" :lg="3" :xl="3">
-                                        <div style="display: inline-block; width: 80px; cursor: pointer;"
-                                            @click="goToApp(app.id)">
-                                            <el-image style="width: 80px; height: 80px" :src="staticUrl + app.logo_path"
-                                                fit="cover" />
+                                    <el-col style="text-align: center;" v-for="(app, k) in cate.app" :key="k" :xs="6"
+                                        :sm="6" :md="6" :lg="3" :xl="3">
+                                        <div class="app-item-div" @click="goToApp(app.id)">
+                                            <el-image :src="staticUrl + app.logo_path" fit="cover" />
                                             <span class="app-name">{{ app.name }}</span>
                                         </div>
 
@@ -78,7 +76,7 @@
                                     <span>我的收藏</span>
                                 </span>
                             </template>
-                        
+
                             <el-empty description="即将开放" />
                         </el-tab-pane>
 
@@ -121,6 +119,11 @@
                                 <el-radio v-for="(option, i) in field.options" :key="i" :label="option" border />
                             </el-radio-group>
                         </el-form-item>
+                        <el-form-item label="使用GPT模型">
+                            <el-radio-group  v-model="model" class="m-2" >
+                                <el-radio v-for="(item, i) in options" :key="i" :label="item.value"  border>{{ item.label }}</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
 
                         <el-form-item class="app-button">
                             <el-button style="width: 600px;" type="primary" :disabled="chatOngoing" @click="onSubmit"
@@ -131,10 +134,10 @@
                 </el-col>
             </el-row>
 
-            <el-row class="chat-session-list" justify="center" v-for="item in messageData" :key="item.id" >
+            <el-row class="chat-session-list" justify="center" v-for="item in messageData" :key="item.id">
                 <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16" :class="{ 'home-msg-item-bot': item.who === 'bot' }">
 
-                    <AiMessage :data="item" />
+                    <AiMessage :data="item" :dialog_mode="rulePreview.dialog_mode"  />
 
                 </el-col>
 
@@ -204,6 +207,18 @@ const props = defineProps<{
 }>();
 const route = useRoute();
 
+const options = [
+    {
+        value: 'gpt-3.5-turbo',
+        label: '  GPT-3.5',
+        icon: 'Lightning'
+    },
+    {
+        value: 'gpt-4',
+        label: '  GPT-4',
+        icon: 'ChromeFilled'
+    },
+]
 
 const rulePreview = reactive({
     id: '',
@@ -376,6 +391,9 @@ const removeById = (obj: any, id: string) => {
 
 // 请求应用列表事件
 const handleClick = (tab: TabsPaneContext, _event: Event) => {
+    // 将当前会话日志清空
+    messageData.splice(0, messageData.length);
+
     if (tab.paneName == "all") {
         requestAllApp()
     }
@@ -385,6 +403,9 @@ const handleClick = (tab: TabsPaneContext, _event: Event) => {
 
 // 默认获取所有应用
 const requestAllApp = async () => {
+    // 将当前会话日志清空
+    messageData.splice(0, messageData.length);
+
     await getAllApp({}).then(res => {
         console.log(res);
         if (res.ext.cates) {
@@ -459,7 +480,7 @@ const requestAppInfo = (id: string) => {
     }).then(res => {
         // console.log(res);
         if (res.data) {
-          //  console.log(res.data.fields);
+            //  console.log(res.data.fields);
 
             rulePreview.id = id
 
@@ -536,6 +557,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
             })
         }
         loadData({
+            "model": model.value,
             "id": chatId,
             "app_id": rulePreview.id,
             "ai_arg": JSON.stringify(arg)
@@ -569,6 +591,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
 
 
         loadData({
+            "model": model.value,
             "id": chatId,
             "app_id": rulePreview.id,
             "ai_arg": JSON.stringify(arg)
@@ -677,13 +700,23 @@ defineExpose({
         ::v-deep .abort-chat-btn {
             position: absolute;
             left: 36%;
-            bottom: 20px;
+            bottom: 80px;
             z-index: 2;
             border-radius: 10px;
         }
 
         .el-select {
             width: 100%;
+        }
+
+        .app-item .app-item-div {
+            display: inline-block;
+            width: 60px;
+            cursor: pointer;
+        }
+
+        .app-item .app-name {
+            font-size: 12px;
         }
     }
 
@@ -798,7 +831,7 @@ defineExpose({
 
 
 .el-main ::v-deep .el-tabs__content {
-    padding: 40px 15px 20px;
+    padding: 30px 15px 20px;
 }
 
 
@@ -810,6 +843,15 @@ defineExpose({
 .app-item h4 {
     font-size: 14px;
     font-weight: normal;
+    text-align: center;
+    color: var(--el-color-info-dark-2);
+}
+
+.app-item h4 span {
+    border-radius: 15px;
+    padding: 5px 15px;
+    background-color: var(--el-msg-item-bot-color);
+    font-size: 12px;
 }
 
 .app-item ul {
@@ -841,6 +883,12 @@ defineExpose({
     display: block;
     font-size: 14px;
     color: var(--el-text-color-regular);
+}
+
+.app-item .app-item-div {
+    display: inline-block;
+    width: 80px;
+    cursor: pointer;
 }
 
 
@@ -881,7 +929,9 @@ defineExpose({
 }
 
 
-
+.el-radio.is-bordered{
+    margin-bottom: 15px;
+}
 
 .chat-session-list {
     justify-content: center;
@@ -897,5 +947,4 @@ defineExpose({
     background-color: var(--el-msg-item-bot-color);
     border-top: 1px solid var(--el-msg-item-bot-border-color);
     border-bottom: 1px solid var(--el-msg-item-bot-border-color);
-}
-</style>
+}</style>

@@ -1,8 +1,10 @@
 <template>
   <div class="msg-item msg-item-bot" ref="markdownBodyRef">
-    <span class="chat-time">{{ msg.created_time }}</span>
+
+    <span class="chat-time" :class="{ 'chat-time-fix': dialogMode !== 3 }">{{ msg.created_time }}</span>
     <span v-if="isBot" class="copy-btn"><el-icon><CopyDocument /></el-icon> 复制内容 </span>
-    <el-avatar :size="35" :src="avatar" />
+    <!-- 只有3 对话模式才显示头像 -->
+    <el-avatar v-if="dialogMode == 3" :size="35" :src="avatar" />
     <div v-if="isBot" class="msg-content markdown-body" v-html="msg.content"></div>
     <div v-if="!isBot" class="msg-content markdown-body nobot">{{ msg.content }}</div>
   </div>
@@ -119,10 +121,12 @@ onUpdated(() => {
 
 
 const props = defineProps<{
-  data: Msg
+  data: Msg,
+  dialog_mode: number
 }>();
 
 const isBot = computed(() => props.data?.who === 'bot');
+const dialogMode = computed(() => props.dialog_mode);
 const avatar = computed(() => {
   if (props.data?.who === 'bot') {
     return "/img/ailogo.png"
@@ -135,6 +139,7 @@ const avatar = computed(() => {
 const msg: Ref<Msg> = ref({
   id: '',
   chat_id: '',
+  chat_type: '',
   who: '',
   content: '',
   created_time: ''
@@ -240,6 +245,10 @@ watch(() => props.data, (newData: Msg) => {
 
 .msg-item-bot .chat-time {
   left: 60px;
+}
+
+.msg-item-bot .chat-time-fix {
+  left: 15px;
 }
 
 .nobot {

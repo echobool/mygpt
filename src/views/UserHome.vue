@@ -1,5 +1,5 @@
 <template>
-    <div class="el-container" style="max-width: 998px; margin: 0 auto;">
+    <div class="el-container main" style="max-width: 998px; margin: 0 auto;">
         <el-card class="box-card" shadow="never" style="margin: 30px 15px 15px 15px; max-width: calc(100vw - 30px);">
             <template #header>
                 <div class="card-header">
@@ -219,6 +219,12 @@ const loadMyOrder = async () => {
     margin-bottom: 15px;
 
   }
+
+  .el-container .main {
+        height: calc(100vh - 60px);
+        overflow: scroll;
+        background-color: var(--el-color-info-light-9);
+    }
 }
 
 .el-container {
