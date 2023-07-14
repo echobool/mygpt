@@ -1,7 +1,7 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header class="">
+      <el-header class="hidden-xs-only">
         <div class="header-container">
           <div class="logo-container" style="cursor: pointer;" @click="router.replace({ name: 'home' })">
             <img class="logo" width="30" :src="logoUrl ? logoUrl : '/img/ailogo300.png'" alt="ai Logo">
@@ -16,7 +16,7 @@
               <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
                   <ChatDotRound />
                 </el-icon> 消息</el-menu-item>
-              <el-menu-item index="" disabled><el-icon>
+              <el-menu-item @click=" aiClick()"><el-icon>
                   <Apple />
                 </el-icon> AI应用</el-menu-item>
               <el-menu-item index="" disabled><el-icon>
@@ -477,49 +477,82 @@
         </template>
       </el-dialog>
 
-      <!-- 移动端兼容 -->
-      <el-drawer v-model="drawerBottom" direction="btt" title="I am the title" :with-header="false">
-        <el-menu :default-active="activeIndex" style="justify-content: space-evenly;" :router="true" class="el-menu-demo"
-          mode="horizontal" @select="handleSelect">
-          <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
-              <ChatDotRound />
-            </el-icon> 消息</el-menu-item>
-          <el-menu-item @click="router.replace({ name: 'draw' })" disabled><el-icon>
-              <Picture />
-            </el-icon> 绘图</el-menu-item>
-        </el-menu>
 
-        <div class="open-vip">
+
+      <!-- 移动端兼容 -->
+      <el-drawer  class="footer-drawer" v-model="drawerBottom" direction="btt" title="I am the title" :with-header="false">
+        <div class="open-vip el-drawer-item">
           <el-button @click="openUpgradePop" type="warning" size="large" link>用户充值</el-button>
-          <el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
-            style="margin:0 24px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
-            :active-icon="Moon" :inactive-icon="Sunny" />
+          
         </div>
 
-        <div class="open-agent-btn ">
+        <div class="open-agent-btn el-drawer-item">
           <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
               style="width: 30px; margin-right: 10px;" />{{
                 user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
         </div>
+        <div class=" el-drawer-item">
+          <el-button @click="router.replace({ name: 'userHome' }); drawerBottom= false" :icon="User" text>  用户中心</el-button>
+        </div>
+        <div class=" el-drawer-item">
+           <el-button @click="logoutEvent(); drawerBottom= false" :icon="SwitchButton" text>退出登录</el-button>
+           <el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
+            style="margin:0 24px; --el-switch-on-color: #444; --el-switch-off-color: #aaa; float:right;" inline-prompt
+            :active-icon="Moon" :inactive-icon="Sunny" />
+        </div>
 
       </el-drawer>
 
+      <!-- 移动端底部菜单 -->
+      <el-footer class="app-footer hidden-sm-and-up">
+        <el-menu :default-active="activeIndex" :ellipsis="false" class="el-menu-demo " mode="horizontal"
+          @select="handleSelect">
+          <el-menu-item @click="router.replace({ name: 'home' })">
+            <el-icon>
+              <ChatDotRound />
+            </el-icon>
+            <span>消息</span>
+          </el-menu-item>
+          <el-menu-item @click=" aiClick()"><el-icon>
+              <Apple />
+            </el-icon><span>AI应用</span> 
+          </el-menu-item>
+          <el-menu-item disabled><el-icon>
+              <Picture />
+            </el-icon> <span>绘图</span>
+          </el-menu-item>
+
+            <!-- 用户登录 -->
+          <el-menu-item v-if="!Global.token" @click="openLoginFrom"><el-icon>
+              <User />
+            </el-icon> <span>个人中心</span>
+          </el-menu-item>
+          <el-menu-item style="height: 60px;" v-else @click="openDrawer">
+            <el-avatar style="height: 30px;" :size="30" :src="user.avatar ? user.avatar : '/img/avatar1.svg'" />
+          </el-menu-item>
+
+
+        </el-menu>
+
+      </el-footer>
     </el-container>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu, Lollipop, Apple } from '@element-plus/icons-vue';
+import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu, Lollipop, Apple, User } from '@element-plus/icons-vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
+
 import { TabsPaneContext, type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
 import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
+
 
 const { toggle } = useFullscreen()
 
@@ -682,6 +715,17 @@ const closeLoginDialog = () => {
 
   if (typeof (viewBox.value.loadAgent) == 'function') {
     viewBox.value.loadAgent()
+  }
+
+}
+
+// 用于点击 AI栏目时执行一下 内容的方法 加载应用
+const aiClick = () => {
+  router.replace({ name: 'ai' })
+
+  // console.log(typeof viewBox.value.setShowApp);
+  if (typeof viewBox.value.setShowApp == 'function') {
+    viewBox.value.setShowApp(true)
   }
 
 }
@@ -1341,7 +1385,7 @@ function isPc() {
   system.ipad = navigator.userAgent.match(/iPad/i) != null ? true : false;  // iPad
   if (system.win || system.mac || system.xll || system.ipad) {  // 在PC端上打开的
     return true;
-  } else { 
+  } else {
     let ua = navigator.userAgent.toLowerCase();
     return /micromessenger/.test(ua) ? false : true;
   }
@@ -1857,4 +1901,50 @@ button.reset-btn {
   text-align: center;
   margin-top: 25px;
 }
+
+.el-container ::v-deep .footer-drawer .el-drawer__body {
+  padding: 0 !important;
+}
+
+.el-drawer-item {
+  border-bottom: 1px solid var(--el-border-color);
+  margin-top: 0 !important;
+
+  padding: 15px 0;
+}
+
+
+.app-footer {
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+}
+
+.el-container ::v-deep .app-footer .el-menu{
+height: 59px;
+border-top: 1px solid var(--el-border-color);
+}
+
+.app-footer .el-menu-item {
+  flex-direction: column;
+  width: 25%;
+  padding: 10px 15px;
+}
+
+.app-footer .el-menu--horizontal {
+  border: 0;
+}
+
+.app-footer .el-menu-item span {
+  height: 20px;
+  line-height: 20px;
+  color: var(--el-text-color-regular);
+  font-size: 12px;
+}
+
+
+.footer-drawer {
+  padding: 0;
+}
+
 </style>
