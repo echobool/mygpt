@@ -110,14 +110,20 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { myOrder, getUserInfo } from '../http/api'
+import { useGlobalStore } from '../store'
+import { storeToRefs } from 'pinia'
 import { formatDateByTimestamp ,formatDateByTimestamp2} from "../utils/DateTime";
+
+const Global = useGlobalStore()
+const { user} = storeToRefs(Global)
+
 
 const orderList: any = reactive([])
 const dataTotal = ref(0)
 const pageSize = ref(10)
 const page = ref(1)
 
-const user: any = reactive({})
+//const user: any = reactive({})
 
 onMounted(() => {
 
@@ -133,18 +139,19 @@ const loadUserInfo = async () => {
     await getUserInfo().then(res => {
         if (res.data) {
             let data = res.data
-            user.nickname = data.nickname
-            user.avatar = data.avatar
-            user.pkg_name = data.pkg_name
-            user.expiry_date = data.expiry_date
-            user.qa_num = data.qa_num
-            user.quota = data.quota
-            user.points = data.points
-            user.status = data.status
-            user.phone = data.phone
-            user.login_num = data.login_num
-            user.draw_num = data.draw_num
-            user.qa_log_num = data.qa_log_num
+            user.value.nickname = data.nickname
+            user.value.avatar = data.avatar
+            user.value.pkg_name = data.pkg_name
+            user.value.expiry_date = data.expiry_date
+            user.value.qa_num = data.qa_num
+            user.value.quota = data.quota
+            user.value.points = data.points
+            user.value.status = data.status
+            user.value.phone = data.phone
+            user.value.login_num = data.login_num
+            user.value.draw_num = data.draw_num
+            user.value.qa_log_num = data.qa_log_num
+          
 
         }
         console.log(res)

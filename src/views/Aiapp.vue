@@ -120,8 +120,9 @@
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="使用GPT模型">
-                            <el-radio-group  v-model="model" class="m-2" >
-                                <el-radio v-for="(item, i) in options" :key="i" :label="item.value"  border>{{ item.label }}</el-radio>
+                            <el-radio-group v-model="model" class="m-2">
+                                <el-radio v-for="(item, i) in options" :key="i" :label="item.value" border>{{ item.label
+                                }}</el-radio>
                             </el-radio-group>
                         </el-form-item>
 
@@ -137,7 +138,7 @@
             <el-row class="chat-session-list" justify="center" v-for="item in messageData" :key="item.id">
                 <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16" :class="{ 'home-msg-item-bot': item.who === 'bot' }">
 
-                    <AiMessage :data="item" :dialog_mode="rulePreview.dialog_mode"  />
+                    <AiMessage :data="item" :dialog_mode="rulePreview.dialog_mode" />
 
                 </el-col>
 
@@ -204,6 +205,7 @@ let chatId: string = ""
 
 const props = defineProps<{
     openLoginFrom: Function
+    openUpgradePop: Function
 }>();
 const route = useRoute();
 
@@ -338,7 +340,7 @@ const chatShow = async (id: string) => {
         "chat_id": id,
     }).then(res => {
         if (res.data) {
-            let data = res.data
+            // let data = res.data
 
 
         }
@@ -468,6 +470,9 @@ const goToApp = (id: string) => {
 
 
 const requestAppInfo = (id: string) => {
+    // 新进入app 时将 chatId 置空
+    chatId = ""
+
     rulePreview.fields = [] as any
     rulePreview.examples = [] as any
     rulePreview.id = ''
@@ -575,6 +580,12 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         "chat_type": 'ai',
         "content": title,
     }).then(res => {
+
+        // 如果没有额度或到期了则弹出充值界面
+        if (res.code == 2020) {
+            props.openUpgradePop()
+            return
+        }
         chatId = res.data?.chat_id
 
         // 只有对话模式才写入用户记录
@@ -652,7 +663,7 @@ const loadData = async (postData: any) => {
         while (true) {
             const { done, value } = await reader.read()
             if (done) {
-                // setLoading(false)
+                checkExpire(dataValue)
                 break
             }
             dataValue = new TextDecoder().decode(value)
@@ -668,6 +679,17 @@ const loadData = async (postData: any) => {
     } catch {
         console.log('请求失败')
     }
+}
+
+const checkExpire = (jsonStr: string) => {
+    try {
+        let obj = JSON.parse(jsonStr)
+        if (typeof obj === 'object' && obj.code == 2020) {
+            props.openUpgradePop()
+        }
+    } catch {
+
+    }  
 }
 
 
@@ -929,7 +951,8 @@ defineExpose({
 }
 
 
-.el-radio.is-bordered{
+.el-radio.is-bordered,
+.el-checkbox.is-bordered {
     margin-bottom: 15px;
 }
 
@@ -947,4 +970,5 @@ defineExpose({
     background-color: var(--el-msg-item-bot-color);
     border-top: 1px solid var(--el-msg-item-bot-border-color);
     border-bottom: 1px solid var(--el-msg-item-bot-border-color);
-}</style>
+}
+</style>

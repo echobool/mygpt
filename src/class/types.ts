@@ -27,7 +27,15 @@ export type UserType = {
   phone: string
   email: string
   status: number
+  qa_num: number
+  quota: number
+  points: number
+  login_num: number
+  draw_num: number
+  qa_log_num: number
   agent: AgentType
+  pkg_name: string
+  expiry_date: string
 }
 
 

@@ -135,6 +135,7 @@ const avatar = computed(() => {
 const msg: Ref<Msg> = ref({
   id: '',
   chat_id: '',
+  chat_type: '',
   who: '',
   content: '',
   created_time: ''

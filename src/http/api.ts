@@ -149,6 +149,11 @@ export const getAllApp = (params: any) => {
     return  axios.get('/app/list', { params })
 }
 
+// 获取所有推荐应用
+export const getAppRecommend = () => {
+    return  axios.get('/app/recommend')
+}
+
 // 获取应用信息
 export const getAppInfo = (params: any) => {
     return  axios.get('/app/info', { params })

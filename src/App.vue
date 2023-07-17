@@ -18,7 +18,9 @@
                 </el-icon> 消息</el-menu-item>
               <el-menu-item @click=" aiClick()"><el-icon>
                   <Apple />
-                </el-icon> AI应用</el-menu-item>
+                </el-icon>
+                <el-badge value="new" class="item">AI应用</el-badge>
+              </el-menu-item>
               <el-menu-item index="" disabled><el-icon>
                   <Picture />
                 </el-icon> 绘图</el-menu-item>
@@ -79,16 +81,16 @@
               </el-dropdown>
 
             </div>
-            <button @click="openDrawer" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
+            <!-- <button @click="openDrawer" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
               <el-icon style="font-size: 25px;" class="el-icon--right">
                 <Menu />
               </el-icon>
-            </button>
+            </button> -->
 
 
             <div class="hidden-xs-only"><el-switch @change="toggleDark" v-model="isDark" class="mt-2"
-                style="margin:0 10px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
-                :active-icon="Moon" :inactive-icon="Sunny" /></div>
+                style="margin:0 10px; --el-switch-on-color: #aaa; --el-switch-off-color: #444" inline-prompt
+                :active-icon="Sunny" :inactive-icon="Moon" /></div>
             <div class="hidden-xs-only" style="margin: 5px 10px 0 10px;  cursor: pointer;"><el-icon size="20"
                 @click="toggle">
                 <FullScreen />
@@ -105,7 +107,7 @@
         <el-alert v-show="agentTipsVisible" title="请完善代理信息设置，否则站点无法访问" center type="error" class="agent-tips" />
 
         <router-view v-slot="{ Component }">
-          <component :openLoginFrom="openLoginFrom" ref="viewBox" :is="Component" />
+          <component :openLoginFrom="openLoginFrom" :openUpgradePop="openUpgradePop" ref="viewBox" :is="Component" />
         </router-view>
 
       </el-container>
@@ -480,25 +482,71 @@
 
 
       <!-- 移动端兼容 -->
-      <el-drawer  class="footer-drawer" v-model="drawerBottom" direction="btt" title="I am the title" :with-header="false">
+      <el-drawer class="footer-drawer" v-model="drawerBottom" direction="ltr" title="I am the title" :with-header="false">
+
+        <div class="el-drawer-item drawer-header">
+          <div style="display: inline-block; width: 40px; height: 40px; padding: 15px;">
+            <el-avatar style="height: 40px;" :size="40" :src="user.avatar ? user.avatar : '/img/avatar1.svg'" />
+          </div>
+
+          <h3 style="font-size: 16px; display: inline-block;">{{ user.nickname }}
+            <span class="quota" style="position: absolute; top:10px; right:15px">
+              <el-tag type="success" class="mx-1" effect="dark">
+                {{ user.pkg_name == "" ? "无" : user.pkg_name }}
+              </el-tag></span>
+            <div style="font-weight: normal; color: #aaa; font-size: 14px;">{{ user.phone == "" ? "--" : user.phone }}
+            </div>
+          </h3>
+
+
+        </div>
+
+        <div class="el-drawer-item">
+          <label> <el-icon>
+              <View />
+            </el-icon> 风格切换</label>
+          <el-switch @change="toggleDark" v-model="isDark" size="large" class="mt-2"
+            style="margin:0 10px; --el-switch-on-color: #aaa; --el-switch-off-color: #444; float:right; right: 15px;" inline-prompt
+            :active-icon="Sunny" :inactive-icon="Moon" />
+        </div>
+        <div class=" el-drawer-item" @click="router.replace({ name: 'userHome' }); drawerBottom = false">
+          <el-button :icon="User" text>
+            用户中心</el-button>
+        </div>
+        <div class="el-drawer-item">
+          <label> <el-icon>
+              <Help />
+            </el-icon>
+            <el-link :underline="false"
+              style="margin-left: 5px; width: 80%; justify-content:flex-start;vertical-align:top;"
+              href="https://site.qianniugohome.com/p/help" target="_blank"> 在线帮助</el-link>
+          </label>
+
+        </div>
+        <div class="el-drawer-item">
+          <label> <el-icon>
+              <Service />
+            </el-icon>
+            <el-link :underline="false"
+              style="margin-left: 5px; width: 80%; justify-content:flex-start;vertical-align:top;"
+              href="https://site.qianniugohome.com/p/kefu" target="_blank"> 联系客服</el-link>
+          </label>
+        </div>
         <div class="open-vip el-drawer-item">
-          <el-button @click="openUpgradePop" type="warning" size="large" link>用户充值</el-button>
-          
+          <el-button style="width: 90%;" @click="openUpgradePop" type="warning" text><el-image src="/img/charge.png"
+              style="width: 30px; margin-right: 10px;" />用户充值</el-button>
         </div>
 
         <div class="open-agent-btn el-drawer-item">
-          <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
+          <el-button style="width: 90%;" @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
               style="width: 30px; margin-right: 10px;" />{{
                 user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
         </div>
-        <div class=" el-drawer-item">
-          <el-button @click="router.replace({ name: 'userHome' }); drawerBottom= false" :icon="User" text>  用户中心</el-button>
-        </div>
-        <div class=" el-drawer-item">
-           <el-button @click="logoutEvent(); drawerBottom= false" :icon="SwitchButton" text>退出登录</el-button>
-           <el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
-            style="margin:0 24px; --el-switch-on-color: #444; --el-switch-off-color: #aaa; float:right;" inline-prompt
-            :active-icon="Moon" :inactive-icon="Sunny" />
+
+        <div class=" el-drawer-item logout">
+          <el-button style="width: 100%;" size="large" type="primary"
+            @click="logoutEvent(); drawerBottom = false">退出登录</el-button>
+
         </div>
 
       </el-drawer>
@@ -513,16 +561,21 @@
             </el-icon>
             <span>消息</span>
           </el-menu-item>
-          <el-menu-item @click=" aiClick()"><el-icon>
-              <Apple />
-            </el-icon><span>AI应用</span> 
+          <el-menu-item @click=" aiClick()">
+            <el-icon>
+              <el-badge value="new" class="item">
+                <Apple />
+              </el-badge>
+
+            </el-icon><span>AI应用</span>
+
           </el-menu-item>
           <el-menu-item disabled><el-icon>
               <Picture />
             </el-icon> <span>绘图</span>
           </el-menu-item>
 
-            <!-- 用户登录 -->
+          <!-- 用户登录 -->
           <el-menu-item v-if="!Global.token" @click="openLoginFrom"><el-icon>
               <User />
             </el-icon> <span>个人中心</span>
@@ -530,8 +583,6 @@
           <el-menu-item style="height: 60px;" v-else @click="openDrawer">
             <el-avatar style="height: 30px;" :size="30" :src="user.avatar ? user.avatar : '/img/avatar1.svg'" />
           </el-menu-item>
-
-
         </el-menu>
 
       </el-footer>
@@ -540,7 +591,8 @@
 </template>
 
 <script setup lang="ts">
-import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu, Lollipop, Apple, User } from '@element-plus/icons-vue';
+
+import { Odometer, EditPen, SwitchButton, Sunny, Moon, Lollipop, Apple, User } from '@element-plus/icons-vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
@@ -564,9 +616,12 @@ const staticUrl = baseURL.replace('v1', '')
 
 const title = useTitle()
 
-
-const isDark = useDark()
-isDark.value = true
+const isDark = useDark({
+  selector: 'html',
+  attribute: 'class',
+  valueDark: 'light',
+  valueLight: 'dark',
+})
 const toggleDark = useToggle(isDark)
 
 const Global = useGlobalStore()
@@ -740,8 +795,6 @@ const changPkgTab = async (pane: TabsPaneContext, _ev: Event) => {
   } else if (pane.paneName == 'gpt4') {
     requestPkgData(2)
   }
-
-
 }
 
 
@@ -842,6 +895,7 @@ const getMpQrcode = async () => {
             user.value.email = userData.email
             user.value.phone = userData.phone
             user.value.status = userData.state
+            user.value.pkg_name = userData.pkg_name
             token.value = res.data.token
 
             //是否是代理商 是的话不展示开通会员和代理按钮
@@ -1040,6 +1094,7 @@ const requestGetUserInfo = async () => {
     user.value.email = userData.email
     user.value.phone = userData.phone
     user.value.status = userData.state
+    user.value.pkg_name = userData.pkg_name
     //是否是代理商 是的话不展示开通会员和代理按钮
     if (userData.agent) {
       user.value.agent.user_id = 1
@@ -1249,6 +1304,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           user.value.email = userData.email
           user.value.phone = userData.phone
           user.value.status = userData.state
+          user.value.pkg_name = userData.pkg_name
           token.value = res.data.token
 
           //是否是代理商 是的话不展示开通会员和代理按钮
@@ -1721,6 +1777,10 @@ body {
   border-bottom: 1px solid var(--el-border-color);
 }
 
+.el-header ::v-deep sup {
+  top: 11px !important;
+}
+
 .header-container {
   display: flex;
   justify-content: space-between;
@@ -1887,10 +1947,10 @@ button.reset-btn {
   font-size: 16px;
 }
 
-
-.el-container ::v-deep .el-drawer.btt {
-  border-radius: 20px 20px 0 0;
+.el-container ::v-deep .el-drawer.ltr {
+  width: 70% !important;
 }
+
 
 .el-drawer .open-agent-btn {
   text-align: center;
@@ -1907,10 +1967,25 @@ button.reset-btn {
 }
 
 .el-drawer-item {
-  border-bottom: 1px solid var(--el-border-color);
+  //border-bottom: 1px solid var(--el-border-color);
   margin-top: 0 !important;
 
   padding: 15px 0;
+}
+
+.el-drawer-item label {
+  margin: 0 15px;
+  line-height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--el-text-color-regular)
+}
+
+.el-drawer .logout {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 15px 15px 40px;
 }
 
 
@@ -1920,9 +1995,9 @@ button.reset-btn {
   overflow: hidden;
 }
 
-.el-container ::v-deep .app-footer .el-menu{
-height: 59px;
-border-top: 1px solid var(--el-border-color);
+.el-container ::v-deep .app-footer .el-menu {
+  height: 59px;
+  border-top: 1px solid var(--el-border-color);
 }
 
 .app-footer .el-menu-item {
@@ -1945,6 +2020,4 @@ border-top: 1px solid var(--el-border-color);
 
 .footer-drawer {
   padding: 0;
-}
-
-</style>
+}</style>
