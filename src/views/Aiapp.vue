@@ -53,6 +53,20 @@
                             </template>
 
                             <!-- 展示应用 -->
+                            <!-- 热门应用 -->
+                            <div class="app-item">
+                                <h4> <span>热门应用</span></h4>
+                                <el-row>
+                                    <el-col style="text-align: center;" v-for="(app, k) in recommendPc" :key="k" :xs="6"
+                                        :sm="6" :md="6" :lg="3" :xl="3">
+                                        <div class="app-item-div" @click="goToApp(app.id)">
+                                            <el-image :src="staticUrl + app.logo_path" fit="cover" />
+                                            <span class="app-name">{{ app.name }}</span>
+                                        </div>
+
+                                    </el-col>
+                                </el-row>
+                            </div>
                             <div v-for="(cate, index) in cates" :key="index" class="app-item">
                                 <h4> <span>{{ cate.cate_name }}</span></h4>
                                 <el-row>
@@ -167,7 +181,7 @@ import type { FormInstance } from 'element-plus'
 import { reactive, ref, onMounted, computed } from 'vue';
 import type { Msg } from '../class/Msg'
 import AiMessage from '../components/AiMessage.vue';
-import { getList, delChat, getChatLog, getAllApp, getAppInfo, createChat } from '../http/api'
+import { getList, delChat, getChatLog, getAllApp, getAppInfo, createChat, getAppRecommend } from '../http/api'
 import { TabsPaneContext, } from 'element-plus';
 import router from '../router';
 import { useRoute } from 'vue-router';
@@ -200,6 +214,8 @@ const staticUrl = baseURL.replace('v1', '')
 const message = ref('')     // 发送的对象
 const messageData: Msg[] = reactive([])
 const curModelName = ref('')
+const recommendPc: any = ref([])
+const recommendMobile: any = ref([])
 
 let chatId: string = ""
 
@@ -268,7 +284,30 @@ onMounted(() => {
         requestAllApp()
     }
     loadChatList()
+    // 加载推荐
+    loadAppRecommend()
 });
+
+
+// 加载推荐应用列表
+const loadAppRecommend = async () => {
+    recommendPc.value.splice(0, recommendPc.length)
+    recommendMobile.value.splice(0, recommendMobile.length)
+    await getAppRecommend().then(res => {
+        if (res.data) {
+            let apps = res.data
+            // console.log(res.data);
+            recommendPc.value = groupArray(apps, 8)
+        }
+
+    }).catch(error => {
+        console.error(error);
+    });
+}
+
+function groupArray(array: any, groupSize: number) {
+    return array.slice(0,  groupSize);
+}
 
 
 // 加载聊天列表
@@ -862,11 +901,17 @@ defineExpose({
     margin-top: 20px;
 }
 
+.app-item .el-col {
+    margin-bottom: 20px;
+} 
+
 .app-item h4 {
     font-size: 14px;
     font-weight: normal;
     text-align: center;
     color: var(--el-color-info-dark-2);
+    margin-bottom: 30px;
+    height: 25px;
 }
 
 .app-item h4 span {

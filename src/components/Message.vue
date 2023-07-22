@@ -163,6 +163,7 @@ watch(() => props.data, (newData: Msg) => {
 .markdown-body table th {border-width: 1px;padding: 8px;border-style: solid;border-color: var(--el-border-color);background-color: var(--el-bg-color);}
 
 .markdown-body table td {border-width: 1px;padding: 8px;border-style: solid;border-color: var(--el-border-color);background-color: var(--el-bg-color);}
+
 </style>
 
 
@@ -234,7 +235,7 @@ watch(() => props.data, (newData: Msg) => {
   border-top-right-radius: 0;
 
   max-width: 80%;
-  line-height: 150%;
+  line-height: 200%;
   color: var(--el-text-color-primary)
 }
 

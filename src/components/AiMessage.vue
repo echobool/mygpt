@@ -238,7 +238,7 @@ watch(() => props.data, (newData: Msg) => {
   border-top-right-radius: 0;
 
   max-width: 95%;
-  line-height: 150%;
+  line-height: 200%;
   color: var(--el-text-color-primary)
 }
 
