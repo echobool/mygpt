@@ -101,7 +101,8 @@
 
 
 
-            <el-row :gutter="10" justify="center" style="margin: 0;" v-if="!showApp">
+            <el-row :gutter="10" justify="center" style="margin: 0;"
+                v-if="!showApp && rulePreview.dialog_mode != dialogMode.Dialog">
                 <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
                     <div style="display: block; text-align: center;">
                         <img v-if="imageUrl" :src="imageUrl" class="avatar" width="80" style="border-radius: 15px;" />
@@ -133,34 +134,68 @@
                                 <el-radio v-for="(option, i) in field.options" :key="i" :label="option" border />
                             </el-radio-group>
                         </el-form-item>
-                        <el-form-item label="使用GPT模型">
+
+                        <el-form-item label="使用GPT模型"
+                            v-if="rulePreview.dialog_mode > 0 && rulePreview.dialog_mode != dialogMode.Dialog">
                             <el-radio-group v-model="model" class="m-2">
                                 <el-radio v-for="(item, i) in options" :key="i" :label="item.value" border>{{ item.label
                                 }}</el-radio>
                             </el-radio-group>
                         </el-form-item>
 
-                        <el-form-item class="app-button">
+                        <el-form-item class="app-button"
+                            v-if="rulePreview.dialog_mode > 0 && rulePreview.dialog_mode != dialogMode.Dialog">
                             <el-button style="width: 600px;" type="primary" :disabled="chatOngoing" @click="onSubmit"
                                 size="large">生成</el-button>
                         </el-form-item>
+
                     </el-form>
 
                 </el-col>
             </el-row>
 
-            <el-row class="chat-session-list" justify="center" v-for="item in messageData" :key="item.id">
-                <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16" :class="{ 'home-msg-item-bot': item.who === 'bot' }">
+            <el-row class="chat-session-list" justify="center" v-for="(item, index) in messageData" :key="item.id">
+                <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16"
+                    :class="{ 'home-msg-item-bot': item.who === 'bot' && rulePreview.dialog_mode != dialogMode.Dialog }">
 
-                    <AiMessage :data="item" :dialog_mode="rulePreview.dialog_mode" />
+                    <AiMessage :data="item" :dialog_mode="rulePreview.dialog_mode" :app_logo="imageUrl" />
 
                 </el-col>
 
+                <!-- 只保留生成时显示 -->
+                <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16" style="text-align: center; margin-top: 20px;"
+                    v-if="rulePreview.dialog_mode == dialogMode.OnlyKeepGen && !chatOngoing && messageData.length == index + 1">
+                    <el-button type="primary" plain @click="onSubmitContinue">续写</el-button>
+                    <el-button type="primary" plain @click="onSubmit">重写</el-button>
 
+                </el-col>
             </el-row>
 
-            <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain class="abort-chat-btn">
+
+
+            <el-button v-show="chatOngoing" @click="abortChat" size="large" type="primary" plain class="abort-chat-btn"
+                :class="{ 'abort-chat-btn-chat': rulePreview.dialog_mode == 3 }">
                 停止接收 </el-button>
+
+
+            <el-row style="justify-content:center; " class="chat-input" v-if="rulePreview.dialog_mode == dialogMode.Dialog">
+                <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16"
+                    style="display: flex; position: relative; margin-top: 10px; align-items: flex-end;">
+
+
+                    <el-input id="myTextarea" class="inputQuestion" v-model="message" :autosize="{ minRows: 2, maxRows: 8 }"
+                        type="textarea" placeholder="请输入内容，Shift + Enter换行，Enter发送" @input="inputChange" :autofocus="true"
+                        resize="none" @keyup.enter="handleEnterKey">
+                    </el-input>
+                    <el-button @click="handleEnterKey" :disabled="!message || chatOngoing"
+                        style=" position: absolute; right: 10px; bottom: 7px; height: 40px; padding: 0; border: 0; color: rgb(116, 152, 218); background-color: transparent;"
+                        size="large"><el-icon size="30">
+                            <Promotion />
+                        </el-icon></el-button>
+
+                </el-col>
+            </el-row>
+
         </el-main>
 
 
@@ -194,6 +229,11 @@ const chatList: { today: any[], oneWeekAgo: any[], oneMonthAgo: any[], oneYearAg
     oneMonthAgo: [],
     oneYearAgo: []
 })
+const dialogMode = {
+    Cover: 1,
+    OnlyKeepGen: 2,
+    Dialog: 3,
+}
 
 
 const showAside = ref(false)
@@ -203,6 +243,7 @@ const page = ref(1)
 const chatCount = ref(0)
 const chatLoadCount = ref(0)
 const loading = ref(false)
+const continueChat = ref(false)
 const noMore = computed(() => chatLoadCount.value >= chatCount.value)
 const disabled = computed(() => loading.value || noMore.value)
 const data = ref('');   // 接收到的临时消息
@@ -306,7 +347,7 @@ const loadAppRecommend = async () => {
 }
 
 function groupArray(array: any, groupSize: number) {
-    return array.slice(0,  groupSize);
+    return array.slice(0, groupSize);
 }
 
 
@@ -447,6 +488,8 @@ const requestAllApp = async () => {
     // 将当前会话日志清空
     messageData.splice(0, messageData.length);
 
+    rulePreview.dialog_mode = 0
+
     await getAllApp({}).then(res => {
         console.log(res);
         if (res.ext.cates) {
@@ -518,6 +561,8 @@ const requestAppInfo = (id: string) => {
     rulePreview.desc = ''
     rulePreview.dialog_mode = 0
     imageUrl.value = ''
+    // 清空输入框
+    message.value = ""
 
     getAppInfo({
         id: id
@@ -527,6 +572,23 @@ const requestAppInfo = (id: string) => {
             //  console.log(res.data.fields);
 
             rulePreview.id = id
+            rulePreview.desc = res.data.desc
+            rulePreview.dialog_mode = res.data.dialog_mode
+            imageUrl.value = res.data.logo_path ? staticUrl + res.data.logo_path + '?' + Math.random() : ""
+            imageUrl.value = imageUrl.value.replace("./", "")
+
+            if (rulePreview.dialog_mode == dialogMode.Dialog) {
+
+                messageData.push({
+                    id: Math.round(1000000).toString(),
+                    chat_id: chatId,
+                    who: "bot",
+                    content: "你好，我是" + res.data.name + "，你有什么问题要和我沟通吗？",
+                    chat_type: 'chat',
+                    created_time: StandardTime() // 给个当前时间
+                })
+            }
+
 
             if (res.data.fields) {
                 res.data.fields.forEach((item: any) => {
@@ -543,9 +605,7 @@ const requestAppInfo = (id: string) => {
                 });
             }
 
-            rulePreview.desc = res.data.desc
-            rulePreview.dialog_mode = res.data.dialog_mode
-            imageUrl.value = res.data.logo_path ? staticUrl + res.data.logo_path + '?' + Math.random() : ""
+
         }
         console.log(rulePreview);
 
@@ -562,53 +622,54 @@ const viewExample = (index: number) => {
     });
 };
 
+const onSubmitContinue = (formEl: FormInstance | undefined) => {
+    continueChat.value = true
+    onSubmit(formEl)
+}
 
 const onSubmit = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
 
     const arg: any = {}
-    let title = ""      // 写入到聊天记录的标题
 
-    rulePreview.fields.forEach((field: any) => {
-        if (field.demo_val) {
-            arg[field.name] = field.demo_val
-            title += field.label + " " + field.demo_val + "\n"
+    if (rulePreview.dialog_mode != dialogMode.Dialog) {
+        message.value = ""      // 写入到聊天记录的标题
+        rulePreview.fields.forEach((field: any) => {
+            if (field.demo_val) {
+                arg[field.name] = field.demo_val
+                message.value += field.label + " " + field.demo_val + "\n"
+            }
+        });
+
+        if (message.value == "") {
+            ElMessage({
+                message: '至少填写表单中的一项，填写参数越多生成越精准.',
+                type: 'warning',
+            })
+            return
         }
-    });
-
-    if (title == "") {
-        ElMessage({
-            message: '至少填写表单中的一项，填写参数越多生成越精准.',
-            type: 'warning',
-        })
-        return
     }
 
     // 清空接收的暂存消息 防止下次叠加到消息中
     data.value = ""
 
+    if (continueChat.value) {
+        message.value = "继续"
+    }
+
     // 不是新会话的情况
     if (chatId !== "") {
-        // 只有对话模式才写入用户记录
-        if (rulePreview.dialog_mode == 3) {
-            messageData.push({
-                id: Math.round(1000000).toString(),
-                chat_id: chatId,
-                who: "user",
-                content: message.value,
-                chat_type: 'chat',
-                created_time: StandardTime() // 给个当前时间
-            })
-        }
         loadData({
             "model": model.value,
             "id": chatId,
             "app_id": rulePreview.id,
+            "content": message.value,
+            "continue_chat": continueChat.value,
             "ai_arg": JSON.stringify(arg)
         })
 
         message.value = ""
-
+        continueChat.value = false
         return
     }
 
@@ -617,7 +678,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
     await createChat({
         "model": model.value,
         "chat_type": 'ai',
-        "content": title,
+        "content": message.value,
     }).then(res => {
 
         // 如果没有额度或到期了则弹出充值界面
@@ -627,8 +688,13 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         }
         chatId = res.data?.chat_id
 
+        // 如果是覆盖模式则 清空聊天记录
+        if (rulePreview.dialog_mode == dialogMode.Cover) {
+            messageData.splice(0, messageData.length);
+        }
+
         // 只有对话模式才写入用户记录
-        if (rulePreview.dialog_mode == 3) {
+        if (rulePreview.dialog_mode == dialogMode.Dialog) {
             messageData.push({
                 id: chatId,
                 chat_id: chatId,
@@ -657,6 +723,99 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
     });
 
 }
+
+
+// 发送消息
+const handleEnterKey = async (event: KeyboardEvent) => {
+    if (Global.token == "") {
+        //弹出登录界面
+        props.openLoginFrom()
+        return
+    }
+
+    if (message.value.trim() === '') {
+        message.value = ''
+        event.preventDefault(); // Prevent line break if textarea is empty
+        return
+    }
+    // 提交事件
+    if (!event.shiftKey && message.value.trim() !== '') {
+        // 隐藏提示词
+        // promptVisible.value = false
+
+        // 清空接收的暂存消息 防止下次叠加到消息中
+        data.value = ""
+
+        // 发消息时将滚动条置底
+        mainScroll()
+
+        // 不是新会话的情况
+        if (chatId !== "") {
+            messageData.push({
+                id: Math.round(1000000).toString(),
+                chat_id: chatId,
+                who: "user",
+                content: message.value,
+                chat_type: 'chat',
+                created_time: StandardTime() // 给个当前时间
+            })
+            loadData({
+                "model": model.value,
+                "id": chatId,
+                "app_id": rulePreview.id,
+                "content": message.value
+            })
+
+            message.value = ""
+            // 发消息后处理下排版
+            inputChange()
+            return
+        }
+
+        curModelName.value = modelName(model.value)
+        await createChat({
+            "model": model.value,
+            "chat_type": 'ai',
+            "app_id": rulePreview.id,
+            "content": message.value,
+        }).then(res => {
+            // 如果没有额度或到期了则弹出充值界面
+            if (res.code == 2020) {
+                props.openUpgradePop()
+                return
+            }
+
+
+            chatId = res.data?.chat_id
+            messageData.push({
+                id: chatId,
+                chat_id: chatId,
+                chat_type: 'chat',
+                who: "user",
+                content: message.value,
+                created_time: StandardTime(res.data?.created_at)
+            })
+
+            loadData({
+                "model": model.value,
+                "id": chatId,
+                "app_id": rulePreview.id,
+                "content": message.value
+            })
+
+            message.value = ""
+            // 发消息后处理下排版
+            inputChange()
+            // 重新载入历史聊天数据
+            page.value = 1
+            loading.value = true
+            loadChatList()
+        }).catch(error => {
+            console.error(error);
+        });
+    }
+}
+
 
 let controller = new AbortController()
 const abortChat = () => {
@@ -707,13 +866,25 @@ const loadData = async (postData: any) => {
             }
             dataValue = new TextDecoder().decode(value)
             data.value += dataValue
-            messageData[messageData.length - 1].content = mdi.render(data.value)
+
+            // 如果是对话模式和只保留生成模式 则用 markdown渲染输出内容
+            if (rulePreview.dialog_mode == dialogMode.Dialog || rulePreview.dialog_mode == dialogMode.OnlyKeepGen) {
+                messageData[messageData.length - 1].content = mdi.render(data.value)
+            }else{
+                messageData[messageData.length - 1].content = data.value
+            }
 
             // 移动滚动条
             mainScroll()
         }
         // 隐藏停止接收
         chatOngoing.value = false
+
+        // 如果是覆盖模式 接收完成后使用 echartjs 渲染
+        if (rulePreview.dialog_mode == dialogMode.Cover) {
+            //TODO 隐藏停止接收
+
+        }
 
     } catch {
         console.log('请求失败')
@@ -728,13 +899,32 @@ const checkExpire = (jsonStr: string) => {
         }
     } catch {
 
-    }  
+    }
 }
 
 
 const mainScroll = () => {
     var chatMain = document.getElementById("chatMain");
     chatMain && (chatMain.scrollTop = chatMain.scrollHeight);
+}
+
+//let windowHeight = window.innerHeight;
+// 动态处理输入框高度
+const inputChange = () => {
+
+    setTimeout(() => {
+        const textarea = document.getElementById('myTextarea');
+        // const chatMain = document.getElementById('chatMain');
+        // const chatFooter = document.getElementById('chatFooter');
+
+        if (textarea?.clientHeight) {
+            // let inputH = textarea.clientHeight
+            // let mainH = windowHeight - inputH - 88
+
+            // chatFooter && (chatFooter.style.height = inputH + 28 + 'px');
+            // chatMain && (chatMain.style.height = mainH + 'px');
+        }
+    }, 100);
 }
 
 
@@ -766,6 +956,10 @@ defineExpose({
             border-radius: 10px;
         }
 
+        ::v-deep .abort-chat-btn-chat {
+            bottom: 150px;
+        }
+
         .el-select {
             width: 100%;
         }
@@ -778,6 +972,14 @@ defineExpose({
 
         .app-item .app-name {
             font-size: 12px;
+        }
+
+        .el-main .chat-input {
+            width: calc(100vw);
+            position: absolute;
+            bottom: 20px;
+            margin-bottom: 60px;
+            padding: 0 15px;
         }
     }
 
@@ -863,7 +1065,7 @@ defineExpose({
 .el-main {
     height: calc(100vh - 60px);
     background-color: var(--el-bg-ai-color);
-    padding: 30px 0 20px 0;
+    padding: 30px 0 80px 0;
 }
 
 
@@ -895,7 +1097,11 @@ defineExpose({
     padding: 30px 15px 20px;
 }
 
-
+.el-main .chat-input {
+    width: calc(100vw - 291px);
+    position: absolute;
+    bottom: 20px;
+}
 
 .app-item {
     margin-top: 20px;
@@ -903,7 +1109,7 @@ defineExpose({
 
 .app-item .el-col {
     margin-bottom: 20px;
-} 
+}
 
 .app-item h4 {
     font-size: 14px;
@@ -995,18 +1201,24 @@ defineExpose({
     border-radius: 10px;
 }
 
+.abort-chat-btn-chat {
+
+    bottom: 100px;
+}
+
 
 .el-radio.is-bordered,
 .el-checkbox.is-bordered {
     margin-bottom: 15px;
 }
 
-.chat-session-list {
+.el-main .chat-session-list {
     justify-content: center;
     align-items: end;
     padding: 15px;
 
 }
+
 
 .home-msg-item-bot {
     padding: 15px;
@@ -1015,5 +1227,13 @@ defineExpose({
     background-color: var(--el-msg-item-bot-color);
     border-top: 1px solid var(--el-msg-item-bot-border-color);
     border-bottom: 1px solid var(--el-msg-item-bot-border-color);
+}
+
+.el-container {
+    ::v-deep .el-textarea__inner {
+        padding-right: 40px !important;
+        background-color: var(--el-color-primary-light-8);
+        border-radius: 10px;
+    }
 }
 </style>
