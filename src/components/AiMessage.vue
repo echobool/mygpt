@@ -1,12 +1,12 @@
 <template>
-  <div class="msg-item msg-item-bot" ref="markdownBodyRef">
+  <div class="msg-item " :class="{ 'msg-item-bot': (dialogMode == 3 && isBot) || dialogMode != 3 }" ref="markdownBodyRef">
 
     <span class="chat-time" :class="{ 'chat-time-fix': dialogMode !== 3 }">{{ msg.created_time }}</span>
     <span v-if="isBot" class="copy-btn"><el-icon><CopyDocument /></el-icon> 复制内容 </span>
     <!-- 只有3 对话模式才显示头像 -->
     <el-avatar v-if="dialogMode == 3" :size="35" :src="avatar" />
-    <div v-if="isBot" class="msg-content markdown-body" v-html="msg.content"></div>
-    <div v-if="!isBot" class="msg-content markdown-body nobot">{{ msg.content }}</div>
+    <div v-if="isBot" class="msg-content markdown-body" :class="{ 'chat-item': dialogMode == 3}" v-html="msg.content"></div>
+    <div v-if="!isBot" class="msg-content markdown-body nobot"  :class="{ 'chat-item-nobot': dialogMode == 3}">{{ msg.content }}</div>
   </div>
 </template>
   
@@ -122,13 +122,18 @@ onUpdated(() => {
 
 const props = defineProps<{
   data: Msg,
-  dialog_mode: number
+  dialog_mode: number,
+  app_logo: string
 }>();
 
 const isBot = computed(() => props.data?.who === 'bot');
 const dialogMode = computed(() => props.dialog_mode);
-const avatar = computed(() => {
+const appLogo = computed(() => props.app_logo);
+const avatar = computed(() => {  
   if (props.data?.who === 'bot') {
+    if (props.dialog_mode == 3){
+      return appLogo.value
+    }
     return "/img/ailogo.png"
   } else {
     return Global.user.avatar ? Global.user.avatar : "/img/avatar1.png"
@@ -263,6 +268,23 @@ watch(() => props.data, (newData: Msg) => {
   word-break: break-all;
   overflow-wrap: break-word;
   white-space: pre-wrap;
+}
+
+
+.chat-item {
+  border: 1px solid var(--el-border-color);
+  border-radius: 15px;
+  border-top-left-radius: 0;
+  background-color: var(--el-msg-item-bot-color);
+  margin-top: 15px;
+}
+
+.chat-item-nobot {
+  border: 1px solid var(--el-border-color);
+  border-radius: 15px;
+  border-top-right-radius: 0;
+  background-color: var(--el-color-info-light-7);
+  margin-top: 15px;
 }
 </style>
   
