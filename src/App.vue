@@ -107,7 +107,7 @@
         <el-alert v-show="agentTipsVisible" title="请完善代理信息设置，否则站点无法访问" center type="error" class="agent-tips" />
 
         <router-view v-slot="{ Component }">
-          <component :openLoginFrom="openLoginFrom" :openUpgradePop="openUpgradePop" ref="viewBox" :is="Component" />
+          <component :openLoginFrom="openLoginFrom" :openUpgradePop="openUpgradePop" :isDark="isDark" ref="viewBox" :is="Component" />
         </router-view>
 
       </el-container>

@@ -158,7 +158,9 @@
                 <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16"
                     :class="{ 'home-msg-item-bot': item.who === 'bot' && rulePreview.dialog_mode != dialogMode.Dialog }">
 
-                    <AiMessage :data="item" :dialog_mode="rulePreview.dialog_mode" :app_logo="imageUrl" />
+                    <AiMessage :data="item" :dialog_mode="rulePreview.dialog_mode" :app_logo="imageUrl"
+                        v-if="!showCanvas" />
+                    <div id="chart-main" v-if="showCanvas"></div>
 
                 </el-col>
 
@@ -220,6 +222,11 @@ import { getList, delChat, getChatLog, getAllApp, getAppInfo, createChat, getApp
 import { TabsPaneContext, } from 'element-plus';
 import router from '../router';
 import { useRoute } from 'vue-router';
+import * as echarts from 'echarts';
+
+type EChartsOption = echarts.EChartsOption;
+
+
 
 const Global = useGlobalStore()
 const model = ref('gpt-3.5-turbo')
@@ -236,6 +243,7 @@ const dialogMode = {
 }
 
 
+const showCanvas = ref(false)
 const showAside = ref(false)
 const chatOngoing = ref(false)
 const showApp = ref(true)
@@ -563,6 +571,9 @@ const requestAppInfo = (id: string) => {
     imageUrl.value = ''
     // 清空输入框
     message.value = ""
+    // 清空对话记录
+    messageData.splice(0, messageData.length);
+    showCanvas.value = false
 
     getAppInfo({
         id: id
@@ -688,10 +699,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         }
         chatId = res.data?.chat_id
 
-        // 如果是覆盖模式则 清空聊天记录
-        if (rulePreview.dialog_mode == dialogMode.Cover) {
-            messageData.splice(0, messageData.length);
-        }
+
 
         // 只有对话模式才写入用户记录
         if (rulePreview.dialog_mode == dialogMode.Dialog) {
@@ -827,6 +835,12 @@ const abortChat = () => {
 const loadData = async (postData: any) => {
     try {
 
+        showCanvas.value = false
+        // 如果是覆盖模式则 清空聊天记录
+        if (rulePreview.dialog_mode == dialogMode.Cover) {
+            messageData.splice(0, messageData.length);
+        }
+
         let dataValue: string = ""
         //显示停止接收按钮
         chatOngoing.value = true
@@ -870,7 +884,7 @@ const loadData = async (postData: any) => {
             // 如果是对话模式和只保留生成模式 则用 markdown渲染输出内容
             if (rulePreview.dialog_mode == dialogMode.Dialog || rulePreview.dialog_mode == dialogMode.OnlyKeepGen) {
                 messageData[messageData.length - 1].content = mdi.render(data.value)
-            }else{
+            } else {
                 messageData[messageData.length - 1].content = data.value
             }
 
@@ -883,6 +897,41 @@ const loadData = async (postData: any) => {
         // 如果是覆盖模式 接收完成后使用 echartjs 渲染
         if (rulePreview.dialog_mode == dialogMode.Cover) {
             //TODO 隐藏停止接收
+            showCanvas.value = true
+
+            setTimeout(() => {
+                const pattern = /```javascript([\s\S]*)```/;
+                const matches = data.value.match(pattern);
+                if (matches && matches.length > 1) {
+                    var chartDom = document.getElementById('chart-main')!;
+                    var myChart = echarts.init(chartDom);
+                    var option: EChartsOption;
+                    myChart.resize({
+                        width: 800,
+                        height: 800
+                    });
+                    option = eval(matches[1].trim());
+
+                    option.toolbox = {
+                        show:true,
+                        bottom: '20px',
+                        left: '48%',
+                        orient: 'horizontal',
+                        feature:{
+                            saveAsImage:{
+                                show:true,
+                                type:'png',
+                                backgroundColor:'rgba(255,255,255,0)',
+                                title:'下载图片'
+                            }
+                        }
+                    }
+
+                    option && myChart.setOption(option);
+                }
+            }, 500);
+
+
 
         }
 
@@ -1235,5 +1284,13 @@ defineExpose({
         background-color: var(--el-color-primary-light-8);
         border-radius: 10px;
     }
+}
+
+#chart-main {
+    display: flex;
+    justify-content: center;
+    height: 800px;
+    background-color: #ffffff;
+    padding: 25px;
 }
 </style>

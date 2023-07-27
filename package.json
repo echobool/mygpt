@@ -17,6 +17,7 @@
     "@traptitech/markdown-it-katex": "^3.6.0",
     "@vueuse/core": "^10.1.2",
     "axios": "^1.4.0",
+    "echarts": "^5.4.3",
     "element-plus": "^2.3.5",
     "highlight.js": "^11.7.0",
     "markdown-it": "^13.0.1",
