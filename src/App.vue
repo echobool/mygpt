@@ -714,7 +714,7 @@ const openDrawer = () => {
 
 const loadAgent = async () => {
 
-  await getAgentByHost().then(res => {
+  await getAgentByHost().then((res:any) => {
 
     if (res.data) {
       let data: any = res.data
@@ -806,7 +806,7 @@ const requestPkgData = async (pkg_type: number) => {
     page: 1,
     page_size: 20,
     pkg_type: pkg_type
-  }).then(res => {
+  }).then((res:any) => {
     if (res.data) {
       let defaultPkgId = 0
       res.data.forEach((item: PkgListType) => {
@@ -867,7 +867,7 @@ const onAgentDialogClose = () => {
 // 二维码登录
 const getMpQrcode = async () => {
   // 获取二维码ticket
-  await getMpQrcodeTicket().then(res => {
+  await getMpQrcodeTicket().then((res:any) => {
     if (res.code == 0) {
       let data = res.data
       qrcodeImgSrc.value = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.ticket
@@ -876,7 +876,7 @@ const getMpQrcode = async () => {
       timer2 = setInterval(() => {
         mpQrcodeLogin({
           uuid: data.uuid
-        }).then(res => {
+        }).then((res:any) => {
           if (res.code == 0) {
 
             let domain = res.data.domain
@@ -985,7 +985,7 @@ const openAgentDialog = async () => {
   AgentList.splice(0, AgentList.length)
 
   // 获取代理套餐价格
-  await getAgentList({}).then(res => {
+  await getAgentList({}).then((res:any) => {
     console.log(res)
     if (res.data) {
 
@@ -1049,7 +1049,7 @@ const openAgent = async (id: number) => {
   await payInfo({
     payment: payment.value,
     package_id: id
-  }).then(res => {
+  }).then((res:any) => {
     if (res.code == 0) {
       // 展示二维码
       agentQrcodeText.value = res.data.pay_url
@@ -1057,7 +1057,7 @@ const openAgent = async (id: number) => {
       timer4 = setInterval(() => {
         queryOrderState({
           out_trade_no: res.data.out_trade_no
-        }).then(res => {
+        }).then((res:any) => {
           if (res.data.pay_state == 2) {
             // 停止轮询
             clearInterval(timer4)
@@ -1083,7 +1083,7 @@ const openAgent = async (id: number) => {
 
 // 请求用户信息
 const requestGetUserInfo = async () => {
-  await getUserInfo().then(res => {
+  await getUserInfo().then((res:any) => {
     console.log(res);
     let userData = res.data
     user.value.agent = {} as AgentType
@@ -1188,7 +1188,7 @@ const onJsapiPay = () => {
 const toJsapiPay = async (pkgId: number) => {
   await jsapiPay({
     package_id: pkgId
-  }).then(res => {
+  }).then((res:any) => {
     if (res.code == 0) {
       let prepay_id = res.data.prepay_id
       //跳转支付页面
@@ -1215,14 +1215,14 @@ const requestPay = async () => {
   await payInfo({
     payment: payment.value,
     package_id: selectPkg.value
-  }).then(res => {
+  }).then((res:any) => {
     if (res.code == 0) {
       genQrcode(res.data.pay_url)
 
       timer3 = setInterval(() => {
         queryOrderState({
           out_trade_no: res.data.out_trade_no
-        }).then(res => {
+        }).then((res:any) => {
           if (res.data.pay_state == 2) {
             // 停止轮询
             clearInterval(timer3)
@@ -1252,7 +1252,7 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 
       sendPhoneCode({
         phone: ruleForm.phoneNum
-      }).then(res => {
+      }).then((res:any) => {
         if (res.code == 0) {
           let sec = 60
           const timer = setInterval(() => {
@@ -1285,7 +1285,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       phoneLogin({
         phone: ruleForm.phoneNum,
         code: ruleForm.code
-      }).then(res => {
+      }).then((res:any) => {
         if (res.data) {
 
           let domain = res.data.domain
@@ -1339,7 +1339,7 @@ const submitBindForm = async (formEl: FormInstance | undefined) => {
         phone: ruleForm.phoneNum,
         code: ruleForm.code,
         user_id: user.value.id
-      }).then(res => {
+      }).then((res:any) => {
         if (res.code == 0) {
           // 存入状态管理
           user.value.phone = ruleForm.phoneNum
@@ -1359,7 +1359,7 @@ const submitBindForm = async (formEl: FormInstance | undefined) => {
 }
 
 const logoutEvent = async () => {
-  await logout().then(res => {
+  await logout().then((res:any) => {
     if (res.code == 0) {
       user.value = <UserType>{}
       // agent.value = <AgentType>{} // 代理站点不能清除

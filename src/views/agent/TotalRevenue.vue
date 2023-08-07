@@ -47,7 +47,7 @@ const getIncome = async () => {
     await Income({
         'page': page.value,
         'page_size': pageSize.value
-    }).then(res => {
+    }).then((res:any) => {
         if (res.data) {
 
             dataTotal.value = res.ext.count

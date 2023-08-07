@@ -342,7 +342,7 @@ onMounted(() => {
 const loadAppRecommend = async () => {
     recommendPc.value.splice(0, recommendPc.length)
     recommendMobile.value.splice(0, recommendMobile.length)
-    await getAppRecommend().then(res => {
+    await getAppRecommend().then((res:any) => {
         if (res.data) {
             let apps = res.data
             // console.log(res.data);
@@ -369,7 +369,7 @@ const loadChatList = async () => {
         "page_size": 20,
         "page": page.value,
         "chat_type": "ai"
-    }).then(res => {
+    }).then((res:any) => {
         loading.value = false
         // console.log(res)
         if (res.data) {
@@ -426,7 +426,7 @@ const chatShow = async (id: string) => {
 
     await getChatLog({
         "chat_id": id,
-    }).then(res => {
+    }).then((res:any) => {
         if (res.data) {
             // let data = res.data
 
@@ -461,7 +461,7 @@ const getMenuTitle = (index: string) => {
 const chatDelete = async (d: string) => {
     await delChat({
         "id": d,
-    }).then(res => {
+    }).then((res:any) => {
 
         removeById(chatList, d)
         console.log(res, chatList)
@@ -498,7 +498,7 @@ const requestAllApp = async () => {
 
     rulePreview.dialog_mode = 0
 
-    await getAllApp({}).then(res => {
+    await getAllApp({}).then((res:any) => {
         console.log(res);
         if (res.ext.cates) {
             // 清空
@@ -577,7 +577,7 @@ const requestAppInfo = (id: string) => {
 
     getAppInfo({
         id: id
-    }).then(res => {
+    }).then((res:any) => {
         // console.log(res);
         if (res.data) {
             //  console.log(res.data.fields);
@@ -690,7 +690,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         "model": model.value,
         "chat_type": 'ai',
         "content": message.value,
-    }).then(res => {
+    }).then((res:any) => {
 
         // 如果没有额度或到期了则弹出充值界面
         if (res.code == 2020) {
@@ -786,7 +786,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
             "chat_type": 'ai',
             "app_id": rulePreview.id,
             "content": message.value,
-        }).then(res => {
+        }).then((res:any) => {
             // 如果没有额度或到期了则弹出充值界面
             if (res.code == 2020) {
                 props.openUpgradePop()

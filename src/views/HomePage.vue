@@ -437,7 +437,7 @@ onMounted(() => {
 const loadAppRecommend = async () => {
     recommendPc.value.splice(0, recommendPc.length)
     recommendMobile.value.splice(0, recommendMobile.length)
-    await getAppRecommend().then(res => {
+    await getAppRecommend().then((res:any) => {
         if (res.data) {
             let apps = res.data
             // console.log(res.data);
@@ -487,7 +487,7 @@ const loadChatList = async () => {
     await getList({
         "page_size": 20,
         "page": page.value,
-    }).then(res => {
+    }).then((res:any) => {
         loading.value = false
         // console.log(res)
         if (res.data) {
@@ -664,7 +664,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
             "slider_fresh": sliderFresh.value,
             "slider_repeat": sliderRepeat.value,
             "slider_limit": sliderLimit.value,
-        }).then(res => {
+        }).then((res:any) => {
             // 如果没有额度或到期了则弹出充值界面
             if (res.code == 2020) {
                 props.openUpgradePop()
@@ -756,7 +756,7 @@ const newChat = () => {
 const chatDelete = async (d: string) => {
     await delChat({
         "id": d,
-    }).then(res => {
+    }).then((res:any) => {
 
         removeById(chatList, d)
         console.log(res, chatList)
@@ -779,7 +779,7 @@ const chatShow = async (id: string) => {
     message.value = ''
     await getChatLog({
         "chat_id": id,
-    }).then(res => {
+    }).then((res:any) => {
         if (res.data) {
             let data = res.data
             // 给当前chatId赋值, 可以继续在这个会话下聊天

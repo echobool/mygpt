@@ -130,7 +130,7 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 
             sendPhoneCode({
                 phone: ruleForm.phone
-            }).then(res => {
+            }).then((res:any) => {
                 if (res.code == 0) {
                     let sec = 60
                     const timer = setInterval(() => {
@@ -162,7 +162,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid, fields) => {
         if (valid) {
 
-            postAgentSetting(ruleForm).then(res => {
+            postAgentSetting(ruleForm).then((res:any) => {
                 console.log(res)
                 router.replace({ name: 'revenue' })
             }).catch(err => {

@@ -205,7 +205,7 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 
             sendPhoneCode({
                 phone: ruleForm.phone
-            }).then(res => {
+            }).then((res:any) => {
                 if (res.code == 0) {
                     let sec = 60
                     const timer = setInterval(() => {
@@ -235,7 +235,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (valid) {
-            postExtractApply(ruleForm).then(res => {
+            postExtractApply(ruleForm).then((res:any) => {
                 if (res.code == 0) {
                     openExtractDialog.value = false
                 }
@@ -295,7 +295,7 @@ const viewReason = () =>{
 
 
 const loadAgent = async () => {
-    await getAgentData().then(res => {
+    await getAgentData().then((res:any) => {
 
         if (res.data) {
             let data: any = res.data

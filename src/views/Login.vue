@@ -30,7 +30,7 @@ console.log(route.query.openid)
 const OnOpenIdLogin = () => {
   openIdLogin({
     openid: route.query.openid
-  }).then(res => {
+  }).then((res:any) => {
     if (res.data) {
 
       let domain = res.data.domain

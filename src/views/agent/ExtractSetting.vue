@@ -111,7 +111,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid, fields) => {
         if (valid) {
 
-            postExtractSetting(ruleForm).then(res => {
+            postExtractSetting(ruleForm).then((res:any) => {
                 console.log(res)
                 router.replace({name:'revenue'})
             }).catch(err => {

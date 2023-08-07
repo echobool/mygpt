@@ -136,7 +136,7 @@ onMounted(() => {
 });
 
 const loadUserInfo = async () => {
-    await getUserInfo().then(res => {
+    await getUserInfo().then((res:any) => {
         if (res.data) {
             let data = res.data
             user.value.nickname = data.nickname
@@ -182,7 +182,7 @@ const loadMyOrder = async () => {
     await myOrder({
         "page_size": pageSize.value,
         "page": page.value,
-    }).then(res => {
+    }).then((res:any) => {
 
         if (res.data) {
             let data: any = res.data
