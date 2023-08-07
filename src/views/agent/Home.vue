@@ -307,6 +307,8 @@ const loadAgent = async () => {
             agentData.status = data.status
             agentData.bank_name = data.bank_name
             agentData.card_no = data.card_no
+            agentData.wechat_no = data.wechat_no
+            agentData.alipay_no = data.alipay_no
             agentData.card_id = data.card_id
             agentData.card_id_front = data.card_id_front
             agentData.card_id_back = data.card_id_back

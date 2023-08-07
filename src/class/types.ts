@@ -52,6 +52,8 @@ export type AgentType = {
   created_at: number
   bank_name: string
   card_no: string
+  alipay_no: string
+  wechat_no: string
   card_id: string
   card_id_front: string
   card_id_back: string
