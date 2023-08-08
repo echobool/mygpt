@@ -1,0 +1,4 @@
+NODE_ENV = "production"
+APP_BASE_URL = "https://goapi.qianniugohome.com/v1"
+APP_SUB_DOMAIN = ".qianniugohome.com"
+APP_SITE_NAME = "OpenGPT4"
