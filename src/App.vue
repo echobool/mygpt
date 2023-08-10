@@ -4,7 +4,7 @@
       <el-header class="hidden-xs-only">
         <div class="header-container">
           <div class="logo-container" style="cursor: pointer;" @click="router.replace({ name: 'home' })">
-            <img class="logo" width="30" :src="logoUrl ? logoUrl : '/img/ailogo300.png'" alt="ai Logo">
+            <img class="logo" width="30" :src="logoUrl ? logoUrl : defaultLogo" alt="ai Logo">
             <span style="position: relative; font-weight: bold; margin-left: 10px;font-size: 20px;">
               {{ agent.site_name ? agent.site_name : siteName }}
             </span>
@@ -611,6 +611,7 @@ const { toggle } = useFullscreen()
 const logoUrl = ref('')
 const siteName = ref('')
 const baseURL = import.meta.env.APP_BASE_URL;
+const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
 const staticUrl = baseURL.replace('v1', '')
 
