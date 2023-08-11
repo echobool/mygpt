@@ -1011,21 +1011,21 @@ const openAgentDialog = async () => {
         || agent.value.agent_level == 'jinpai_2') {
         span.value = 8
         tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai_2");
-        yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai_2");
-        jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai_2");
+        //yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai_2");
+        //jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai_2");
 
       } else {
         span.value = 6
         tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai");
-        yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai");
-        jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai");
+        //yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai");
+        //jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai");
         heHuoRenData = AgentList.find((item: PkgListType) => item.c_name === "hehuoren");
 
       }
 
       tongPaiData.intro_arr = tongPaiData.intro.split('\n')
-      yinPaiData.intro_arr = yinPaiData.intro.split('\n')
-      jinPaiData.intro_arr = jinPaiData.intro.split('\n')
+      //yinPaiData.intro_arr = yinPaiData.intro.split('\n')
+      //jinPaiData.intro_arr = jinPaiData.intro.split('\n')
       heHuoRenData.intro_arr = heHuoRenData.intro ? heHuoRenData.intro.split('\n') : null;
 
       agentDialogVisible.value = true
