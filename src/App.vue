@@ -395,12 +395,12 @@
 
       <!-- 代理窗口 -->
       <el-dialog class="agentDialog" :close-on-click-modal="false" title="" v-model="agentDialogVisible" @closed=""
-        :width="span == 6 ? 1150 : 950" style="border-radius: 10px;">
+        :width="span == 12 ? 700 : 950" style="border-radius: 10px;">
         <h1 style=" text-align: center; margin-bottom: 35px; margin-top: 0;">入驻本站代理商，你将获得</h1>
 
         <el-row :gutter="20">
           <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
-            <h3 style="text-align: center;">{{ tongPaiData.name }}</h3>
+            <h2 style="text-align: left; padding-left: 50px;">{{ tongPaiData.name }}</h2>
             <ol>
               <li v-for="(item, index) in tongPaiData.intro_arr">
                 <p :key="index">{{ item }}</p>
@@ -414,36 +414,8 @@
             </div>
 
           </el-col>
-          <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
-            <h3 style="text-align: center;">{{ yinPaiData.name }}</h3>
-            <ol>
-              <li v-for="(item, index) in yinPaiData.intro_arr">
-                <p :key="index">{{ item }}</p>
-              </li>
-            </ol>
-            <div class="agent-item">
-              <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ yinPaiData.price }}</b> </div>
-              <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ yinPaiData.old_price }} </div>
-              <el-button @click="openAgent(yinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
-                type="primary">立即开通</el-button>
-            </div>
-          </el-col>
-          <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
-            <h3 style="text-align: center;">{{ jinPaiData.name }}</h3>
-            <ol>
-              <li v-for="(item, index) in jinPaiData.intro_arr">
-                <p :key="index">{{ item }}</p>
-              </li>
-            </ol>
-            <div class="agent-item">
-              <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ jinPaiData.price }}</b> </div>
-              <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ jinPaiData.old_price }} </div>
-              <el-button @click="openAgent(jinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
-                type="primary">立即开通</el-button>
-            </div>
-          </el-col>
-          <el-col v-show="span == 6" :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
-            <h3 style="text-align: center;">{{ heHuoRenData.name }}</h3>
+          <el-col v-show="span == 12" :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
+            <h2 style="text-align: left; padding-left: 50px;">{{ heHuoRenData.name }}</h2>
             <ol>
               <li v-for="(item, index) in heHuoRenData.intro_arr">
                 <p :key="index">{{ item }}</p>
@@ -658,13 +630,11 @@ const payment = ref('wechat')
 const paymentLogo = ref('')
 const selectPkgData: PkgListType = reactive({} as PkgListType)
 let tongPaiData: PkgListType = reactive({} as PkgListType)
-let yinPaiData: PkgListType = reactive({} as PkgListType)
-let jinPaiData: PkgListType = reactive({} as PkgListType)
 let heHuoRenData: PkgListType = reactive({} as PkgListType)
 
 const pkgList: PkgListType[] = reactive([])
 const AgentList: any = reactive([])
-const span = ref(8)
+const span = ref(12)
 
 const curModel = ref('gpt3.5')
 
@@ -1009,23 +979,17 @@ const openAgentDialog = async () => {
         || agent.value.agent_level == 'tongpai_2'
         || agent.value.agent_level == 'yinpai_2'
         || agent.value.agent_level == 'jinpai_2') {
-        span.value = 8
+       
         tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai_2");
-        //yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai_2");
-        //jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai_2");
 
       } else {
-        span.value = 6
+        
         tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai");
-        //yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai");
-        //jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai");
         heHuoRenData = AgentList.find((item: PkgListType) => item.c_name === "hehuoren");
 
       }
 
       tongPaiData.intro_arr = tongPaiData.intro.split('\n')
-      //yinPaiData.intro_arr = yinPaiData.intro.split('\n')
-      //jinPaiData.intro_arr = jinPaiData.intro.split('\n')
       heHuoRenData.intro_arr = heHuoRenData.intro ? heHuoRenData.intro.split('\n') : null;
 
       agentDialogVisible.value = true
@@ -1715,8 +1679,12 @@ body {
   height: 40px;
 }
 
+.agentDialog {
+  padding-left: 30px;
+}
 .agentDialog ol {
-  min-height: 260px !important;
+
+  margin-bottom: 10px;
 }
 
 .agentDialog ol li {
@@ -1726,8 +1694,9 @@ body {
 
 
 .agentDialog .agent-item {
-  text-align: center;
-
+  text-align: left;
+  padding-left: 30px;
+  margin-bottom: 30px;
 }
 
 .agentDialog .agent-item .agent-price {
