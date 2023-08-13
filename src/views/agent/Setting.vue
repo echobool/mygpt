@@ -16,7 +16,7 @@
                 <el-input v-model="ruleForm.site_name" size="large" />
             </el-form-item>
             <el-alert type="info" show-icon :closable="false">
-                <p>注意：二级域名一旦设置请勿随意更改，否则你用户就无法使用之前的域名了。</p>
+                <p>注意：二级域名由系统自动生成。你可以使用该二级域名进行推广 https://{{ ruleForm.sub_domain + subDmain }} </p>
             </el-alert>
             <el-form-item label="二级域名" prop="sub_domain">
                 <el-input v-model="ruleForm.sub_domain" size="large" :disabled="true" input-style="width:80px">
@@ -103,7 +103,7 @@ const rules = reactive<FormRules>({
     ],
     sub_domain: [
         { required: true, message: '请输入二级域名，', trigger: 'blur', },
-        { min: 3, max: 10, message: '二级域名字符控制在4 至 10个之内', trigger: 'blur', },
+        { min: 2, max: 10, message: '二级域名字符控制在2 至 10个之内', trigger: 'blur', },
         { asyncValidator: ValidateSubDomain, message: '二级域名被占用', trigger: 'blur', },
     ],
     phone: [
