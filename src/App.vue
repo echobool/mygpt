@@ -43,7 +43,7 @@
             <div class="open-agent-btn hidden-xs-only">
               <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
                   style="width: 30px; margin-right: 10px;" />{{
-                    user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
+                    user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松赚钱" }}</el-button>
             </div>
             <!-- 立即开通会员升级 -->
             <div class="open-vip-btn hidden-xs-only">
