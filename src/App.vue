@@ -82,23 +82,28 @@
 
             </div>
 
+           
+
+            <div class="app-service" v-if="service.status == 'open'">
+              <el-dropdown>
+                <span class="el-dropdown-link">
+                  <el-icon size="20" style="margin: 5px 5px 0 10px;  cursor: pointer;" class="el-icon--right">
+                    <Service />
+                  </el-icon> 
+                  <span class="service-text">客服</span>
+                </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item v-for="(item, index) in service.items" :key="index" :icon="Help"><el-link
+                        :href="item.href" type="primary">{{ item.title }}</el-link></el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+
             <div class="hidden-xs-only"><el-switch @change="toggleDark" v-model="isDark" class="mt-2"
                 style="margin:0 10px; --el-switch-on-color: #aaa; --el-switch-off-color: #444" inline-prompt
                 :active-icon="Sunny" :inactive-icon="Moon" /></div>
-
-            <el-dropdown v-if="service.status == 'open'">
-              <span class="el-dropdown-link">
-                <el-icon size="20" style="margin: 5px 10px 0 10px;  cursor: pointer;" class="el-icon--right">
-                  <Service />
-                </el-icon>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item v-for="(item,index) in service.items" :key="index" :icon="Help"><el-link :href="item.href"
-                      type="primary">{{item.title}}</el-link></el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
             <div class="hidden-xs-only" style="margin: 5px 10px 0 10px;  cursor: pointer;"><el-icon size="20"
                 @click="toggle">
                 <FullScreen />
@@ -591,7 +596,7 @@ const { toggle } = useFullscreen()
 
 const logoUrl = ref('')
 const siteName = ref('')
-const service:any = ref('')
+const service: any = ref('')
 const baseURL = import.meta.env.APP_BASE_URL;
 const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
@@ -1802,6 +1807,16 @@ body {
   max-width: 120px;
 }
 
+.header-container .app-service{
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  flex-grow: 1;
+  padding-right: 10px;
+  max-width: 120px;
+  width: 120px;
+}
+
 .header-container .open-vip-btn {
   display: flex;
   justify-content: end;
@@ -1867,6 +1882,19 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+}
+
+.app-service .service-text {
+  display: inline-block;
+  justify-content: left;
+  align-items: center;
+  min-width: 30px;
+  max-width: 60px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  margin-bottom: 3px;
 }
 
 .user-facade .el-avatar {
@@ -2010,4 +2038,5 @@ button.reset-btn {
 
 .footer-drawer {
   padding: 0;
-}</style>
+}
+</style>
