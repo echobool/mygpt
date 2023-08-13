@@ -81,16 +81,24 @@
               </el-dropdown>
 
             </div>
-            <!-- <button @click="openDrawer" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
-              <el-icon style="font-size: 25px;" class="el-icon--right">
-                <Menu />
-              </el-icon>
-            </button> -->
-
 
             <div class="hidden-xs-only"><el-switch @change="toggleDark" v-model="isDark" class="mt-2"
                 style="margin:0 10px; --el-switch-on-color: #aaa; --el-switch-off-color: #444" inline-prompt
                 :active-icon="Sunny" :inactive-icon="Moon" /></div>
+
+            <el-dropdown v-if="service.status == 'open'">
+              <span class="el-dropdown-link">
+                <el-icon size="20" style="margin: 5px 10px 0 10px;  cursor: pointer;" class="el-icon--right">
+                  <Service />
+                </el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item v-for="(item,index) in service.items" :key="index" :icon="Help"><el-link :href="item.href"
+                      type="primary">{{item.title}}</el-link></el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
             <div class="hidden-xs-only" style="margin: 5px 10px 0 10px;  cursor: pointer;"><el-icon size="20"
                 @click="toggle">
                 <FullScreen />
@@ -565,7 +573,7 @@
 
 <script setup lang="ts">
 
-import { Odometer, EditPen, SwitchButton, Sunny, Moon, Lollipop, Apple, User } from '@element-plus/icons-vue';
+import { Odometer, EditPen, SwitchButton, Sunny, Moon, Lollipop, Apple, User, Plus, Service, Help, Headset } from '@element-plus/icons-vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
@@ -583,9 +591,14 @@ const { toggle } = useFullscreen()
 
 const logoUrl = ref('')
 const siteName = ref('')
+const service:any = ref('')
 const baseURL = import.meta.env.APP_BASE_URL;
 const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
+service.value = JSON.parse(import.meta.env.APP_SERVICE);
+
+
+
 const staticUrl = baseURL.replace('v1', '')
 
 const title = useTitle()

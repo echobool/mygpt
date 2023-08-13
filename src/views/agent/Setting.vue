@@ -23,8 +23,8 @@
                     <template #append><span>{{ subDmain }}</span> </template>
                 </el-input>
             </el-form-item>
-            <el-form-item label="手机号" prop="phone" >
-                <el-input v-model="ruleForm.phone" size="large"  :disabled="true" />
+            <el-form-item label="手机号" prop="phone">
+                <el-input v-model="ruleForm.phone" size="large" :disabled="true" />
             </el-form-item>
             <el-form-item label="验证码" prop="code">
                 <el-input v-model="ruleForm.code" size="large" input-style="width:80px">
@@ -56,6 +56,7 @@ import router from '../../router';
 import { useGlobalStore } from '../../store'
 import { storeToRefs } from 'pinia'
 const subDmain = import.meta.env.APP_SUB_DOMAIN;
+const agentDomainPrefix = import.meta.env.APP_AGENT_DOMAIN_PREFIX;
 
 
 const Global = useGlobalStore()
@@ -86,9 +87,9 @@ onMounted(() => {
     ruleForm.icp = curAgent.value.icp
     ruleForm.phone = curAgent.value.phone ? curAgent.value.phone : user.value.phone
     if (curAgent.value.domain == '') {
-        ruleForm.sub_domain = 'ai'+curAgent.value.user_id
+        ruleForm.sub_domain = agentDomainPrefix + curAgent.value.user_id
     } else {
-        ruleForm.sub_domain = 'ai'+curAgent.value.sub_domain
+        ruleForm.sub_domain = curAgent.value.sub_domain
     }
 });
 
@@ -126,7 +127,7 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 
             sendPhoneCode({
                 phone: ruleForm.phone
-            }).then((res:any) => {
+            }).then((res: any) => {
                 if (res.code == 0) {
                     let sec = 60
                     const timer = setInterval(() => {
@@ -158,7 +159,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid, fields) => {
         if (valid) {
 
-            postAgentSetting(ruleForm).then((res:any) => {
+            postAgentSetting(ruleForm).then((res: any) => {
                 console.log(res)
                 router.replace({ name: 'revenue' })
             }).catch(err => {
