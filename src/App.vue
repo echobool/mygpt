@@ -573,7 +573,7 @@
 
 <script setup lang="ts">
 
-import { Odometer, EditPen, SwitchButton, Sunny, Moon, Lollipop, Apple, User, Plus, Service, Help, Headset } from '@element-plus/icons-vue';
+import { Odometer, EditPen, SwitchButton, Sunny, Moon, Lollipop, Apple, User, Service, Help } from '@element-plus/icons-vue';
 import { reactive, ref, onMounted } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
