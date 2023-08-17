@@ -1146,10 +1146,10 @@ const getMpQrcode = async () => {
             user.value.phone = userData.phone
             user.value.status = userData.state
             user.value.pkg_name = userData.pkg_name
-            user.value.expiry_date = data.expiry_date
-            user.value.qa_num = data.qa_num
-            user.value.quota = data.quota
-            user.value.points = data.points
+            user.value.expiry_date = userData.expiry_date
+            user.value.qa_num = userData.qa_num
+            user.value.quota = userData.quota
+            user.value.points = userData.points
             token.value = res.data.token
 
             //是否是代理商 是的话不展示开通会员和代理按钮
