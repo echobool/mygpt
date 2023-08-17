@@ -766,6 +766,8 @@ watch(user.value, (newValue, oldValue) => {
   console.log(`count的值从 ${oldValue} 变为 ${newValue}`);
   // 计算剩余时间
   getResidueTime()
+  // 拼接分享内容
+  shareTxt += ' \n\n 立即体验：https://' + host + '/s/' + user.value.id
 });
 
 
