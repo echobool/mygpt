@@ -218,8 +218,7 @@
               </el-col>
             </el-row>
           </el-col>
-          <el-col :class="{ 'share-list-border-left': isPc }"
-            style="padding: 15px; position: relative; margin-top: 20px;"
+          <el-col :class="{ 'share-list-border-left': isPc }" style="padding: 15px; position: relative; margin-top: 20px;"
             :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
             <h4 style="text-align: left; position: absolute; top: -10px; font-weight: normal; margin: 0 15px;">
               成功推荐记录（只显示最近10条）</h4>
@@ -590,9 +589,10 @@
           </label>
         </div>
         <div class="open-vip el-drawer-item" @click="inviteClick()">
-          <div class="residue-time"> 剩余时长：{{ residueTime }}<span style="padding-left: 15px; color: var(--el-color-warning);"><el-badge is-dot class="item">推荐获时长
-            </el-badge></span></div>
-          
+          <div class="residue-time"> 剩余时长：{{ residueTime }}<span
+              style="padding-left: 15px; color: var(--el-color-warning);"><el-badge is-dot class="item">推荐获时长
+              </el-badge></span></div>
+
         </div>
         <div class="open-vip el-drawer-item">
           <el-button style="width: 90%;" @click="openUpgradePop" type="warning" text><el-image src="/img/charge.png"
@@ -643,7 +643,8 @@
             </el-icon> <span>个人中心</span>
           </el-menu-item>
           <el-menu-item style="height: 60px;" v-else @click="openDrawer">
-            <span v-if="residueTimeHour < 100" style="position: absolute; top: 5px;right: 32px; border-radius: 10px;width: 8px; height: 8px; display: block; background-color: #ff0000;"></span>
+            <span v-if="residueTimeHour < 100"
+              style="position: absolute; top: 5px;right: 32px; border-radius: 10px;width: 8px; height: 8px; display: block; background-color: #ff0000;"></span>
             <el-avatar style="height: 30px;" :size="30" :src="user.avatar ? user.avatar : '/img/avatar1.svg'" />
           </el-menu-item>
         </el-menu>
@@ -656,7 +657,7 @@
 <script setup lang="ts">
 
 import { Odometer, EditPen, SwitchButton, Sunny, Moon, Lollipop, Apple, User, Service, Help } from '@element-plus/icons-vue';
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, watch } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
@@ -759,6 +760,14 @@ const rules = reactive<FormRules>({
   ],
 
 })
+
+// 监听count的变化
+watch(user.value, (newValue, oldValue) => {
+  console.log(`count的值从 ${oldValue} 变为 ${newValue}`);
+  // 计算剩余时间
+  getResidueTime()
+});
+
 
 onMounted(() => {
   // 根据域名载入配置
@@ -2078,7 +2087,7 @@ body {
   height: 30px;
   line-height: 30px;
   padding: 2px 0px;
-  margin:0 10px ;
+  margin: 0 10px;
   font-size: 14px;
 }
 
