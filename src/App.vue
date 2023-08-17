@@ -25,7 +25,7 @@
                   <Picture />
                 </el-icon> 绘图</el-menu-item>
 
-              <el-menu-item @click="inviteClick()" v-if="Global.token">
+              <el-menu-item @click="inviteClick()" v-if="Global.token && !user.agent.user_id">
                 <div class="residue-time"> 剩余时长：{{ residueTime }}</div>
                 <span style="padding-left: 15px; color: var(--el-color-warning);"><el-badge is-dot class="item">推荐获时长
                   </el-badge></span>
