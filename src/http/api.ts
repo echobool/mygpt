@@ -40,6 +40,10 @@ export const logout =  () => {
     return  axios.post('/user/logout')
 }
 
+// 获取推荐数据
+export const getInviteList =  () => {
+    return  axios.get('/user/invite')
+}
 
 // 获取套餐列表
 export const getPkgList = (params: any) => {
@@ -53,8 +57,13 @@ export const getAgentList = (params: any) => {
 
 
 // 获取公众号登录二维码 ticket
-export const getMpQrcodeTicket = () => {
-    return  axios.get('/qrcode')
+export const getMpQrcodeTicket = (params: any) => {
+    return  axios.get('/qrcode', { params })
+}
+
+// 获取公众号登录二维码图片 用于分享推荐
+export const getMpQrcodeImg = (params: any) => {
+    return  axios.get('/qrcode-img', { params,responseType: 'blob' })
 }
 
 // 获取公众号登录轮询

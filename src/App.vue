@@ -1,7 +1,7 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header class="hidden-xs-only">
+      <el-header class="hidden-xs-only" v-if="!$route.meta.hidenfater">
         <div class="header-container">
           <div class="logo-container" style="cursor: pointer;" @click="router.replace({ name: 'home' })">
             <img class="logo" width="30" :src="logoUrl ? logoUrl : defaultLogo" alt="ai Logo">
@@ -25,7 +25,11 @@
                   <Picture />
                 </el-icon> 绘图</el-menu-item>
 
-
+              <el-menu-item @click="inviteClick()" v-if="Global.token">
+                <div class="residue-time"> 剩余时长：{{ residueTime }}</div>
+                <span style="padding-left: 15px; color: var(--el-color-warning);"><el-badge is-dot class="item">推荐获时长
+                  </el-badge></span>
+              </el-menu-item>
               <!-- <el-menu-item index="4">
                 <i class="el-icon" style="font-size:24px;" data-v-6c8d2bba=""><svg
                     preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="1.2em" height="1.2em"
@@ -82,14 +86,14 @@
 
             </div>
 
-           
+
 
             <div class="app-service" v-if="service.status == 'open'">
               <el-dropdown>
                 <span class="el-dropdown-link">
                   <el-icon size="20" style="margin: 5px 5px 0 10px;  cursor: pointer;" class="el-icon--right">
                     <Service />
-                  </el-icon> 
+                  </el-icon>
                   <span class="service-text">客服</span>
                 </span>
                 <template #dropdown>
@@ -190,6 +194,71 @@
       </el-dialog>
 
 
+      <!-- 邀请获取时长窗口 -->
+      <el-dialog v-model="dialogShareVisible" width="700" style="border-radius: 10px; text-align: center;" title="">
+        <el-row>
+          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" style="margin-bottom: 20px;">
+            <el-image
+              style="width: 80px; height: 80px; padding: 20px; background-color: var(--el-color-warning-light-8); border-radius: 50%;"
+              src="img/lipin.svg" fit="cover" />
+            <h2>推荐朋友, 获得使用时长</h2>
+            <p>
+              成功推荐朋友，即用户通过你的链接或二维码登录平台就获得平台 GPT3.5 一天 使用时长。
+            </p>
+            <el-button type="danger" size="large" @click="showShareTxtBtn"
+              style="width: 80%;margin: 15px;">推荐给朋友</el-button>
+            <el-row style="border-top: 1px solid var(--el-border-color);">
+              <el-col :span="12">
+                <h4 style="color: crimson;"><span style="font-size: 30px;">{{ inviteNum }}</span> 人</h4>
+                成功推荐
+              </el-col>
+              <el-col style="border-left: 1px solid var(--el-border-color);" :span="12">
+                <h4 style="color: crimson;"><span style="font-size: 30px;">{{ inviteNum }}</span> 天</h4>
+                累计获得
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :class="{ 'share-list-border-left': isPc }"
+            style="padding: 15px; position: relative; margin-top: 20px;"
+            :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+            <h4 style="text-align: left; position: absolute; top: -10px; font-weight: normal; margin: 0 15px;">
+              成功推荐记录（只显示最近10条）</h4>
+            <ul style="margin: 15px 0;padding: 0; list-style: none;">
+              <li
+                style="display: flex; justify-content: space-between; padding: 5px 10px; background-color: var(--el-bg-chat-color);"
+                v-for="(item, index) in inviteList" :key="index">
+                <div style="display: flex;">{{ item.nickname }}</div>
+                <div style="display: flex;">{{ formatDateByTimestamp(item.created_at) }}</div>
+              </li>
+              <li style="margin-top: 70px;" v-if="inviteList.length == 0">
+                <el-empty :image-size="100" description="没有数据" />
+              </li>
+            </ul>
+          </el-col>
+        </el-row>
+
+      </el-dialog>
+      <!-- 推荐文案窗口 -->
+      <el-dialog v-model="dialogShareTxtVisible" width="400" style="border-radius: 10px; text-align: center;"
+        title="文案配图">
+        <el-row>
+          <el-col :span="24">
+            <el-image v-if="inviteImg" style="width: 200px; border: 1px solid #ddd;" :src="inviteImg" fit="cover" />
+            <br>
+            <el-button v-if="inviteImg" style="margin: 15px;" @click="downloadImage">下载图片</el-button>
+            <h2>推荐文案</h2>
+            <p class="recommand-txt">
+              {{ shareTxt }}
+            </p>
+
+            <el-button type="danger" size="large" @click="copyShareTxt" style="width: 80%;margin: 15px;">复制文案</el-button>
+
+          </el-col>
+
+        </el-row>
+
+      </el-dialog>
+
       <!-- 绑定手机号窗口 -->
       <el-dialog class="loginDialog" v-model="dialogBindVisible" width="480"
         style="border-radius: 10px; text-align: center; " title="绑定手机号">
@@ -231,7 +300,9 @@
       <!-- 用户充值付费窗口 -->
       <el-dialog class="vipDialog" title="" v-model="dialogUpgradeVisible" @closed="onVipDialogClose" width="750"
         style="border-radius: 10px;">
-        <h1 style=" margin-bottom: 35px; margin-top: 0;">选择额度套餐</h1>
+        <h1 style=" margin-bottom: 35px; margin-top: 0;">选择额度套餐
+          <el-button @click="inviteClick" size="default" type="danger" style="margin-left: 30px;">推荐获使用时长</el-button>
+        </h1>
         <el-tabs type="border-card" v-model="curModel" @tab-click="changPkgTab">
           <el-tab-pane label="会员时长套餐" name="gpt3.5">
             <!-- pc端 -->
@@ -518,6 +589,11 @@
               href="https://site.qianniugohome.com/p/kefu" target="_blank"> 联系客服</el-link>
           </label>
         </div>
+        <div class="open-vip el-drawer-item" @click="inviteClick()">
+          <div class="residue-time"> 剩余时长：{{ residueTime }}<span style="padding-left: 15px; color: var(--el-color-warning);"><el-badge is-dot class="item">推荐获时长
+            </el-badge></span></div>
+          
+        </div>
         <div class="open-vip el-drawer-item">
           <el-button style="width: 90%;" @click="openUpgradePop" type="warning" text><el-image src="/img/charge.png"
               style="width: 30px; margin-right: 10px;" />用户充值</el-button>
@@ -567,6 +643,7 @@
             </el-icon> <span>个人中心</span>
           </el-menu-item>
           <el-menu-item style="height: 60px;" v-else @click="openDrawer">
+            <span v-if="residueTimeHour < 100" style="position: absolute; top: 5px;right: 32px; border-radius: 10px;width: 8px; height: 8px; display: block; background-color: #ff0000;"></span>
             <el-avatar style="height: 30px;" :size="30" :src="user.avatar ? user.avatar : '/img/avatar1.svg'" />
           </el-menu-item>
         </el-menu>
@@ -585,12 +662,12 @@ import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
-
+import { formatDateByTimestamp } from './utils/DateTime'
 import { TabsPaneContext, type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
-
+import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost, getInviteList, getMpQrcodeImg } from './http/api'
+import { copyToClipboard } from './utils/string'
 
 const { toggle } = useFullscreen()
 
@@ -601,7 +678,7 @@ const baseURL = import.meta.env.APP_BASE_URL;
 const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
 service.value = JSON.parse(import.meta.env.APP_SERVICE);
-
+let shareTxt: string = import.meta.env.APP_SHARE_TXT;
 
 
 const staticUrl = baseURL.replace('v1', '')
@@ -633,6 +710,8 @@ const activeIndex = ref('1')
 const activeName = ref('loginCode')
 const username = ref('登录送额度')
 const dialogFormVisible = ref(false)
+const dialogShareVisible = ref(false)
+const dialogShareTxtVisible = ref(false)
 const dialogBindVisible = ref(false)
 const dialogUpgradeVisible = ref(false)
 const agentDialogVisible = ref(false)
@@ -654,9 +733,13 @@ let heHuoRenData: PkgListType = reactive({} as PkgListType)
 const pkgList: PkgListType[] = reactive([])
 const AgentList: any = reactive([])
 const span = ref(12)
+const residueTime = ref('0')
+const residueTimeHour = ref(100)
 
 const curModel = ref('gpt3.5')
-
+const inviteImg = ref('')
+const inviteNum = ref(0)
+const inviteList: any = reactive([])
 
 
 let timer: number = 0
@@ -681,8 +764,52 @@ onMounted(() => {
   // 根据域名载入配置
   loadAgent()
   checkAgentTips()
+
+  // 拼接分享内容
+  shareTxt += ' \n\n 立即体验：https://' + host + '/s/' + user.value.id
+
+  // 计算剩余时间
+  getResidueTime()
+
 });
 
+const getLocalTime = (i: number) => {
+  if (typeof i !== 'number') return; var d = new Date(); //得到1970年一月一日到现在的秒数 
+  var len = d.getTime();//本地时间与GMT时间的时间偏移差(注意：GMT这是UTC的民间名称。GMT=UTC）
+  var offset = d.getTimezoneOffset() * 60000;//得到现在的格林尼治时间
+  var utcTime = len + offset;
+  return new Date(utcTime + 3600000 * i);
+}
+
+const getResidueTime = () => {
+  // 给定的时间戳
+  const givenTimestamp: any = user.value.expiry_date; // 假设为秒级时间戳
+
+  // 将时间戳转换为毫秒级
+  const givenDate = new Date(givenTimestamp * 1000);
+  // 当前日期（北京时间）
+  const today = getLocalTime(8) as Date;
+
+  // 计算剩余时间差（以毫秒为单位）
+  const timeDiff = givenDate.getTime() - today.getTime();
+
+  // 如果时间差小于等于0，则剩余天数为0
+  if (timeDiff <= 0) {
+    residueTime.value = '0'
+  } else {
+    // 将时间差转换为小时数
+    const remainingHours = Math.ceil(timeDiff / (1000 * 60 * 60));
+
+    if (remainingHours < 100) {
+      residueTime.value = remainingHours + ' 小时'
+      residueTimeHour.value = remainingHours
+    } else {
+      // 将时间差转换为天数
+      const remainingDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      residueTime.value = remainingDays + ' 天'
+    }
+  }
+}
 
 
 const checkAgentTips = () => {
@@ -746,7 +873,12 @@ const openLoginFrom = () => {
     console.log("执行微信登录")
     const baseUrl = import.meta.env.APP_BASE_URL
     //document.getElementById("myframe").src=baseUrl + "/wechat/login";
-    window.location.assign(baseUrl + "/wechat/login?host=" + host)
+    let inviteUserId = localStorage.getItem('invite_user_id')
+    let loginUrl = baseUrl + "/wechat/login?host=" + host
+    if (inviteUserId) {
+      loginUrl += "&invite=" + inviteUserId
+    }
+    window.location.assign(loginUrl)
   } else {
     dialogFormVisible.value = true
   }
@@ -779,6 +911,126 @@ const aiClick = () => {
   }
 
 }
+
+// 邀请好友获得时长弹窗
+const inviteClick = async () => {
+  dialogShareVisible.value = true
+  // 如果是充值窗口则关闭充值窗口
+  dialogUpgradeVisible.value = false
+  inviteList.splice(0, inviteList.length)
+  // 获取推荐成功列表
+  await getInviteList().then((res: any) => {
+    console.log(res);
+    if (res.code == 0) {
+      inviteNum.value = res.ext.count
+      // 推荐列表
+      res.data.forEach((item: any) => {
+        inviteList.push({
+          "nickname": item.nickname ? item.nickname : item.phone,
+          "phone": item.phone,
+          "created_at": item.created_at
+        })
+      });
+    }
+  })
+}
+// 邀请好友文案弹窗
+const showShareTxtBtn = () => {
+  dialogShareTxtVisible.value = true
+
+  // 清空分享图片
+  inviteImg.value = ""
+
+  // 合成分享二维码图片
+  genInviteQrcodeImg()
+
+}
+
+const genInviteQrcodeImg = async () => {
+  // 创建一个新的画布
+  const canvas = document.createElement('canvas');
+  const ctx: any = canvas.getContext('2d');
+
+  const invite_user_id = user.value.id;
+
+  // 获取二维码图片
+  const imgBody: any = await getMpQrcodeImg({ invite: invite_user_id });
+
+  if (imgBody) {
+    console.log(imgBody);
+
+    // 创建第一张图片
+    var image1 = new Image();
+    image1.src = "/img/wechat-share-tmp.png"; // 替换为第一张图片的路径
+
+    // 等待第一张图片加载完成
+    await new Promise((resolve) => (image1.onload = resolve));
+
+    // 创建第二张图片
+    var image2 = new Image();
+    image2.src = window.URL.createObjectURL(imgBody); // 将 blob 数据转为对象 URL
+
+    // 等待第二张图片加载完成
+    await new Promise((resolve) => (image2.onload = resolve));
+
+    // 创建第三张图片
+    var image3 = new Image();
+    image3.src = logoUrl.value ? logoUrl.value : defaultLogo;
+    image3.width = 100
+
+    // 等待第一张图片加载完成
+    await new Promise((resolve) => (image3.onload = resolve));
+
+    // 设置画布的大小与第一张图片一致
+    canvas.width = image1.width;
+    canvas.height = image1.height;
+
+    // 在画布上绘制第一张图片
+    ctx.drawImage(image1, 0, 0);
+
+    // 在画布上绘制第二张图片（覆盖在第一张图片之上）
+    ctx.drawImage(image2, 385, 880);
+
+    ctx.drawImage(image3, 510, 1460, 180, 180);
+
+    // 将合并后的图片转为 base64 格式
+    inviteImg.value = canvas.toDataURL();
+
+    // 打印合并后的图片 base64 数据
+    // console.log(mergedImageBase64);
+  }
+};
+
+const downloadImage = () => {
+  const link = document.createElement("a");
+  link.href = inviteImg.value;
+  link.download = "GPT4_share_qrcode.png";
+  link.click();
+};
+
+
+
+// 复制推荐文案
+const copyShareTxt = () => {
+  if (shareTxt) {
+    copyToClipboard(shareTxt)
+      .then(() => {
+        ElMessage({
+          message: '复制成功.',
+          type: 'success',
+        })
+
+      })
+      .catch(() => {
+        ElMessage({
+          message: '复制失败.',
+          type: 'warning',
+        })
+      })
+  }
+}
+
+
 
 
 // 套餐切换事件
@@ -861,8 +1113,11 @@ const onAgentDialogClose = () => {
 
 // 二维码登录
 const getMpQrcode = async () => {
+  let invite_user_id = localStorage.getItem('invite_user_id')
   // 获取二维码ticket
-  await getMpQrcodeTicket().then((res: any) => {
+  await getMpQrcodeTicket({
+    invite: invite_user_id
+  }).then((res: any) => {
     if (res.code == 0) {
       let data = res.data
       qrcodeImgSrc.value = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.ticket
@@ -891,6 +1146,10 @@ const getMpQrcode = async () => {
             user.value.phone = userData.phone
             user.value.status = userData.state
             user.value.pkg_name = userData.pkg_name
+            user.value.expiry_date = data.expiry_date
+            user.value.qa_num = data.qa_num
+            user.value.quota = data.quota
+            user.value.points = data.points
             token.value = res.data.token
 
             //是否是代理商 是的话不展示开通会员和代理按钮
@@ -949,10 +1208,10 @@ const openAgentDialog = async () => {
   }
 
   // 如果用户手机号为空则弹出绑定手机号
-  if (user.value.phone == "") {
-    dialogBindVisible.value = true
-    return
-  }
+  // if (user.value.phone == "") {
+  //   dialogBindVisible.value = true
+  //   return
+  // }
 
   drawerBottom.value = false
   // 如果已经是代理了 则进入代理管理页面
@@ -1269,11 +1528,15 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 // 手机登录
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
+
+  let inviteUserId = localStorage.getItem("invite_user_id") as string
+
   await formEl.validate((valid: any, fields: any) => {
     if (valid) {
       phoneLogin({
         phone: ruleForm.phoneNum,
-        code: ruleForm.code
+        code: ruleForm.code,
+        invite_id: parseInt(inviteUserId)
       }).then((res: any) => {
         if (res.data) {
 
@@ -1798,6 +2061,27 @@ body {
 
 }
 
+.header-container .residue-time {
+  border: 1px dotted var(--el-color-warning);
+  color: var(--el-color-warning);
+  border-radius: 5px;
+  height: 30px;
+  line-height: 30px;
+  padding: 2px 15px;
+  margin: 10px 0;
+}
+
+.el-drawer-item .residue-time {
+  border: 1px dotted var(--el-color-warning);
+  color: var(--el-color-warning);
+  border-radius: 5px;
+  height: 30px;
+  line-height: 30px;
+  padding: 2px 0px;
+  margin:0 10px ;
+  font-size: 14px;
+}
+
 .header-container .user-facade {
   display: flex;
   justify-content: end;
@@ -1807,7 +2091,7 @@ body {
   max-width: 120px;
 }
 
-.header-container .app-service{
+.header-container .app-service {
   display: flex;
   justify-content: end;
   align-items: center;
@@ -2038,5 +2322,9 @@ button.reset-btn {
 
 .footer-drawer {
   padding: 0;
+}
+
+.share-list-border-left {
+  border-left: 1px solid var(--el-border-color);
 }
 </style>
