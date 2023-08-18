@@ -280,6 +280,7 @@
             <br>
             <h3>长按二维码关注公众号</h3>
             <p>如果已关注还出现提示，请取消关注再关注。</p>
+            <p>关注后点击公众号底部菜单即可进入。</p>
           </el-col>
         </el-row>
       </el-dialog>
@@ -797,14 +798,6 @@ watch(user.value, (newValue, oldValue) => {
 
 
 onMounted(() => {
-
-  window.onfocus = function () {
-    console.log("激活状态！")
-    if (isWeixinBrowser()) {
-      window.location.reload();
-    }
-  }
-
 
   if (token.value) {
     loadUserInfo()
