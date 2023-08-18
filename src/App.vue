@@ -693,7 +693,7 @@ import { formatDateByTimestamp } from './utils/DateTime'
 import { TabsPaneContext, type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost, getInviteList, getMpQrcodeImg, openIdLogin } from './http/api'
+import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost, getInviteList, getMpQrcodeImg } from './http/api'
 import { copyToClipboard } from './utils/string'
 
 const { toggle } = useFullscreen()
