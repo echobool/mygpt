@@ -123,7 +123,7 @@
         <!-- 完善代理信息提示 -->
         <el-alert v-show="agentTipsVisible" title="请完善代理信息设置，否则站点无法访问" center type="error" class="agent-tips" />
 
-        <el-alert v-show="user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1)"
+        <el-alert v-show="user.id && (user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1))"
           class="hidden-md-and-up wx-subscribe" title="" type="warning" style="text-align: center;">关注公众号不迷路，关注后不提示，点击
           <el-button @click="getMpQrcodeSubscribe" size="small" type="primary" plain>关注公众号</el-button>
         </el-alert>
@@ -277,6 +277,7 @@
             </el-image>
             <br>
             <h3>长按二维码关注公众号</h3>
+            <p>如果已关注还出现提示，请取消关注再关注。</p>
           </el-col>
         </el-row>
       </el-dialog>

@@ -59,7 +59,7 @@
     <el-container @click="showAside = false" class="right-container">
         <el-main id="chatMain">
 
-            <div v-show="promptVisible" :class="{ 'padding-top-50' : user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1)}" style="justify-content: center; display: flex; padding: 20px;">
+            <div v-show="promptVisible" :class="{ 'padding-top-50' : user.id && (user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1))}" style="justify-content: center; display: flex; padding: 20px;">
                 <el-radio-group v-model="model" size="large">
                     <el-radio-button v-for="item in options" :label="item.value">
                         <template #default>
