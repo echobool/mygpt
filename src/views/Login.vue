@@ -56,6 +56,7 @@ const OnOpenIdLogin = () => {
       user.value.points = userData.points
       user.value.subscribe = userData.subscribe
       user.value.un_subscribe = userData.un_subscribe
+      user.value.open_id = userData.open_id_1
       token.value = res.data.token
 
       //是否是代理商 是的话不展示开通会员和代理按钮
@@ -65,6 +66,7 @@ const OnOpenIdLogin = () => {
         user.value.agent.agent_level = userData.agent.agent_level
         user.value.agent.order_id = userData.agent.order_id
         user.value.agent.real_name = userData.agent.real_name
+        user.value.agent.site_name = userData.agent.site_name
       }
       router.replace({ path: '/' })
     }

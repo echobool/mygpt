@@ -38,6 +38,7 @@ export type UserType = {
   expiry_date: string
   subscribe: number
   un_subscribe: number
+  open_id: string
 }
 
 

@@ -691,7 +691,7 @@ import { formatDateByTimestamp } from './utils/DateTime'
 import { TabsPaneContext, type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost, getInviteList, getMpQrcodeImg } from './http/api'
+import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost, getInviteList, getMpQrcodeImg,openIdLogin } from './http/api'
 import { copyToClipboard } from './utils/string'
 
 const { toggle } = useFullscreen()
@@ -795,6 +795,11 @@ watch(user.value, (newValue, oldValue) => {
 
 
 onMounted(() => {
+  
+  if(user.value.open_id != ""){
+      OnOpenIdLogin()
+  }
+
   // 根据域名载入配置
   loadAgent()
   checkAgentTips()
@@ -1206,6 +1211,7 @@ const getMpQrcode = async () => {
             user.value.points = userData.points
             user.value.subscribe = userData.subscribe
             user.value.un_subscribe = userData.un_subscribe
+            user.value.un_subscribe = userData.un_subscribe
             token.value = res.data.token
 
             //是否是代理商 是的话不展示开通会员和代理按钮
@@ -1234,6 +1240,56 @@ const getMpQrcode = async () => {
     }
 
     console.log(res)
+  }).catch(err => {
+    console.log(err)
+  })
+}
+
+
+const OnOpenIdLogin = () => {
+  openIdLogin({
+    openid: user.value.open_id
+  }).then((res: any) => {
+    if (res.data) {
+
+      let domain = res.data.domain
+      if (domain && domain != "" && domain != host) {
+        window.location.href = "https://" + domain
+        return
+      }
+
+      let userData = res.data.user
+      // 存入状态管理
+      user.value.agent = {} as AgentType
+      // 存入状态管理
+      user.value.id = userData.id
+      user.value.nickname = userData.nickname
+      user.value.avatar = userData.avatar
+      user.value.email = userData.email
+      user.value.phone = userData.phone
+      user.value.status = userData.state
+      user.value.pkg_name = userData.pkg_name
+      user.value.expiry_date = userData.expiry_date
+      user.value.qa_num = userData.qa_num
+      user.value.quota = userData.quota
+      user.value.points = userData.points
+      user.value.subscribe = userData.subscribe
+      user.value.un_subscribe = userData.un_subscribe
+      user.value.open_id = userData.open_id_1
+      token.value = res.data.token
+
+      //是否是代理商 是的话不展示开通会员和代理按钮
+      if (userData.agent) {
+        user.value.agent.user_id = 1
+        user.value.agent.agent_level_name = userData.agent.agent_level_name
+        user.value.agent.agent_level = userData.agent.agent_level
+        user.value.agent.order_id = userData.agent.order_id
+        user.value.agent.real_name = userData.agent.real_name
+        user.value.agent.site_name = userData.agent.site_name
+      }
+      router.replace({ path: '/' })
+    }
+    //console.log(res)
   }).catch(err => {
     console.log(err)
   })
