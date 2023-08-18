@@ -122,13 +122,12 @@
       <el-container>
         <!-- 完善代理信息提示 -->
         <el-alert v-show="agentTipsVisible" title="请完善代理信息设置，否则站点无法访问" center type="error" class="agent-tips" />
-        
-          <el-alert v-show="user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1)" class="hidden-md-and-up wx-subscribe" title="" type="warning" style="text-align: center;">关注公众号不迷路，关注后不提示，点击
-            <el-link :href="official_link"
-              style="border: 1px dotted var(--el-border-color); padding: 2px 5px; border-radius: 5px;margin-left: 10px;"
-              type="primary">关注公众号</el-link>
-          </el-alert>
-       
+
+        <el-alert v-show="user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1)"
+          class="hidden-md-and-up wx-subscribe" title="" type="warning" style="text-align: center;">关注公众号不迷路，关注后不提示，点击
+          <el-button @click="getMpQrcodeSubscribe" size="small" type="primary" plain>关注公众号</el-button>
+        </el-alert>
+
 
         <router-view v-slot="{ Component }">
           <component :openLoginFrom="openLoginFrom" :openUpgradePop="openUpgradePop" :isDark="isDark" ref="viewBox"
@@ -263,6 +262,23 @@
 
         </el-row>
 
+      </el-dialog>
+      <!-- 关注公众号窗口 -->
+      <el-dialog v-model="dialogSubscribeVisible" width="400" style="border-radius: 10px; text-align: center;"
+        title="关注公众号">
+        <el-row>
+          <el-col :span="24">
+            <el-image style="width: 300px; height: 300px; border: 1px solid #ddd;" :src="qrcodeImgSrc" fit="cover">
+              <template #error>
+                <div class="image-slot">
+                  <el-icon><Loading /></el-icon>
+                </div>
+              </template>
+            </el-image>
+            <br>
+            <h3>长按二维码关注公众号</h3>
+          </el-col>
+        </el-row>
       </el-dialog>
 
       <!-- 绑定手机号窗口 -->
@@ -686,7 +702,6 @@ const baseURL = import.meta.env.APP_BASE_URL;
 const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
 service.value = JSON.parse(import.meta.env.APP_SERVICE);
-const official_link: string = import.meta.env.APP_OFFICIAL_LINK;
 let shareTxt: string = import.meta.env.APP_SHARE_TXT;
 
 
@@ -719,6 +734,7 @@ const activeIndex = ref('1')
 const activeName = ref('loginCode')
 const username = ref('登录送额度')
 const dialogFormVisible = ref(false)
+const dialogSubscribeVisible = ref(false)
 const dialogShareVisible = ref(false)
 const dialogShareTxtVisible = ref(false)
 const dialogBindVisible = ref(false)
@@ -774,8 +790,6 @@ watch(user.value, (newValue, oldValue) => {
   console.log(`count的值从 ${oldValue} 变为 ${newValue}`);
   // 计算剩余时间
   getResidueTime()
-  showSubscribe()
-
 });
 
 
@@ -789,17 +803,6 @@ onMounted(() => {
 
 });
 
-const showSubscribe = ()=>{
-  // 没有关注
-  if(user.value.subscribe != 1){
-    return true
-  }
-  // 关注后又取消关注了
-  if(user.value.subscribe ==1 && user.value.un_subscribe ==1){
-    return true
-  }
-  return false
-}
 
 const getLocalTime = (i: number) => {
   if (typeof i !== 'number') return; var d = new Date(); //得到1970年一月一日到现在的秒数 
@@ -1147,6 +1150,17 @@ const onAgentDialogClose = () => {
     clearInterval(timer4)
   }
 
+}
+
+const getMpQrcodeSubscribe = async () => {
+  dialogSubscribeVisible.value = true
+  // 获取二维码ticket
+  await getMpQrcodeTicket({}).then((res: any) => {
+    if (res.code == 0) {
+      let data = res.data
+      qrcodeImgSrc.value = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.ticket
+    }
+  })
 }
 
 // 二维码登录
@@ -2367,14 +2381,14 @@ button.reset-btn {
 
 
 .wx-subscribe {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    z-index: 10;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 10;
 }
 
-.wx-subscribe ::v-deep .el-alert__content{
-    width: 100%;
+.wx-subscribe ::v-deep .el-alert__content {
+  width: 100%;
 }
 
 .share-list-border-left {
