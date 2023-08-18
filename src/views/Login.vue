@@ -54,6 +54,8 @@ const OnOpenIdLogin = () => {
       user.value.qa_num = userData.qa_num
       user.value.quota = userData.quota
       user.value.points = userData.points
+      user.value.subscribe = userData.subscribe
+      user.value.un_subscribe = userData.un_subscribe
       token.value = res.data.token
 
       //是否是代理商 是的话不展示开通会员和代理按钮

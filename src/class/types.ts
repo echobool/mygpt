@@ -36,6 +36,8 @@ export type UserType = {
   agent: AgentType
   pkg_name: string
   expiry_date: string
+  subscribe: number
+  un_subscribe: number
 }
 
 

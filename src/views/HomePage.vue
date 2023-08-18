@@ -59,7 +59,7 @@
     <el-container @click="showAside = false" class="right-container">
         <el-main id="chatMain">
 
-            <div v-show="promptVisible" style="justify-content: center; display: flex; padding: 20px;">
+            <div v-show="promptVisible" :class="{ 'padding-top-50' : user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1)}" style="justify-content: center; display: flex; padding: 20px;">
                 <el-radio-group v-model="model" size="large">
                     <el-radio-button v-for="item in options" :label="item.value">
                         <template #default>
@@ -67,6 +67,11 @@
                         </template>
                     </el-radio-button>
                 </el-radio-group>
+                    <br>
+                
+                <!-- <el-button style="height: 48px; margin-top: 2px; margin-left: 10px; border-radius: 15px;" type="success" round> 
+                    <span style="font-size: 12px; line-height: 16px; height: 32px; display: block;">关注<br>公众号</span> 
+                </el-button> -->
             </div>
             <div v-show="!promptVisible" style="justify-content: center; display: flex; padding: 20px;"
                 class="home-msg-item-bot">
@@ -281,6 +286,7 @@ import { Plus } from '@element-plus/icons-vue';
 import { InfoFilled } from '@element-plus/icons-vue'
 import { StandardTime } from '../utils/DateTime'
 import { useGlobalStore } from '../store'
+import { storeToRefs } from 'pinia'
 import MarkdownIt from 'markdown-it'
 import mdKatex from '@traptitech/markdown-it-katex'
 import mila from 'markdown-it-link-attributes'
@@ -294,6 +300,7 @@ import { createChat, getList, delChat, getChatLog, getAppRecommend } from '../ht
 
 
 const Global = useGlobalStore()
+const { user} = storeToRefs(Global)
 const model = ref('gpt-3.5-turbo')
 // 展示设置框状态
 const dialogFormVisible = ref(false)
@@ -1071,7 +1078,6 @@ defineExpose({
 }
 
 
-
 .app-item {
     margin-top: 20px;
 }
@@ -1270,7 +1276,9 @@ button.reset-btn {
 
 }
 
-
+.padding-top-50 {
+    padding-top: 60px !important;
+}
 .aside-show {
     display: block !important;
     position: absolute;

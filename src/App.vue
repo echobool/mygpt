@@ -122,6 +122,13 @@
       <el-container>
         <!-- 完善代理信息提示 -->
         <el-alert v-show="agentTipsVisible" title="请完善代理信息设置，否则站点无法访问" center type="error" class="agent-tips" />
+        
+          <el-alert v-show="user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1)" class="hidden-md-and-up wx-subscribe" title="" type="warning" style="text-align: center;">关注公众号不迷路，关注后不提示，点击
+            <el-link :href="official_link"
+              style="border: 1px dotted var(--el-border-color); padding: 2px 5px; border-radius: 5px;margin-left: 10px;"
+              type="primary">关注公众号</el-link>
+          </el-alert>
+       
 
         <router-view v-slot="{ Component }">
           <component :openLoginFrom="openLoginFrom" :openUpgradePop="openUpgradePop" :isDark="isDark" ref="viewBox"
@@ -679,6 +686,7 @@ const baseURL = import.meta.env.APP_BASE_URL;
 const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
 service.value = JSON.parse(import.meta.env.APP_SERVICE);
+const official_link: string = import.meta.env.APP_OFFICIAL_LINK;
 let shareTxt: string = import.meta.env.APP_SHARE_TXT;
 
 
@@ -766,7 +774,8 @@ watch(user.value, (newValue, oldValue) => {
   console.log(`count的值从 ${oldValue} 变为 ${newValue}`);
   // 计算剩余时间
   getResidueTime()
-  
+  showSubscribe()
+
 });
 
 
@@ -779,6 +788,18 @@ onMounted(() => {
   getResidueTime()
 
 });
+
+const showSubscribe = ()=>{
+  // 没有关注
+  if(user.value.subscribe != 1){
+    return true
+  }
+  // 关注后又取消关注了
+  if(user.value.subscribe ==1 && user.value.un_subscribe ==1){
+    return true
+  }
+  return false
+}
 
 const getLocalTime = (i: number) => {
   if (typeof i !== 'number') return; var d = new Date(); //得到1970年一月一日到现在的秒数 
@@ -921,6 +942,12 @@ const aiClick = () => {
 
 // 邀请好友获得时长弹窗
 const inviteClick = async () => {
+  if (Global.token == "") {
+    openLoginFrom()
+    return
+  }
+
+
   dialogShareVisible.value = true
   // 如果是充值窗口则关闭充值窗口
   dialogUpgradeVisible.value = false
@@ -1132,6 +1159,7 @@ const getMpQrcode = async () => {
     if (res.code == 0) {
       let data = res.data
       qrcodeImgSrc.value = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.ticket
+      console.log(qrcodeImgSrc.value);
 
 
       timer2 = setInterval(() => {
@@ -1161,6 +1189,8 @@ const getMpQrcode = async () => {
             user.value.qa_num = userData.qa_num
             user.value.quota = userData.quota
             user.value.points = userData.points
+            user.value.subscribe = userData.subscribe
+            user.value.un_subscribe = userData.un_subscribe
             token.value = res.data.token
 
             //是否是代理商 是的话不展示开通会员和代理按钮
@@ -1735,10 +1765,10 @@ body {
 
 
 .agent-tips {
-  max-width: 600px;
-  top: 70px;
+  width: 100%;
+  top: 0;
   z-index: 10;
-  right: calc((100vw - 600px)/2);
+  // right: calc((100vw - 600px)/2);
   position: absolute;
 }
 
@@ -2333,6 +2363,18 @@ button.reset-btn {
 
 .footer-drawer {
   padding: 0;
+}
+
+
+.wx-subscribe {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+.wx-subscribe ::v-deep .el-alert__content{
+    width: 100%;
 }
 
 .share-list-border-left {
