@@ -1252,7 +1252,7 @@ const getMpQrcode = async () => {
 const loadUserInfo = async () => {
   await getUserInfo().then((res: any) => {
     if (res.data) {
-      let userData = res.data.user
+      let userData = res.data
       // 存入状态管理
       user.value.id = userData.id
       user.value.nickname = userData.nickname
@@ -1266,7 +1266,6 @@ const loadUserInfo = async () => {
       user.value.quota = userData.quota
       user.value.points = userData.points
       user.value.subscribe = userData.subscribe
-      user.value.un_subscribe = userData.un_subscribe
       user.value.un_subscribe = userData.un_subscribe
     }
     console.log(res)
