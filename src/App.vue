@@ -795,8 +795,8 @@ watch(user.value, (newValue, oldValue) => {
 
 
 onMounted(() => {
-  
-  if(user.value.open_id != ""){
+
+  if(user.value.open_id){
       OnOpenIdLogin()
   }
 
