@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="dark" lang="zh-CN" >
+<html class="dark" lang="zh-CN">
 
 <head>
   <meta charset="UTF-8" />
@@ -12,10 +12,15 @@
   <title>BYTE AI</title>
 </head>
 <!-- background-color: rgb(242, 244, 246) ;" -->
+
 <body style="margin: 0;">
   <div id="app"></div>
   <script>
-
+    window.onpageshow = function (event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    };
   </script>
   <script type="module" src="/src/main.ts"></script>
 </body>
