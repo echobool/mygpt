@@ -798,6 +798,14 @@ watch(user.value, (newValue, oldValue) => {
 
 onMounted(() => {
 
+  window.onfocus = function () {
+    console.log("激活状态！")
+    if (isWeixinBrowser()) {
+      window.location.reload();
+    }
+  }
+
+
   if (token.value) {
     loadUserInfo()
   }
