@@ -766,8 +766,7 @@ watch(user.value, (newValue, oldValue) => {
   console.log(`count的值从 ${oldValue} 变为 ${newValue}`);
   // 计算剩余时间
   getResidueTime()
-  // 拼接分享内容
-  shareTxt += ' \n\n 立即体验：https://' + host + '/s/' + user.value.id
+  
 });
 
 
@@ -775,9 +774,6 @@ onMounted(() => {
   // 根据域名载入配置
   loadAgent()
   checkAgentTips()
-
-  // 拼接分享内容
-  shareTxt += ' \n\n 立即体验：https://' + host + '/s/' + user.value.id
 
   // 计算剩余时间
   getResidueTime()
@@ -954,6 +950,9 @@ const showShareTxtBtn = () => {
 
   // 合成分享二维码图片
   genInviteQrcodeImg()
+
+  // 拼接分享内容
+  shareTxt += ' \n\n 立即体验：https://' + host + '/s/' + user.value.id
 
 }
 
