@@ -945,6 +945,7 @@ const inviteClick = async () => {
 const showShareTxtBtn = () => {
   dialogShareTxtVisible.value = true
 
+  dialogShareVisible.value = false
   // 清空分享图片
   inviteImg.value = ""
 
