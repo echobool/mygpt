@@ -201,12 +201,12 @@
 
 
       <!-- 邀请获取时长窗口 -->
-      <el-dialog v-model="dialogShareVisible" width="700" style="border-radius: 10px; text-align: center;" title="">
+      <el-dialog v-model="dialogShareVisible" width="700" top="10vh" style="border-radius: 10px; text-align: center;" title="">
         <el-row>
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" style="margin-bottom: 20px;">
             <el-image
               style="width: 80px; height: 80px; padding: 20px; background-color: var(--el-color-warning-light-8); border-radius: 50%;"
-              src="img/lipin.svg" fit="cover" />
+              src="/img/lipin.svg" fit="cover" />
             <h2>推荐朋友, 获得使用时长</h2>
             <p>
               成功推荐朋友，即用户通过你的链接或二维码登录平台就获得平台 GPT3.5 一天 使用时长。
@@ -244,7 +244,7 @@
 
       </el-dialog>
       <!-- 推荐文案窗口 -->
-      <el-dialog v-model="dialogShareTxtVisible" width="400" style="border-radius: 10px; text-align: center;"
+      <el-dialog v-model="dialogShareTxtVisible" width="400" top="5vh" style="border-radius: 10px; text-align: center;"
         title="文案配图">
         <el-row>
           <el-col :span="24">
@@ -706,7 +706,8 @@ const baseURL = import.meta.env.APP_BASE_URL;
 const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
 service.value = JSON.parse(import.meta.env.APP_SERVICE);
-let shareTxt: string = import.meta.env.APP_SHARE_TXT;
+const SHARE_TXT: string = import.meta.env.APP_SHARE_TXT;
+let shareTxt: string 
 
 
 const staticUrl = baseURL.replace('v1', '')
@@ -992,7 +993,7 @@ const showShareTxtBtn = () => {
   genInviteQrcodeImg()
 
   // 拼接分享内容
-  shareTxt += ' \n\n 立即体验：https://' + host + '/s/' + user.value.id
+  shareTxt = SHARE_TXT + ' \n\n 立即体验：https://' + host + '/s/' + user.value.id
 
 }
 
