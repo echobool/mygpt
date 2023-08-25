@@ -103,7 +103,7 @@
                                     </el-col>
                                 </el-row>
                             </div>
-                            <el-empty v-else description="即将开放" />
+                            <el-empty v-else description="没有数据" />
                         </el-tab-pane>
 
                     </el-tabs>
