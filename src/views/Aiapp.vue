@@ -91,7 +91,19 @@
                                 </span>
                             </template>
 
-                            <el-empty description="即将开放" />
+                            <div v-if="collectList" class="app-item">
+                                <el-row>
+                                    <el-col style="text-align: center;" v-for="(app, k) in collectList" :key="k" :xs="6"
+                                        :sm="6" :md="6" :lg="3" :xl="3">
+                                        <div class="app-item-div" @click="goToApp(app.id)">
+                                            <el-image :src="staticUrl + app.logo_path" fit="cover" />
+                                            <span class="app-name">{{ app.name }}</span>
+                                        </div>
+
+                                    </el-col>
+                                </el-row>
+                            </div>
+                            <el-empty v-else description="即将开放" />
                         </el-tab-pane>
 
                     </el-tabs>
@@ -104,9 +116,14 @@
             <el-row :gutter="10" justify="center" style="margin: 0;"
                 v-if="!showApp && rulePreview.dialog_mode != dialogMode.Dialog">
                 <el-col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
-                    <div style="display: block; text-align: center;">
+                    <div style="display: block; text-align: center; position: relative; ">
                         <img v-if="imageUrl" :src="imageUrl" class="avatar" width="80" style="border-radius: 15px;" />
                         <p>{{ rulePreview.desc }}</p>
+                        <el-button v-if="rulePreview.has_collect == 'yes'" @click="collectApp"
+                            style="position: absolute; top: 20px; right: 20px;" size="small" :icon="Star" round
+                            type="warning"> 已收藏</el-button>
+                        <el-button v-else @click="collectApp" style="position: absolute; top: 20px; right: 20px;"
+                            size="small" :icon="Star" round plain type="warning"> 收藏</el-button>
                     </div>
 
                     <div class="examples" v-if="rulePreview.examples.length > 0">
@@ -208,8 +225,9 @@
 
 <script lang="ts" setup>
 import { StandardTime } from '../utils/DateTime'
-import { InfoFilled } from '@element-plus/icons-vue'
+import { InfoFilled, Star } from '@element-plus/icons-vue'
 import { useGlobalStore } from '../store'
+import { storeToRefs } from 'pinia'
 import MarkdownIt from 'markdown-it'
 import mdKatex from '@traptitech/markdown-it-katex'
 import mila from 'markdown-it-link-attributes'
@@ -218,7 +236,7 @@ import type { FormInstance } from 'element-plus'
 import { reactive, ref, onMounted, computed } from 'vue';
 import type { Msg } from '../class/Msg'
 import AiMessage from '../components/AiMessage.vue';
-import { getList, delChat, getChatLog, getAllApp, getAppInfo, createChat, getAppRecommend } from '../http/api'
+import { getList, delChat, getChatLog, getAllApp, getAppInfo, createChat, getAppRecommend, collect, getCollects } from '../http/api'
 import { TabsPaneContext, } from 'element-plus';
 import router from '../router';
 import { useRoute } from 'vue-router';
@@ -229,6 +247,7 @@ type EChartsOption = echarts.EChartsOption;
 
 
 const Global = useGlobalStore()
+const { user } = storeToRefs(Global)
 const model = ref('gpt-3.5-turbo')
 const chatList: { today: any[], oneWeekAgo: any[], oneMonthAgo: any[], oneYearAgo: any[] } = reactive({
     today: [],
@@ -257,6 +276,7 @@ const disabled = computed(() => loading.value || noMore.value)
 const data = ref('');   // 接收到的临时消息
 const activeName = ref('all')
 const cates: any = reactive([])
+const collectList: any = reactive([])
 const imageUrl = ref('')
 const baseURL = import.meta.env.APP_BASE_URL;
 const staticUrl = baseURL.replace('v1', '')
@@ -293,6 +313,7 @@ const rulePreview = reactive({
     dialog_mode: 0,
     fields: [] as any,
     examples: [] as any,
+    has_collect: 'no',
 })
 
 const setShowApp = () => {
@@ -342,7 +363,7 @@ onMounted(() => {
 const loadAppRecommend = async () => {
     recommendPc.value.splice(0, recommendPc.length)
     recommendMobile.value.splice(0, recommendMobile.length)
-    await getAppRecommend().then((res:any) => {
+    await getAppRecommend().then((res: any) => {
         if (res.data) {
             let apps = res.data
             // console.log(res.data);
@@ -358,6 +379,17 @@ function groupArray(array: any, groupSize: number) {
     return array.slice(0, groupSize);
 }
 
+// 收藏与取消收藏
+const collectApp = async () => {
+    await collect({
+        user_id: user.value.id,
+        app_id: rulePreview.id
+    }).then((res: any) => {
+        rulePreview.has_collect = res.data.collect
+    })
+
+}
+
 
 // 加载聊天列表
 const loadChatList = async () => {
@@ -369,7 +401,7 @@ const loadChatList = async () => {
         "page_size": 20,
         "page": page.value,
         "chat_type": "ai"
-    }).then((res:any) => {
+    }).then((res: any) => {
         loading.value = false
         // console.log(res)
         if (res.data) {
@@ -426,7 +458,7 @@ const chatShow = async (id: string) => {
 
     await getChatLog({
         "chat_id": id,
-    }).then((res:any) => {
+    }).then((res: any) => {
         if (res.data) {
             // let data = res.data
 
@@ -461,7 +493,7 @@ const getMenuTitle = (index: string) => {
 const chatDelete = async (d: string) => {
     await delChat({
         "id": d,
-    }).then((res:any) => {
+    }).then((res: any) => {
 
         removeById(chatList, d)
         console.log(res, chatList)
@@ -486,10 +518,28 @@ const handleClick = (tab: TabsPaneContext, _event: Event) => {
 
     if (tab.paneName == "all") {
         requestAllApp()
+    } else if (tab.paneName == "collect") {
+        //获取收藏的应用
+        getCollectList()
     }
 }
 
 
+const getCollectList = async () => {
+    // 清空
+    collectList.splice(0, collectList.length)
+
+    await getCollects({}).then((res: any) => {
+        console.log(res.data);
+        
+        if (res.data) {
+            res.data.forEach((app: any) => {
+                collectList.push(app)
+            });
+        }
+
+    })
+}
 
 // 默认获取所有应用
 const requestAllApp = async () => {
@@ -498,7 +548,7 @@ const requestAllApp = async () => {
 
     rulePreview.dialog_mode = 0
 
-    await getAllApp({}).then((res:any) => {
+    await getAllApp({}).then((res: any) => {
         console.log(res);
         if (res.ext.cates) {
             // 清空
@@ -577,7 +627,7 @@ const requestAppInfo = (id: string) => {
 
     getAppInfo({
         id: id
-    }).then((res:any) => {
+    }).then((res: any) => {
         // console.log(res);
         if (res.data) {
             //  console.log(res.data.fields);
@@ -585,6 +635,7 @@ const requestAppInfo = (id: string) => {
             rulePreview.id = id
             rulePreview.desc = res.data.desc
             rulePreview.dialog_mode = res.data.dialog_mode
+            rulePreview.has_collect = res.ext.state
             imageUrl.value = res.data.logo_path ? staticUrl + res.data.logo_path + '?' + Math.random() : ""
             imageUrl.value = imageUrl.value.replace("./", "")
 
@@ -689,8 +740,9 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
     await createChat({
         "model": model.value,
         "chat_type": 'ai',
+        "app_id": rulePreview.id,
         "content": message.value,
-    }).then((res:any) => {
+    }).then((res: any) => {
 
         // 如果没有额度或到期了则弹出充值界面
         if (res.code == 2020) {
@@ -786,7 +838,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
             "chat_type": 'ai',
             "app_id": rulePreview.id,
             "content": message.value,
-        }).then((res:any) => {
+        }).then((res: any) => {
             // 如果没有额度或到期了则弹出充值界面
             if (res.code == 2020) {
                 props.openUpgradePop()
@@ -913,16 +965,16 @@ const loadData = async (postData: any) => {
                     option = eval(matches[1].trim());
 
                     option.toolbox = {
-                        show:true,
+                        show: true,
                         bottom: '20px',
                         left: '48%',
                         orient: 'horizontal',
-                        feature:{
-                            saveAsImage:{
-                                show:true,
-                                type:'png',
-                                backgroundColor:'rgba(255,255,255,0)',
-                                title:'下载图片'
+                        feature: {
+                            saveAsImage: {
+                                show: true,
+                                type: 'png',
+                                backgroundColor: 'rgba(255,255,255,0)',
+                                title: '下载图片'
                             }
                         }
                     }
@@ -1292,5 +1344,4 @@ defineExpose({
     height: 800px;
     background-color: #ffffff;
     padding: 25px;
-}
-</style>
+}</style>

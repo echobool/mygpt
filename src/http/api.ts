@@ -167,3 +167,13 @@ export const getAppRecommend = () => {
 export const getAppInfo = (params: any) => {
     return  axios.get('/app/info', { params })
 }
+
+// 收藏应用
+export const collect = (data: any) => {
+    return  axios.post('/app/collect', data)
+}
+
+// 获取收藏应用列表
+export const getCollects =  (params: any) => {
+    return  axios.get('/app/collects', { params })
+}

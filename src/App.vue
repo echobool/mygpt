@@ -1848,8 +1848,8 @@ body {
 
 .vipDialog .scroll-y {
   overflow-y: scroll;
-  padding-bottom: 20px;
-  height: 400px;
+  // padding-bottom: 20px;
+  height: 370px;
 }
 
 .el-container ::v-deep .scroll-y .el-col {
@@ -1865,7 +1865,7 @@ body {
 }
 
 .vipDialog .card-item-active {
-  border: 1px solid #fe0303;
+  border: 2px solid #fe0303;
 }
 
 .vipDialog .card-item-active::after {
@@ -1899,7 +1899,7 @@ body {
   width: 45px;
   line-height: 22px;
   text-align: center;
-  right: 0;
+  right: 15px;
   top: 0;
 }
 
@@ -1911,7 +1911,7 @@ body {
 
 .vipDialog .pkg-item .mid {
   width: 100%;
-  margin: 0 0 10px 0;
+  // margin: 0 0 10px 0;
 
 }
 
