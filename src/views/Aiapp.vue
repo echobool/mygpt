@@ -526,6 +526,13 @@ const handleClick = (tab: TabsPaneContext, _event: Event) => {
 
 
 const getCollectList = async () => {
+
+    if (Global.token == "") {
+        //弹出登录界面
+        props.openLoginFrom()
+        return
+    }
+    
     // 清空
     collectList.splice(0, collectList.length)
 
