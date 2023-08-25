@@ -91,7 +91,7 @@
                                 </span>
                             </template>
 
-                            <div v-if="collectList" class="app-item">
+                            <div v-if="collectList.length>0" class="app-item">
                                 <el-row>
                                     <el-col style="text-align: center;" v-for="(app, k) in collectList" :key="k" :xs="6"
                                         :sm="6" :md="6" :lg="3" :xl="3">
@@ -532,7 +532,7 @@ const getCollectList = async () => {
         props.openLoginFrom()
         return
     }
-    
+
     // 清空
     collectList.splice(0, collectList.length)
 
