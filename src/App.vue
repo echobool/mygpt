@@ -201,7 +201,8 @@
 
 
       <!-- 邀请获取时长窗口 -->
-      <el-dialog v-model="dialogShareVisible" width="700" top="10vh" style="border-radius: 10px; text-align: center;" title="">
+      <el-dialog v-model="dialogShareVisible" width="700" top="10vh" style="border-radius: 10px; text-align: center;"
+        title="">
         <el-row>
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" style="margin-bottom: 20px;">
             <el-image
@@ -476,8 +477,10 @@
 
         <!-- jsapi 支付 -->
         <div class="pay-area-jsapi hidden-md-and-up" style="padding: 0; margin-top: 20px; ">
-          <el-button @click="onJsapiPay" :loading="JsapiPayBtnLoad" size="large" style="width: 100%;"
-            type="primary">微信支付</el-button>
+          <el-affix position="bottom" :offset="20">
+            <el-button @click="onJsapiPay" :loading="JsapiPayBtnLoad" size="large" style="width: 100%;"
+              type="primary">微信支付</el-button>
+          </el-affix>
         </div>
 
         <!-- <el-card style="margin-top:25px;" shadow="hover"
@@ -708,7 +711,7 @@ const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
 service.value = JSON.parse(import.meta.env.APP_SERVICE);
 const SHARE_TXT: string = import.meta.env.APP_SHARE_TXT;
-let shareTxt: string 
+let shareTxt: string
 
 
 const staticUrl = baseURL.replace('v1', '')
