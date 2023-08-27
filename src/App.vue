@@ -250,7 +250,8 @@
           <el-col :span="24">
             <el-image v-if="inviteImg" style="width: 200px; border: 1px solid #ddd;" :src="inviteImg" fit="cover" />
             <br>
-            <el-button v-if="inviteImg" style="margin: 15px;" @click="downloadImage">下载图片</el-button>
+            <p>《 长按图片保存到相册 》</p>
+            <!-- <el-button v-if="inviteImg" style="margin: 15px;" @click="downloadImage">下载图片</el-button> -->
             <h2>推荐文案</h2>
             <p class="recommand-txt">
               {{ shareTxt }}
@@ -629,7 +630,7 @@
         <div class="open-agent-btn el-drawer-item">
           <el-button style="width: 90%;" @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
               style="width: 30px; margin-right: 10px;" />{{
-                user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
+                user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松赚钱" }}</el-button>
         </div>
 
         <div class=" el-drawer-item logout">
