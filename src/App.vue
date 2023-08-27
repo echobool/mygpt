@@ -1053,12 +1053,12 @@ const genInviteQrcodeImg = async () => {
   }
 };
 
-const downloadImage = () => {
-  const link = document.createElement("a");
-  link.href = inviteImg.value;
-  link.download = "GPT4_share_qrcode.png";
-  link.click();
-};
+// const downloadImage = () => {
+//   const link = document.createElement("a");
+//   link.href = inviteImg.value;
+//   link.download = "GPT4_share_qrcode.png";
+//   link.click();
+// };
 
 
 
