@@ -24,7 +24,7 @@
                 </el-input>
             </el-form-item>
             <el-form-item label="手机号" prop="phone">
-                <el-input v-model="ruleForm.phone" size="large" :disabled="true" />
+                <el-input v-model="ruleForm.phone" size="large" />
             </el-form-item>
             <el-form-item label="验证码" prop="code">
                 <el-input v-model="ruleForm.code" size="large" input-style="width:80px">
