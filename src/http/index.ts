@@ -66,7 +66,8 @@ axios.interceptors.response.use(
                     ElMessage.error(`${code},  ${msg}`);
                     return Promise.reject(response.data);
                 }
-                if (code == 11031 || code == 2019) {
+                // 放行到程序里处理
+                if (code == 11031 || code == 2019 || code == 2020) {
                     return response.data;
                 }
                 ElMessage.error(`${code}, ${msg}`);

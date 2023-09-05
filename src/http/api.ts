@@ -40,6 +40,10 @@ export const logout =  () => {
     return  axios.post('/user/logout')
 }
 
+// 获取推荐数据
+export const getInviteList =  () => {
+    return  axios.get('/user/invite')
+}
 
 // 获取套餐列表
 export const getPkgList = (params: any) => {
@@ -53,8 +57,13 @@ export const getAgentList = (params: any) => {
 
 
 // 获取公众号登录二维码 ticket
-export const getMpQrcodeTicket = () => {
-    return  axios.get('/qrcode')
+export const getMpQrcodeTicket = (params: any) => {
+    return  axios.get('/qrcode', { params })
+}
+
+// 获取公众号登录二维码图片 用于分享推荐
+export const getMpQrcodeImg = (params: any) => {
+    return  axios.get('/qrcode-img', { params,responseType: 'blob' })
 }
 
 // 获取公众号登录轮询
@@ -139,4 +148,32 @@ export const getUserInfo = () => {
 // jsapi支付
 export const jsapiPay = (data: any) => {
     return  axios.post('/order/jsapi', data)
+}
+
+
+
+
+// 获取所有应用
+export const getAllApp = (params: any) => {
+    return  axios.get('/app/list', { params })
+}
+
+// 获取所有推荐应用
+export const getAppRecommend = () => {
+    return  axios.get('/app/recommend')
+}
+
+// 获取应用信息
+export const getAppInfo = (params: any) => {
+    return  axios.get('/app/info', { params })
+}
+
+// 收藏应用
+export const collect = (data: any) => {
+    return  axios.post('/app/collect', data)
+}
+
+// 获取收藏应用列表
+export const getCollects =  (params: any) => {
+    return  axios.get('/app/collects', { params })
 }

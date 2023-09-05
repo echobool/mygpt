@@ -1,10 +1,12 @@
 <template>
-  <div class="msg-item msg-item-bot" ref="markdownBodyRef">
-    <span class="chat-time">{{ msg.created_time }}</span>
+  <div class="msg-item " :class="{ 'msg-item-bot': (dialogMode == 3 && isBot) || dialogMode != 3 }" ref="markdownBodyRef">
+
+    <span class="chat-time" :class="{ 'chat-time-fix': dialogMode !== 3 }">{{ msg.created_time }}</span>
     <span v-if="isBot" class="copy-btn"><el-icon><CopyDocument /></el-icon> 复制内容 </span>
-    <el-avatar :size="35" :src="avatar" />
-    <div v-if="isBot" class="msg-content markdown-body" v-html="msg.content"></div>
-    <div v-if="!isBot" class="msg-content markdown-body nobot">{{ msg.content }}</div>
+    <!-- 只有3 对话模式才显示头像 -->
+    <el-avatar v-if="dialogMode == 3" :size="35" :src="avatar" />
+    <div v-if="isBot" class="msg-content markdown-body" :class="{ 'chat-item': dialogMode == 3}" v-html="msg.content"></div>
+    <div v-if="!isBot" class="msg-content markdown-body nobot"  :class="{ 'chat-item-nobot': dialogMode == 3}">{{ msg.content }}</div>
   </div>
 </template>
   
@@ -119,12 +121,19 @@ onUpdated(() => {
 
 
 const props = defineProps<{
-  data: Msg
+  data: Msg,
+  dialog_mode: number,
+  app_logo: string
 }>();
 
 const isBot = computed(() => props.data?.who === 'bot');
-const avatar = computed(() => {
+const dialogMode = computed(() => props.dialog_mode);
+const appLogo = computed(() => props.app_logo);
+const avatar = computed(() => {  
   if (props.data?.who === 'bot') {
+    if (props.dialog_mode == 3){
+      return appLogo.value
+    }
     return "/img/ailogo.png"
   } else {
     return Global.user.avatar ? Global.user.avatar : "/img/avatar1.png"
@@ -163,7 +172,6 @@ watch(() => props.data, (newData: Msg) => {
 .markdown-body table th {border-width: 1px;padding: 8px;border-style: solid;border-color: var(--el-border-color);background-color: var(--el-bg-color);}
 
 .markdown-body table td {border-width: 1px;padding: 8px;border-style: solid;border-color: var(--el-border-color);background-color: var(--el-bg-color);}
-
 </style>
 
 
@@ -196,7 +204,7 @@ watch(() => props.data, (newData: Msg) => {
   font-size: 14px;
   color: var(--el-color-primary);
   top: 0px;
-  right: 15%;
+  right: 15px;
   cursor: pointer;
 }
 
@@ -234,7 +242,7 @@ watch(() => props.data, (newData: Msg) => {
   padding: 10px 15px;
   border-top-right-radius: 0;
 
-  max-width: 80%;
+  max-width: 95%;
   line-height: 200%;
   color: var(--el-text-color-primary)
 }
@@ -242,6 +250,10 @@ watch(() => props.data, (newData: Msg) => {
 
 .msg-item-bot .chat-time {
   left: 60px;
+}
+
+.msg-item-bot .chat-time-fix {
+  left: 15px;
 }
 
 .nobot {
@@ -256,6 +268,23 @@ watch(() => props.data, (newData: Msg) => {
   word-break: break-all;
   overflow-wrap: break-word;
   white-space: pre-wrap;
+}
+
+
+.chat-item {
+  border: 1px solid var(--el-border-color);
+  border-radius: 15px;
+  border-top-left-radius: 0;
+  background-color: var(--el-msg-item-bot-color);
+  margin-top: 15px;
+}
+
+.chat-item-nobot {
+  border: 1px solid var(--el-border-color);
+  border-radius: 15px;
+  border-top-right-radius: 0;
+  background-color: var(--el-color-info-light-7);
+  margin-top: 15px;
 }
 </style>
   

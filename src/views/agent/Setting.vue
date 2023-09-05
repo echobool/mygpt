@@ -15,23 +15,14 @@
             <el-form-item label="站点名称" prop="site_name">
                 <el-input v-model="ruleForm.site_name" size="large" />
             </el-form-item>
-            <!-- <el-alert type="info" show-icon :closable="false">
-                <p>注意：独立域名一旦设置请勿随意更改，否则你用户就无法使用之前的域名了。例：www.baidu.com 配置好后将域名 CNAME 到下面二级域名上。</p>
-            </el-alert>
-            <el-form-item label="独立域名" prop="domain">
-                <el-input v-model="ruleForm.domain" size="large" />
-            </el-form-item> -->
             <el-alert type="info" show-icon :closable="false">
-                <p>注意：二级域名一旦设置请勿随意更改，否则你用户就无法使用之前的域名了。</p>
+                <p>注意：二级域名由系统自动生成。你可以使用该二级域名进行推广 https://{{ ruleForm.sub_domain + subDmain }} </p>
             </el-alert>
             <el-form-item label="二级域名" prop="sub_domain">
-                <el-input v-model="ruleForm.sub_domain" size="large" input-style="width:80px">
+                <el-input v-model="ruleForm.sub_domain" size="large" :disabled="true" input-style="width:80px">
                     <template #append><span>{{ subDmain }}</span> </template>
                 </el-input>
             </el-form-item>
-            <!-- <el-form-item label="备案号" prop="icp">
-                <el-input v-model="ruleForm.icp" size="large" />
-            </el-form-item> -->
             <el-form-item label="手机号" prop="phone">
                 <el-input v-model="ruleForm.phone" size="large" />
             </el-form-item>
@@ -65,6 +56,7 @@ import router from '../../router';
 import { useGlobalStore } from '../../store'
 import { storeToRefs } from 'pinia'
 const subDmain = import.meta.env.APP_SUB_DOMAIN;
+const agentDomainPrefix = import.meta.env.APP_AGENT_DOMAIN_PREFIX;
 
 
 const Global = useGlobalStore()
@@ -94,6 +86,11 @@ onMounted(() => {
     ruleForm.sub_domain = curAgent.value.sub_domain
     ruleForm.icp = curAgent.value.icp
     ruleForm.phone = curAgent.value.phone ? curAgent.value.phone : user.value.phone
+    if (curAgent.value.domain == '') {
+        ruleForm.sub_domain = agentDomainPrefix + curAgent.value.user_id
+    } else {
+        ruleForm.sub_domain = curAgent.value.sub_domain
+    }
 });
 
 const rules = reactive<FormRules>({
@@ -106,7 +103,7 @@ const rules = reactive<FormRules>({
     ],
     sub_domain: [
         { required: true, message: '请输入二级域名，', trigger: 'blur', },
-        { min: 4, max: 10, message: '二级域名字符控制在4 至 10个之内', trigger: 'blur', },
+        { min: 2, max: 10, message: '二级域名字符控制在2 至 10个之内', trigger: 'blur', },
         { asyncValidator: ValidateSubDomain, message: '二级域名被占用', trigger: 'blur', },
     ],
     phone: [
@@ -130,7 +127,7 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 
             sendPhoneCode({
                 phone: ruleForm.phone
-            }).then(res => {
+            }).then((res: any) => {
                 if (res.code == 0) {
                     let sec = 60
                     const timer = setInterval(() => {
@@ -162,7 +159,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid, fields) => {
         if (valid) {
 
-            postAgentSetting(ruleForm).then(res => {
+            postAgentSetting(ruleForm).then((res: any) => {
                 console.log(res)
                 router.replace({ name: 'revenue' })
             }).catch(err => {

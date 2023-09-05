@@ -27,7 +27,18 @@ export type UserType = {
   phone: string
   email: string
   status: number
+  qa_num: number
+  quota: number
+  points: number
+  login_num: number
+  draw_num: number
+  qa_log_num: number
   agent: AgentType
+  pkg_name: string
+  expiry_date: string
+  subscribe: number
+  un_subscribe: number
+  open_id: string
 }
 
 
@@ -44,6 +55,8 @@ export type AgentType = {
   created_at: number
   bank_name: string
   card_no: string
+  alipay_no: string
+  wechat_no: string
   card_id: string
   card_id_front: string
   card_id_back: string

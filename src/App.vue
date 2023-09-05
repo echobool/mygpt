@@ -1,10 +1,10 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header class="">
+      <el-header class="hidden-xs-only" v-if="!$route.meta.hidenfater">
         <div class="header-container">
           <div class="logo-container" style="cursor: pointer;" @click="router.replace({ name: 'home' })">
-            <img class="logo" width="30" :src="logoUrl ? logoUrl : '/img/ailogo300.png'" alt="ai Logo">
+            <img class="logo" width="30" :src="logoUrl ? logoUrl : defaultLogo" alt="ai Logo">
             <span style="position: relative; font-weight: bold; margin-left: 10px;font-size: 20px;">
               {{ agent.site_name ? agent.site_name : siteName }}
             </span>
@@ -16,14 +16,20 @@
               <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
                   <ChatDotRound />
                 </el-icon> 消息</el-menu-item>
-              <el-menu-item index="" disabled><el-icon>
+              <el-menu-item @click=" aiClick()"><el-icon>
                   <Apple />
-                </el-icon> AI应用</el-menu-item>
+                </el-icon>
+                <el-badge value="new" class="item">AI应用</el-badge>
+              </el-menu-item>
               <el-menu-item index="" disabled><el-icon>
                   <Picture />
                 </el-icon> 绘图</el-menu-item>
 
-
+              <el-menu-item @click="inviteClick()" v-if="Global.token && !user.agent.user_id">
+                <div class="residue-time"> 剩余时长：{{ residueTime }}</div>
+                <span style="padding-left: 15px; color: var(--el-color-warning);"><el-badge is-dot class="item">推荐获时长
+                  </el-badge></span>
+              </el-menu-item>
               <!-- <el-menu-item index="4">
                 <i class="el-icon" style="font-size:24px;" data-v-6c8d2bba=""><svg
                     preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" width="1.2em" height="1.2em"
@@ -41,7 +47,7 @@
             <div class="open-agent-btn hidden-xs-only">
               <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
                   style="width: 30px; margin-right: 10px;" />{{
-                    user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
+                    user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松赚钱" }}</el-button>
             </div>
             <!-- 立即开通会员升级 -->
             <div class="open-vip-btn hidden-xs-only">
@@ -79,16 +85,29 @@
               </el-dropdown>
 
             </div>
-            <button @click="openDrawer" class="reset-btn menu-hamburger hamburger hidden-sm-and-up" aria-label="移动端导航">
-              <el-icon style="font-size: 25px;" class="el-icon--right">
-                <Menu />
-              </el-icon>
-            </button>
 
+
+
+            <div class="app-service" v-if="service.status == 'open'">
+              <el-dropdown>
+                <span class="el-dropdown-link">
+                  <el-icon size="20" style="margin: 5px 5px 0 10px;  cursor: pointer;" class="el-icon--right">
+                    <Service />
+                  </el-icon>
+                  <span class="service-text">客服</span>
+                </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item v-for="(item, index) in service.items" :key="index" :icon="Help"><el-link
+                        :href="item.href" type="primary">{{ item.title }}</el-link></el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
 
             <div class="hidden-xs-only"><el-switch @change="toggleDark" v-model="isDark" class="mt-2"
-                style="margin:0 10px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
-                :active-icon="Moon" :inactive-icon="Sunny" /></div>
+                style="margin:0 10px; --el-switch-on-color: #aaa; --el-switch-off-color: #444" inline-prompt
+                :active-icon="Sunny" :inactive-icon="Moon" /></div>
             <div class="hidden-xs-only" style="margin: 5px 10px 0 10px;  cursor: pointer;"><el-icon size="20"
                 @click="toggle">
                 <FullScreen />
@@ -104,8 +123,15 @@
         <!-- 完善代理信息提示 -->
         <el-alert v-show="agentTipsVisible" title="请完善代理信息设置，否则站点无法访问" center type="error" class="agent-tips" />
 
+        <el-alert v-show="user.id && (user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1))"
+          class="hidden-md-and-up wx-subscribe" title="" type="warning" style="text-align: center;">关注公众号不迷路，关注后不提示，点击
+          <el-button @click="getMpQrcodeSubscribe" size="small" type="primary" plain>关注公众号</el-button>
+        </el-alert>
+
+
         <router-view v-slot="{ Component }">
-          <component :openLoginFrom="openLoginFrom" ref="viewBox" :is="Component" />
+          <component :openLoginFrom="openLoginFrom" :openUpgradePop="openUpgradePop" :isDark="isDark" ref="viewBox"
+            :is="Component" />
         </router-view>
 
       </el-container>
@@ -174,6 +200,92 @@
       </el-dialog>
 
 
+      <!-- 邀请获取时长窗口 -->
+      <el-dialog v-model="dialogShareVisible" width="700" top="10vh" style="border-radius: 10px; text-align: center;"
+        title="">
+        <el-row>
+          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" style="margin-bottom: 20px;">
+            <el-image
+              style="width: 80px; height: 80px; padding: 20px; background-color: var(--el-color-warning-light-8); border-radius: 50%;"
+              src="/img/lipin.svg" fit="cover" />
+            <h2>推荐朋友, 获得使用时长</h2>
+            <p>
+              成功推荐朋友，即用户通过你的链接或二维码登录平台就获得平台 GPT3.5 一天 使用时长。
+            </p>
+            <el-button type="danger" size="large" @click="showShareTxtBtn"
+              style="width: 80%;margin: 15px;">推荐给朋友</el-button>
+            <el-row style="border-top: 1px solid var(--el-border-color);">
+              <el-col :span="12">
+                <h4 style="color: crimson;"><span style="font-size: 30px;">{{ inviteNum }}</span> 人</h4>
+                成功推荐
+              </el-col>
+              <el-col style="border-left: 1px solid var(--el-border-color);" :span="12">
+                <h4 style="color: crimson;"><span style="font-size: 30px;">{{ inviteNum }}</span> 天</h4>
+                累计获得
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :class="{ 'share-list-border-left': isPc }" style="padding: 15px; position: relative; margin-top: 20px;"
+            :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+            <h4 style="text-align: left; position: absolute; top: -10px; font-weight: normal; margin: 0 15px;">
+              成功推荐记录（只显示最近10条）</h4>
+            <ul style="margin: 15px 0;padding: 0; list-style: none;">
+              <li
+                style="display: flex; justify-content: space-between; padding: 5px 10px; background-color: var(--el-bg-chat-color);"
+                v-for="(item, index) in inviteList" :key="index">
+                <div style="display: flex;">{{ item.nickname }}</div>
+                <div style="display: flex;">{{ formatDateByTimestamp(item.created_at) }}</div>
+              </li>
+              <li style="margin-top: 70px;" v-if="inviteList.length == 0">
+                <el-empty :image-size="100" description="没有数据" />
+              </li>
+            </ul>
+          </el-col>
+        </el-row>
+
+      </el-dialog>
+      <!-- 推荐文案窗口 -->
+      <el-dialog v-model="dialogShareTxtVisible" width="400" top="5vh" style="border-radius: 10px; text-align: center;"
+        title="文案配图">
+        <el-row>
+          <el-col :span="24">
+            <el-image v-if="inviteImg" style="width: 200px; border: 1px solid #ddd;" :src="inviteImg" fit="cover" />
+            <br>
+            <p>《 长按图片保存到相册 》</p>
+            <!-- <el-button v-if="inviteImg" style="margin: 15px;" @click="downloadImage">下载图片</el-button> -->
+            <h2>推荐文案</h2>
+            <p class="recommand-txt">
+              {{ shareTxt }}
+            </p>
+
+            <el-button type="danger" size="large" @click="copyShareTxt" style="width: 80%;margin: 15px;">复制文案</el-button>
+
+          </el-col>
+
+        </el-row>
+
+      </el-dialog>
+      <!-- 关注公众号窗口 -->
+      <el-dialog v-model="dialogSubscribeVisible" width="400" style="border-radius: 10px; text-align: center;"
+        title="关注公众号">
+        <el-row>
+          <el-col :span="24">
+            <el-image style="width: 300px; height: 300px; border: 1px solid #ddd;" :src="qrcodeImgSrc" fit="cover">
+              <template #error>
+                <div class="image-slot">
+                  <el-icon>
+                    <Loading />
+                  </el-icon>
+                </div>
+              </template>
+            </el-image>
+            <br>
+            <h3>长按二维码关注公众号</h3>
+            <p><b>关注后点击公众号底部菜单即可进入。</b></p>
+          </el-col>
+        </el-row>
+      </el-dialog>
+
       <!-- 绑定手机号窗口 -->
       <el-dialog class="loginDialog" v-model="dialogBindVisible" width="480"
         style="border-radius: 10px; text-align: center; " title="绑定手机号">
@@ -215,7 +327,9 @@
       <!-- 用户充值付费窗口 -->
       <el-dialog class="vipDialog" title="" v-model="dialogUpgradeVisible" @closed="onVipDialogClose" width="750"
         style="border-radius: 10px;">
-        <h1 style=" margin-bottom: 35px; margin-top: 0;">选择额度套餐</h1>
+        <h1 style=" margin-bottom: 35px; margin-top: 0;">选择额度套餐
+          <el-button @click="inviteClick" size="default" type="danger" style="margin-left: 30px;">推荐获使用时长</el-button>
+        </h1>
         <el-tabs type="border-card" v-model="curModel" @tab-click="changPkgTab">
           <el-tab-pane label="会员时长套餐" name="gpt3.5">
             <!-- pc端 -->
@@ -362,8 +476,10 @@
 
         <!-- jsapi 支付 -->
         <div class="pay-area-jsapi hidden-md-and-up" style="padding: 0; margin-top: 20px; ">
-          <el-button @click="onJsapiPay" :loading="JsapiPayBtnLoad" size="large" style="width: 100%;"
-            type="primary">微信支付</el-button>
+          <el-affix position="bottom" :offset="20">
+            <el-button @click="onJsapiPay" :loading="JsapiPayBtnLoad" size="large" style="width: 100%;"
+              type="primary">微信支付</el-button>
+          </el-affix>
         </div>
 
         <!-- <el-card style="margin-top:25px;" shadow="hover"
@@ -393,12 +509,12 @@
 
       <!-- 代理窗口 -->
       <el-dialog class="agentDialog" :close-on-click-modal="false" title="" v-model="agentDialogVisible" @closed=""
-        :width="span == 6 ? 1150 : 950" style="border-radius: 10px;">
+        :width="span == 12 ? 700 : 950" style="border-radius: 10px;">
         <h1 style=" text-align: center; margin-bottom: 35px; margin-top: 0;">入驻本站代理商，你将获得</h1>
 
         <el-row :gutter="20">
           <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
-            <h3 style="text-align: center;">{{ tongPaiData.name }}</h3>
+            <h2 style="text-align: left; padding-left: 50px;">{{ tongPaiData.name }}</h2>
             <ol>
               <li v-for="(item, index) in tongPaiData.intro_arr">
                 <p :key="index">{{ item }}</p>
@@ -412,36 +528,8 @@
             </div>
 
           </el-col>
-          <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
-            <h3 style="text-align: center;">{{ yinPaiData.name }}</h3>
-            <ol>
-              <li v-for="(item, index) in yinPaiData.intro_arr">
-                <p :key="index">{{ item }}</p>
-              </li>
-            </ol>
-            <div class="agent-item">
-              <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ yinPaiData.price }}</b> </div>
-              <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ yinPaiData.old_price }} </div>
-              <el-button @click="openAgent(yinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
-                type="primary">立即开通</el-button>
-            </div>
-          </el-col>
-          <el-col :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
-            <h3 style="text-align: center;">{{ jinPaiData.name }}</h3>
-            <ol>
-              <li v-for="(item, index) in jinPaiData.intro_arr">
-                <p :key="index">{{ item }}</p>
-              </li>
-            </ol>
-            <div class="agent-item">
-              <div class="agent-price"> <span>代理费用 </span> <i>￥</i><b>{{ jinPaiData.price }}</b> </div>
-              <div class="agent-old-price"> <span>原价(即将恢复) </span>￥{{ jinPaiData.old_price }} </div>
-              <el-button @click="openAgent(jinPaiData.id)" :loading="JsapiPayBtnLoad" size="large"
-                type="primary">立即开通</el-button>
-            </div>
-          </el-col>
-          <el-col v-show="span == 6" :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
-            <h3 style="text-align: center;">{{ heHuoRenData.name }}</h3>
+          <el-col v-show="span == 12" :xs="24" :sm="24" :md="span" :lg="span" :xl="span">
+            <h2 style="text-align: left; padding-left: 50px;">{{ heHuoRenData.name }}</h2>
             <ol>
               <li v-for="(item, index) in heHuoRenData.intro_arr">
                 <p :key="index">{{ item }}</p>
@@ -477,63 +565,164 @@
         </template>
       </el-dialog>
 
-      <!-- 移动端兼容 -->
-      <el-drawer v-model="drawerBottom" direction="btt" title="I am the title" :with-header="false">
-        <el-menu :default-active="activeIndex" style="justify-content: space-evenly;" :router="true" class="el-menu-demo"
-          mode="horizontal" @select="handleSelect">
-          <el-menu-item @click="router.replace({ name: 'home' })"> <el-icon>
-              <ChatDotRound />
-            </el-icon> 消息</el-menu-item>
-          <el-menu-item @click="router.replace({ name: 'draw' })" disabled><el-icon>
-              <Picture />
-            </el-icon> 绘图</el-menu-item>
-        </el-menu>
 
-        <div class="open-vip">
-          <el-button @click="openUpgradePop" type="warning" size="large" link>用户充值</el-button>
-          <el-switch @change="toggleDark" size="large" v-model="isDark" class="mt-2"
-            style="margin:0 24px; --el-switch-on-color: #444; --el-switch-off-color: #aaa" inline-prompt
-            :active-icon="Moon" :inactive-icon="Sunny" />
+
+      <!-- 移动端兼容 -->
+      <el-drawer class="footer-drawer" v-model="drawerBottom" direction="ltr" title="I am the title" :with-header="false">
+
+        <div class="el-drawer-item drawer-header">
+          <div style="display: inline-block; width: 40px; height: 40px; padding: 15px;">
+            <el-avatar style="height: 40px;" :size="40" :src="user.avatar ? user.avatar : '/img/avatar1.svg'" />
+          </div>
+
+          <h3 style="font-size: 16px; display: inline-block;">{{ user.nickname }}
+            <span class="quota" style="position: absolute; top:10px; right:15px">
+              <el-tag type="success" class="mx-1" effect="dark">
+                {{ user.pkg_name == "" ? "无" : user.pkg_name }}
+              </el-tag></span>
+            <div style="font-weight: normal; color: #aaa; font-size: 14px;">{{ user.phone == "" ? "--" : user.phone }}
+            </div>
+          </h3>
+
+
         </div>
 
-        <div class="open-agent-btn ">
-          <el-button @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
+        <div class="el-drawer-item">
+          <label> <el-icon>
+              <View />
+            </el-icon> 风格切换</label>
+          <el-switch @change="toggleDark" v-model="isDark" size="large" class="mt-2"
+            style="margin:0 10px; --el-switch-on-color: #aaa; --el-switch-off-color: #444; float:right; right: 15px;"
+            inline-prompt :active-icon="Sunny" :inactive-icon="Moon" />
+        </div>
+        <div class=" el-drawer-item" @click="router.replace({ name: 'userHome' }); drawerBottom = false">
+          <el-button :icon="User" text>
+            用户中心</el-button>
+        </div>
+        <div class="el-drawer-item">
+          <label> <el-icon>
+              <Help />
+            </el-icon>
+            <el-link :underline="false"
+              style="margin-left: 5px; width: 80%; justify-content:flex-start;vertical-align:top;"
+              href="https://site.qianniugohome.com/p/help" target="_blank"> 在线帮助</el-link>
+          </label>
+
+        </div>
+        <div class="el-drawer-item">
+          <label> <el-icon>
+              <Service />
+            </el-icon>
+            <el-link :underline="false"
+              style="margin-left: 5px; width: 80%; justify-content:flex-start;vertical-align:top;"
+              href="https://site.qianniugohome.com/p/kefu" target="_blank"> 联系客服</el-link>
+          </label>
+        </div>
+        <div class="open-vip el-drawer-item" @click="inviteClick()">
+          <div class="residue-time"> 剩余时长：{{ residueTime }}<span
+              style="padding-left: 15px; color: var(--el-color-warning);"><el-badge is-dot class="item">推荐获时长
+              </el-badge></span></div>
+
+        </div>
+        <div class="open-vip el-drawer-item">
+          <el-button style="width: 90%;" @click="openUpgradePop" type="warning" text><el-image src="/img/charge.png"
+              style="width: 30px; margin-right: 10px;" />用户充值</el-button>
+        </div>
+
+        <div class="open-agent-btn el-drawer-item">
+          <el-button style="width: 90%;" @click="openAgentDialog" type="primary" text><el-image src="/img/lihua.png"
               style="width: 30px; margin-right: 10px;" />{{
-                user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松月入10W" }}</el-button>
+                user.agent?.agent_level_name ? user.agent?.agent_level_name : "加入代理，轻松赚钱" }}</el-button>
+        </div>
+
+        <div class=" el-drawer-item logout">
+          <el-button style="width: 100%;" size="large" type="primary"
+            @click="logoutEvent(); drawerBottom = false">退出登录</el-button>
+
         </div>
 
       </el-drawer>
 
+      <!-- 移动端底部菜单 -->
+      <el-footer class="app-footer hidden-sm-and-up">
+        <el-menu :default-active="activeIndex" :ellipsis="false" class="el-menu-demo " mode="horizontal"
+          @select="handleSelect">
+          <el-menu-item @click="router.replace({ name: 'home' })">
+            <el-icon>
+              <ChatDotRound />
+            </el-icon>
+            <span>消息</span>
+          </el-menu-item>
+          <el-menu-item @click=" aiClick()">
+            <el-icon>
+              <el-badge value="new" class="item">
+                <Apple />
+              </el-badge>
+
+            </el-icon><span>AI应用</span>
+
+          </el-menu-item>
+          <el-menu-item disabled><el-icon>
+              <Picture />
+            </el-icon> <span>绘图</span>
+          </el-menu-item>
+
+          <!-- 用户登录 -->
+          <el-menu-item v-if="!Global.token" @click="openLoginFrom"><el-icon>
+              <User />
+            </el-icon> <span>个人中心</span>
+          </el-menu-item>
+          <el-menu-item style="height: 60px;" v-else @click="openDrawer">
+            <span v-if="residueTimeHour < 100"
+              style="position: absolute; top: 5px;right: 32px; border-radius: 10px;width: 8px; height: 8px; display: block; background-color: #ff0000;"></span>
+            <el-avatar style="height: 30px;" :size="30" :src="user.avatar ? user.avatar : '/img/avatar1.svg'" />
+          </el-menu-item>
+        </el-menu>
+
+      </el-footer>
     </el-container>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Odometer, EditPen, SwitchButton, Sunny, Moon, Menu, Lollipop, Apple } from '@element-plus/icons-vue';
-import { reactive, ref, onMounted } from 'vue'
+
+import { Odometer, EditPen, SwitchButton, Sunny, Moon, Lollipop, Apple, User, Service, Help } from '@element-plus/icons-vue';
+import { reactive, ref, onMounted, watch } from 'vue'
 import { useGlobalStore } from './store'
 import { PkgListType, UserType, AgentType } from './class/types'
 import { ValidatePhone } from './utils/validate'
 import { storeToRefs } from 'pinia'
 import router from './router';
+import { formatDateByTimestamp } from './utils/DateTime'
 import { TabsPaneContext, type FormInstance, type FormRules } from 'element-plus'
 import { useDark, useToggle, useTitle, useFullscreen } from '@vueuse/core'
 import vueQr from 'vue-qr/src/packages/vue-qr.vue'
-import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost } from './http/api'
+import { sendPhoneCode, jsapiPay, phoneLogin, phoneBind, getUserInfo, logout, getPkgList, payInfo, getMpQrcodeTicket, mpQrcodeLogin, queryOrderState, getAgentList, getAgentByHost, getInviteList, getMpQrcodeImg } from './http/api'
+import { copyToClipboard } from './utils/string'
 
 const { toggle } = useFullscreen()
 
 const logoUrl = ref('')
 const siteName = ref('')
+const service: any = ref('')
 const baseURL = import.meta.env.APP_BASE_URL;
+const defaultLogo = import.meta.env.APP_DEFAULT_LOGO;
 siteName.value = import.meta.env.APP_SITE_NAME;
+service.value = JSON.parse(import.meta.env.APP_SERVICE);
+const SHARE_TXT: string = import.meta.env.APP_SHARE_TXT;
+let shareTxt: string
+
+
 const staticUrl = baseURL.replace('v1', '')
 
 const title = useTitle()
 
-
-const isDark = useDark()
-isDark.value = true
+const isDark = useDark({
+  selector: 'html',
+  attribute: 'class',
+  valueDark: 'light',
+  valueLight: 'dark',
+})
 const toggleDark = useToggle(isDark)
 
 const Global = useGlobalStore()
@@ -553,6 +742,9 @@ const activeIndex = ref('1')
 const activeName = ref('loginCode')
 const username = ref('登录送额度')
 const dialogFormVisible = ref(false)
+const dialogSubscribeVisible = ref(false)
+const dialogShareVisible = ref(false)
+const dialogShareTxtVisible = ref(false)
 const dialogBindVisible = ref(false)
 const dialogUpgradeVisible = ref(false)
 const agentDialogVisible = ref(false)
@@ -569,16 +761,18 @@ const payment = ref('wechat')
 const paymentLogo = ref('')
 const selectPkgData: PkgListType = reactive({} as PkgListType)
 let tongPaiData: PkgListType = reactive({} as PkgListType)
-let yinPaiData: PkgListType = reactive({} as PkgListType)
-let jinPaiData: PkgListType = reactive({} as PkgListType)
 let heHuoRenData: PkgListType = reactive({} as PkgListType)
 
 const pkgList: PkgListType[] = reactive([])
 const AgentList: any = reactive([])
-const span = ref(8)
+const span = ref(12)
+const residueTime = ref('0')
+const residueTimeHour = ref(100)
 
 const curModel = ref('gpt3.5')
-
+const inviteImg = ref('')
+const inviteNum = ref(0)
+const inviteList: any = reactive([])
 
 
 let timer: number = 0
@@ -599,12 +793,67 @@ const rules = reactive<FormRules>({
 
 })
 
+// 监听count的变化
+watch(user.value, (newValue, oldValue) => {
+  console.log(`count的值从 ${oldValue} 变为 ${newValue}`);
+  // 计算剩余时间
+  getResidueTime()
+});
+
+
 onMounted(() => {
+
+  if (token.value) {
+    loadUserInfo()
+  }
+
   // 根据域名载入配置
   loadAgent()
   checkAgentTips()
+
+  // 计算剩余时间
+  getResidueTime()
+
 });
 
+
+const getLocalTime = (i: number) => {
+  if (typeof i !== 'number') return; var d = new Date(); //得到1970年一月一日到现在的秒数 
+  var len = d.getTime();//本地时间与GMT时间的时间偏移差(注意：GMT这是UTC的民间名称。GMT=UTC）
+  var offset = d.getTimezoneOffset() * 60000;//得到现在的格林尼治时间
+  var utcTime = len + offset;
+  return new Date(utcTime + 3600000 * i);
+}
+
+const getResidueTime = () => {
+  // 给定的时间戳
+  const givenTimestamp: any = user.value.expiry_date; // 假设为秒级时间戳
+
+  // 将时间戳转换为毫秒级
+  const givenDate = new Date(givenTimestamp * 1000);
+  // 当前日期（北京时间）
+  const today = getLocalTime(8) as Date;
+
+  // 计算剩余时间差（以毫秒为单位）
+  const timeDiff = givenDate.getTime() - today.getTime();
+
+  // 如果时间差小于等于0，则剩余天数为0
+  if (timeDiff <= 0) {
+    residueTime.value = '0'
+  } else {
+    // 将时间差转换为小时数
+    const remainingHours = Math.ceil(timeDiff / (1000 * 60 * 60));
+
+    if (remainingHours < 100) {
+      residueTime.value = remainingHours + ' 小时'
+      residueTimeHour.value = remainingHours
+    } else {
+      // 将时间差转换为天数
+      const remainingDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      residueTime.value = remainingDays + ' 天'
+    }
+  }
+}
 
 
 const checkAgentTips = () => {
@@ -614,6 +863,11 @@ const checkAgentTips = () => {
     } else {
       agentTipsVisible.value = false
     }
+
+    if (curAgent.value.site_name != "") {
+      agentTipsVisible.value = false
+    }
+
   } else {
     agentTipsVisible.value = false
   }
@@ -626,7 +880,7 @@ const openDrawer = () => {
 
 const loadAgent = async () => {
 
-  await getAgentByHost().then(res => {
+  await getAgentByHost().then((res: any) => {
 
     if (res.data) {
       let data: any = res.data
@@ -663,7 +917,12 @@ const openLoginFrom = () => {
     console.log("执行微信登录")
     const baseUrl = import.meta.env.APP_BASE_URL
     //document.getElementById("myframe").src=baseUrl + "/wechat/login";
-    window.location.assign(baseUrl + "/wechat/login?host=" + host)
+    let inviteUserId = localStorage.getItem('invite_user_id')
+    let loginUrl = baseUrl + "/wechat/login?host=" + host
+    if (inviteUserId) {
+      loginUrl += "&invite=" + inviteUserId
+    }
+    window.location.assign(loginUrl)
   } else {
     dialogFormVisible.value = true
   }
@@ -686,6 +945,147 @@ const closeLoginDialog = () => {
 
 }
 
+// 用于点击 AI栏目时执行一下 内容的方法 加载应用
+const aiClick = () => {
+  router.replace({ name: 'ai' })
+
+  // console.log(typeof viewBox.value.setShowApp);
+  if (typeof viewBox.value.setShowApp == 'function') {
+    viewBox.value.setShowApp(true)
+  }
+
+}
+
+// 邀请好友获得时长弹窗
+const inviteClick = async () => {
+  if (Global.token == "") {
+    openLoginFrom()
+    return
+  }
+
+
+  dialogShareVisible.value = true
+  // 如果是充值窗口则关闭充值窗口
+  dialogUpgradeVisible.value = false
+  inviteList.splice(0, inviteList.length)
+  // 获取推荐成功列表
+  await getInviteList().then((res: any) => {
+    console.log(res);
+    if (res.code == 0) {
+      inviteNum.value = res.ext.count
+      // 推荐列表
+      res.data.forEach((item: any) => {
+        inviteList.push({
+          "nickname": item.nickname ? item.nickname : item.phone,
+          "phone": item.phone,
+          "created_at": item.created_at
+        })
+      });
+    }
+  })
+}
+// 邀请好友文案弹窗
+const showShareTxtBtn = () => {
+  dialogShareTxtVisible.value = true
+
+  dialogShareVisible.value = false
+  // 清空分享图片
+  inviteImg.value = ""
+
+  // 合成分享二维码图片
+  genInviteQrcodeImg()
+
+  // 拼接分享内容
+  shareTxt = SHARE_TXT + ' \n\n 立即体验：https://' + host + '/s/' + user.value.id
+
+}
+
+const genInviteQrcodeImg = async () => {
+  // 创建一个新的画布
+  const canvas = document.createElement('canvas');
+  const ctx: any = canvas.getContext('2d');
+
+  const invite_user_id = user.value.id;
+
+  // 获取二维码图片
+  const imgBody: any = await getMpQrcodeImg({ invite: invite_user_id });
+
+  if (imgBody) {
+    console.log(imgBody);
+
+    // 创建第一张图片
+    var image1 = new Image();
+    image1.src = "/img/wechat-share-tmp.png"; // 替换为第一张图片的路径
+
+    // 等待第一张图片加载完成
+    await new Promise((resolve) => (image1.onload = resolve));
+
+    // 创建第二张图片
+    var image2 = new Image();
+    image2.src = window.URL.createObjectURL(imgBody); // 将 blob 数据转为对象 URL
+
+    // 等待第二张图片加载完成
+    await new Promise((resolve) => (image2.onload = resolve));
+
+    // 创建第三张图片
+    var image3 = new Image();
+    image3.src = logoUrl.value ? logoUrl.value : defaultLogo;
+    image3.width = 100
+
+    // 等待第一张图片加载完成
+    await new Promise((resolve) => (image3.onload = resolve));
+
+    // 设置画布的大小与第一张图片一致
+    canvas.width = image1.width;
+    canvas.height = image1.height;
+
+    // 在画布上绘制第一张图片
+    ctx.drawImage(image1, 0, 0);
+
+    // 在画布上绘制第二张图片（覆盖在第一张图片之上）
+    ctx.drawImage(image2, 385, 880);
+
+    ctx.drawImage(image3, 510, 1460, 180, 180);
+
+    // 将合并后的图片转为 base64 格式
+    inviteImg.value = canvas.toDataURL();
+
+    // 打印合并后的图片 base64 数据
+    // console.log(mergedImageBase64);
+  }
+};
+
+// const downloadImage = () => {
+//   const link = document.createElement("a");
+//   link.href = inviteImg.value;
+//   link.download = "GPT4_share_qrcode.png";
+//   link.click();
+// };
+
+
+
+// 复制推荐文案
+const copyShareTxt = () => {
+  if (shareTxt) {
+    copyToClipboard(shareTxt)
+      .then(() => {
+        ElMessage({
+          message: '复制成功.',
+          type: 'success',
+        })
+
+      })
+      .catch(() => {
+        ElMessage({
+          message: '复制失败.',
+          type: 'warning',
+        })
+      })
+  }
+}
+
+
+
 
 // 套餐切换事件
 const changPkgTab = async (pane: TabsPaneContext, _ev: Event) => {
@@ -696,8 +1096,6 @@ const changPkgTab = async (pane: TabsPaneContext, _ev: Event) => {
   } else if (pane.paneName == 'gpt4') {
     requestPkgData(2)
   }
-
-
 }
 
 
@@ -709,7 +1107,7 @@ const requestPkgData = async (pkg_type: number) => {
     page: 1,
     page_size: 20,
     pkg_type: pkg_type
-  }).then(res => {
+  }).then((res: any) => {
     if (res.data) {
       let defaultPkgId = 0
       res.data.forEach((item: PkgListType) => {
@@ -767,19 +1165,34 @@ const onAgentDialogClose = () => {
 
 }
 
-// 二维码登录
-const getMpQrcode = async () => {
+const getMpQrcodeSubscribe = async () => {
+  dialogSubscribeVisible.value = true
   // 获取二维码ticket
-  await getMpQrcodeTicket().then(res => {
+  await getMpQrcodeTicket({}).then((res: any) => {
     if (res.code == 0) {
       let data = res.data
       qrcodeImgSrc.value = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.ticket
+    }
+  })
+}
+
+// 二维码登录
+const getMpQrcode = async () => {
+  let invite_user_id = localStorage.getItem('invite_user_id')
+  // 获取二维码ticket
+  await getMpQrcodeTicket({
+    invite: invite_user_id
+  }).then((res: any) => {
+    if (res.code == 0) {
+      let data = res.data
+      qrcodeImgSrc.value = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=' + data.ticket
+      console.log(qrcodeImgSrc.value);
 
 
       timer2 = setInterval(() => {
         mpQrcodeLogin({
           uuid: data.uuid
-        }).then(res => {
+        }).then((res: any) => {
           if (res.code == 0) {
 
             let domain = res.data.domain
@@ -798,6 +1211,15 @@ const getMpQrcode = async () => {
             user.value.email = userData.email
             user.value.phone = userData.phone
             user.value.status = userData.state
+            user.value.pkg_name = userData.pkg_name
+            user.value.expiry_date = userData.expiry_date
+            user.value.qa_num = userData.qa_num
+            user.value.quota = userData.quota
+            user.value.points = userData.points
+            user.value.subscribe = userData.subscribe
+            user.value.un_subscribe = userData.un_subscribe
+            user.value.un_subscribe = userData.un_subscribe
+            user.value.open_id = userData.open_id_1
             token.value = res.data.token
 
             //是否是代理商 是的话不展示开通会员和代理按钮
@@ -832,6 +1254,32 @@ const getMpQrcode = async () => {
 }
 
 
+const loadUserInfo = async () => {
+  await getUserInfo().then((res: any) => {
+    if (res.data) {
+      let userData = res.data
+      // 存入状态管理
+      user.value.id = userData.id
+      user.value.nickname = userData.nickname
+      user.value.avatar = userData.avatar
+      user.value.email = userData.email
+      user.value.phone = userData.phone
+      user.value.status = userData.state
+      user.value.pkg_name = userData.pkg_name
+      user.value.expiry_date = userData.expiry_date
+      user.value.qa_num = userData.qa_num
+      user.value.quota = userData.quota
+      user.value.points = userData.points
+      user.value.subscribe = userData.subscribe
+      user.value.un_subscribe = userData.un_subscribe
+    }
+    console.log(res)
+  }).catch(err => {
+    console.log(err)
+  })
+}
+
+
 const redirect = (domain: string) => {
   window.location.href = "https://" + domain
 }
@@ -856,10 +1304,10 @@ const openAgentDialog = async () => {
   }
 
   // 如果用户手机号为空则弹出绑定手机号
-  if (user.value.phone == "") {
-    dialogBindVisible.value = true
-    return
-  }
+  // if (user.value.phone == "") {
+  //   dialogBindVisible.value = true
+  //   return
+  // }
 
   drawerBottom.value = false
   // 如果已经是代理了 则进入代理管理页面
@@ -887,7 +1335,7 @@ const openAgentDialog = async () => {
   AgentList.splice(0, AgentList.length)
 
   // 获取代理套餐价格
-  await getAgentList({}).then(res => {
+  await getAgentList({}).then((res: any) => {
     console.log(res)
     if (res.data) {
 
@@ -910,23 +1358,17 @@ const openAgentDialog = async () => {
         || agent.value.agent_level == 'tongpai_2'
         || agent.value.agent_level == 'yinpai_2'
         || agent.value.agent_level == 'jinpai_2') {
-        span.value = 8
+
         tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai_2");
-        yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai_2");
-        jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai_2");
 
       } else {
-        span.value = 6
+
         tongPaiData = AgentList.find((item: PkgListType) => item.c_name === "tongpai");
-        yinPaiData = AgentList.find((item: PkgListType) => item.c_name === "yinpai");
-        jinPaiData = AgentList.find((item: PkgListType) => item.c_name === "jinpai");
         heHuoRenData = AgentList.find((item: PkgListType) => item.c_name === "hehuoren");
 
       }
 
       tongPaiData.intro_arr = tongPaiData.intro.split('\n')
-      yinPaiData.intro_arr = yinPaiData.intro.split('\n')
-      jinPaiData.intro_arr = jinPaiData.intro.split('\n')
       heHuoRenData.intro_arr = heHuoRenData.intro ? heHuoRenData.intro.split('\n') : null;
 
       agentDialogVisible.value = true
@@ -951,7 +1393,7 @@ const openAgent = async (id: number) => {
   await payInfo({
     payment: payment.value,
     package_id: id
-  }).then(res => {
+  }).then((res: any) => {
     if (res.code == 0) {
       // 展示二维码
       agentQrcodeText.value = res.data.pay_url
@@ -959,7 +1401,7 @@ const openAgent = async (id: number) => {
       timer4 = setInterval(() => {
         queryOrderState({
           out_trade_no: res.data.out_trade_no
-        }).then(res => {
+        }).then((res: any) => {
           if (res.data.pay_state == 2) {
             // 停止轮询
             clearInterval(timer4)
@@ -985,7 +1427,7 @@ const openAgent = async (id: number) => {
 
 // 请求用户信息
 const requestGetUserInfo = async () => {
-  await getUserInfo().then(res => {
+  await getUserInfo().then((res: any) => {
     console.log(res);
     let userData = res.data
     user.value.agent = {} as AgentType
@@ -996,6 +1438,7 @@ const requestGetUserInfo = async () => {
     user.value.email = userData.email
     user.value.phone = userData.phone
     user.value.status = userData.state
+    user.value.pkg_name = userData.pkg_name
     //是否是代理商 是的话不展示开通会员和代理按钮
     if (userData.agent) {
       user.value.agent.user_id = 1
@@ -1089,7 +1532,7 @@ const onJsapiPay = () => {
 const toJsapiPay = async (pkgId: number) => {
   await jsapiPay({
     package_id: pkgId
-  }).then(res => {
+  }).then((res: any) => {
     if (res.code == 0) {
       let prepay_id = res.data.prepay_id
       //跳转支付页面
@@ -1116,14 +1559,14 @@ const requestPay = async () => {
   await payInfo({
     payment: payment.value,
     package_id: selectPkg.value
-  }).then(res => {
+  }).then((res: any) => {
     if (res.code == 0) {
       genQrcode(res.data.pay_url)
 
       timer3 = setInterval(() => {
         queryOrderState({
           out_trade_no: res.data.out_trade_no
-        }).then(res => {
+        }).then((res: any) => {
           if (res.data.pay_state == 2) {
             // 停止轮询
             clearInterval(timer3)
@@ -1153,7 +1596,7 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 
       sendPhoneCode({
         phone: ruleForm.phoneNum
-      }).then(res => {
+      }).then((res: any) => {
         if (res.code == 0) {
           let sec = 60
           const timer = setInterval(() => {
@@ -1181,12 +1624,16 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 // 手机登录
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
+
+  let inviteUserId = localStorage.getItem("invite_user_id") as string
+
   await formEl.validate((valid: any, fields: any) => {
     if (valid) {
       phoneLogin({
         phone: ruleForm.phoneNum,
-        code: ruleForm.code
-      }).then(res => {
+        code: ruleForm.code,
+        invite_id: parseInt(inviteUserId)
+      }).then((res: any) => {
         if (res.data) {
 
           let domain = res.data.domain
@@ -1205,6 +1652,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           user.value.email = userData.email
           user.value.phone = userData.phone
           user.value.status = userData.state
+          user.value.pkg_name = userData.pkg_name
           token.value = res.data.token
 
           //是否是代理商 是的话不展示开通会员和代理按钮
@@ -1239,7 +1687,7 @@ const submitBindForm = async (formEl: FormInstance | undefined) => {
         phone: ruleForm.phoneNum,
         code: ruleForm.code,
         user_id: user.value.id
-      }).then(res => {
+      }).then((res: any) => {
         if (res.code == 0) {
           // 存入状态管理
           user.value.phone = ruleForm.phoneNum
@@ -1259,7 +1707,7 @@ const submitBindForm = async (formEl: FormInstance | undefined) => {
 }
 
 const logoutEvent = async () => {
-  await logout().then(res => {
+  await logout().then((res: any) => {
     if (res.code == 0) {
       user.value = <UserType>{}
       // agent.value = <AgentType>{} // 代理站点不能清除
@@ -1341,7 +1789,7 @@ function isPc() {
   system.ipad = navigator.userAgent.match(/iPad/i) != null ? true : false;  // iPad
   if (system.win || system.mac || system.xll || system.ipad) {  // 在PC端上打开的
     return true;
-  } else { 
+  } else {
     let ua = navigator.userAgent.toLowerCase();
     return /micromessenger/.test(ua) ? false : true;
   }
@@ -1372,10 +1820,10 @@ body {
 
 
 .agent-tips {
-  max-width: 600px;
-  top: 70px;
+  width: 100%;
+  top: 0;
   z-index: 10;
-  right: calc((100vw - 600px)/2);
+  // right: calc((100vw - 600px)/2);
   position: absolute;
 }
 
@@ -1403,8 +1851,8 @@ body {
 
 .vipDialog .scroll-y {
   overflow-y: scroll;
-  padding-bottom: 20px;
-  height: 400px;
+  // padding-bottom: 20px;
+  height: 370px;
 }
 
 .el-container ::v-deep .scroll-y .el-col {
@@ -1420,7 +1868,7 @@ body {
 }
 
 .vipDialog .card-item-active {
-  border: 1px solid #fe0303;
+  border: 2px solid #fe0303;
 }
 
 .vipDialog .card-item-active::after {
@@ -1454,7 +1902,7 @@ body {
   width: 45px;
   line-height: 22px;
   text-align: center;
-  right: 0;
+  right: 15px;
   top: 0;
 }
 
@@ -1466,7 +1914,7 @@ body {
 
 .vipDialog .pkg-item .mid {
   width: 100%;
-  margin: 0 0 10px 0;
+  // margin: 0 0 10px 0;
 
 }
 
@@ -1614,8 +2062,13 @@ body {
   height: 40px;
 }
 
+.agentDialog {
+  padding-left: 30px;
+}
+
 .agentDialog ol {
-  min-height: 260px !important;
+
+  margin-bottom: 10px;
 }
 
 .agentDialog ol li {
@@ -1625,8 +2078,9 @@ body {
 
 
 .agentDialog .agent-item {
-  text-align: center;
-
+  text-align: left;
+  padding-left: 30px;
+  margin-bottom: 30px;
 }
 
 .agentDialog .agent-item .agent-price {
@@ -1677,6 +2131,10 @@ body {
   border-bottom: 1px solid var(--el-border-color);
 }
 
+.el-header ::v-deep sup {
+  top: 11px !important;
+}
+
 .header-container {
   display: flex;
   justify-content: space-between;
@@ -1699,6 +2157,27 @@ body {
 
 }
 
+.header-container .residue-time {
+  border: 1px dotted var(--el-color-warning);
+  color: var(--el-color-warning);
+  border-radius: 5px;
+  height: 30px;
+  line-height: 30px;
+  padding: 2px 15px;
+  margin: 10px 0;
+}
+
+.el-drawer-item .residue-time {
+  border: 1px dotted var(--el-color-warning);
+  color: var(--el-color-warning);
+  border-radius: 5px;
+  height: 30px;
+  line-height: 30px;
+  padding: 2px 0px;
+  margin: 0 10px;
+  font-size: 14px;
+}
+
 .header-container .user-facade {
   display: flex;
   justify-content: end;
@@ -1706,6 +2185,16 @@ body {
   flex-grow: 1;
   padding-right: 10px;
   max-width: 120px;
+}
+
+.header-container .app-service {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  flex-grow: 1;
+  padding-right: 10px;
+  max-width: 120px;
+  width: 120px;
 }
 
 .header-container .open-vip-btn {
@@ -1773,6 +2262,19 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+}
+
+.app-service .service-text {
+  display: inline-block;
+  justify-content: left;
+  align-items: center;
+  min-width: 30px;
+  max-width: 60px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  margin-bottom: 3px;
 }
 
 .user-facade .el-avatar {
@@ -1843,10 +2345,10 @@ button.reset-btn {
   font-size: 16px;
 }
 
-
-.el-container ::v-deep .el-drawer.btt {
-  border-radius: 20px 20px 0 0;
+.el-container ::v-deep .el-drawer.ltr {
+  width: 70% !important;
 }
+
 
 .el-drawer .open-agent-btn {
   text-align: center;
@@ -1856,5 +2358,81 @@ button.reset-btn {
 .el-drawer .open-vip {
   text-align: center;
   margin-top: 25px;
+}
+
+.el-container ::v-deep .footer-drawer .el-drawer__body {
+  padding: 0 !important;
+}
+
+.el-drawer-item {
+  //border-bottom: 1px solid var(--el-border-color);
+  margin-top: 0 !important;
+
+  padding: 15px 0;
+}
+
+.el-drawer-item label {
+  margin: 0 15px;
+  line-height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--el-text-color-regular)
+}
+
+.el-drawer .logout {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 15px 15px 40px;
+}
+
+
+.app-footer {
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+}
+
+.el-container ::v-deep .app-footer .el-menu {
+  height: 59px;
+  border-top: 1px solid var(--el-border-color);
+}
+
+.app-footer .el-menu-item {
+  flex-direction: column;
+  width: 25%;
+  padding: 10px 15px;
+}
+
+.app-footer .el-menu--horizontal {
+  border: 0;
+}
+
+.app-footer .el-menu-item span {
+  height: 20px;
+  line-height: 20px;
+  color: var(--el-text-color-regular);
+  font-size: 12px;
+}
+
+
+.footer-drawer {
+  padding: 0;
+}
+
+
+.wx-subscribe {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.wx-subscribe ::v-deep .el-alert__content {
+  width: 100%;
+}
+
+.share-list-border-left {
+  border-left: 1px solid var(--el-border-color);
 }
 </style>

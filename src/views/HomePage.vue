@@ -59,7 +59,7 @@
     <el-container @click="showAside = false" class="right-container">
         <el-main id="chatMain">
 
-            <div v-show="promptVisible" style="justify-content: center; display: flex; padding: 20px;">
+            <div v-show="promptVisible" :class="{ 'padding-top-50' : user.id && (user.subscribe != 1 || (user.subscribe == 1 && user.un_subscribe == 1))}" style="justify-content: center; display: flex; padding: 20px;">
                 <el-radio-group v-model="model" size="large">
                     <el-radio-button v-for="item in options" :label="item.value">
                         <template #default>
@@ -67,20 +67,67 @@
                         </template>
                     </el-radio-button>
                 </el-radio-group>
+                    <br>
+                
+                <!-- <el-button style="height: 48px; margin-top: 2px; margin-left: 10px; border-radius: 15px;" type="success" round> 
+                    <span style="font-size: 12px; line-height: 16px; height: 32px; display: block;">关注<br>公众号</span> 
+                </el-button> -->
             </div>
             <div v-show="!promptVisible" style="justify-content: center; display: flex; padding: 20px;"
                 class="home-msg-item-bot">
-                Model: {{curModelName}}
+                Model: {{ curModelName }}
             </div>
 
 
+
             <el-row v-show="promptVisible" style="justify-content: center;" class="main-center">
+                <el-col :xs="18" :sm="18" :md="20" :lg="12" :xl="12">
+                    <el-row :gutter="0">
+                        <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+                            <div style="display: block; width: 100%;">
+                                <p style="text-align: center;">大家都在用</p>
+                                <el-carousel height="150px" style="margin-bottom: 30px;" direction="vertical" :autoplay="true" v-if="!isMobile()">
+                                    <el-carousel-item v-for="(apps, i) in recommendPc" :key="i" class="app-item">
+                                        <el-row>
+                                            <el-col style="text-align: center;" v-for="(app, k) in apps" :key="k" :xs="6"
+                                                :sm="6" :md="6" :lg="6" :xl="6">
+                                                <div class="app-item-div" @click="router.replace({ name: 'ai' })">
+                                                    <el-image :src="staticUrl + app.logo_path" fit="cover" />
+                                                    <span class="app-name">{{ app.name }}</span>
+                                                </div>
+
+                                            </el-col>
+                                        </el-row>
+                                    </el-carousel-item>
+                                </el-carousel>
+
+                                <el-carousel height="120px" direction="vertical" :autoplay="true" v-if="isMobile()">
+                                    <el-carousel-item v-for="(apps, i) in recommendMobile" :key="i" class="app-item">
+                                        <el-row>
+                                            <el-col style="text-align: center;" v-for="(app, k) in apps" :key="k" :xs="8"
+                                                :sm="8" :md="8" :lg="8" :xl="8">
+                                                <div class="app-item-div" @click="router.replace({ name: 'ai' })">
+                                                    <el-image :src="staticUrl + app.logo_path" fit="cover" />
+                                                    <span class="app-name">{{ app.name }}</span>
+                                                </div>
+
+                                            </el-col>
+                                        </el-row>
+                                    </el-carousel-item>
+                                </el-carousel>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="20" :lg="18" :xl="16">
+
                     <el-row :gutter="0">
                         <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+
                             <el-card shadow="never">
                                 <div class="prompt">
-                                    <img class="logo" width="80" src="../assets/img/bot3.svg" />
+                                    <img class="logo hidden-sm-and-down hidden-md-and-up" width="80"
+                                        src="../assets/img/bot3.svg" />
                                     <h3>方案生成</h3>
                                     <div @click="selectPrompt" class="item">
                                         我需要一份健身教程，向读者介绍如何进行某种运动或训练，提供详细的动作和姿势讲解，以及讲解健身原理和营养调配方法。为我撰写这份健身教程。</div>
@@ -95,7 +142,7 @@
                         <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                             <el-card shadow="never">
                                 <div class="prompt">
-                                    <img class="logo" width="80" src="../assets/img/keyan.svg" />
+                                    <img class="logo hidden-md-and-up" width="80" src="../assets/img/keyan.svg" />
                                     <h3>科研帮助</h3>
                                     <div @click="selectPrompt" class="item">
                                         我希望你能充当学术论文改进者的角色。请为以下结论提供改进建议，以使其更有说服力、更具深度和逻辑性：{结论}。</div>
@@ -111,7 +158,7 @@
                         <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                             <el-card shadow="never">
                                 <div class="prompt">
-                                    <img class="logo" width="100" src="../assets/img/yule2.svg" />
+                                    <img class="logo hidden-md-and-up" width="100" src="../assets/img/yule2.svg" />
                                     <h3>休闲娱乐</h3>
                                     <div @click="selectPrompt" class="item">
                                         请你扮演我妈，用我妈的口气来教育我。骂我，批评我，催我结婚，让我回家。给我讲七大姑八大姨家的孩子都结婚了，为啥就我单身，再给我安排几个相亲对象。</div>
@@ -239,18 +286,21 @@ import { Plus } from '@element-plus/icons-vue';
 import { InfoFilled } from '@element-plus/icons-vue'
 import { StandardTime } from '../utils/DateTime'
 import { useGlobalStore } from '../store'
+import { storeToRefs } from 'pinia'
 import MarkdownIt from 'markdown-it'
 import mdKatex from '@traptitech/markdown-it-katex'
 import mila from 'markdown-it-link-attributes'
 import hljs from 'highlight.js'
+import router from '../router';
 
 import { reactive, ref, onMounted, computed } from 'vue';
 import type { Msg } from '../class/Msg'
 import Message from '../components/Message.vue';
-import { createChat, getList, delChat, getChatLog } from '../http/api'
+import { createChat, getList, delChat, getChatLog, getAppRecommend } from '../http/api'
 
 
 const Global = useGlobalStore()
+const { user} = storeToRefs(Global)
 const model = ref('gpt-3.5-turbo')
 // 展示设置框状态
 const dialogFormVisible = ref(false)
@@ -265,12 +315,17 @@ const message = ref('')
 const data = ref('');
 const messageData: Msg[] = reactive([])
 const curModelName = ref('')
+const baseURL = import.meta.env.APP_BASE_URL;
+const staticUrl = baseURL.replace('v1', '')
 
 const chatCount = ref(0)
 const chatLoadCount = ref(0)
 const loading = ref(false)
 const noMore = computed(() => chatLoadCount.value >= chatCount.value)
 const disabled = computed(() => loading.value || noMore.value)
+
+const recommendPc: any = ref([])
+const recommendMobile: any = ref([])
 
 const options = [
     {
@@ -293,6 +348,7 @@ const chatList: { today: any[], oneWeekAgo: any[], oneMonthAgo: any[], oneYearAg
 const page = ref(1)
 const props = defineProps<{
     openLoginFrom: Function
+    openUpgradePop: Function
 }>();
 
 
@@ -380,8 +436,53 @@ onMounted(() => {
 
     // 加载聊天列表
     loadChatList()
-
+    loadAppRecommend()
 });
+
+
+// 加载推荐应用列表
+const loadAppRecommend = async () => {
+    recommendPc.value.splice(0, recommendPc.length)
+    recommendMobile.value.splice(0, recommendMobile.length)
+    await getAppRecommend().then((res:any) => {
+        if (res.data) {
+            let apps = res.data
+            // console.log(res.data);
+            recommendPc.value = [...groupArray(apps, 4)]
+            recommendMobile.value = [...groupArray(apps, 3)]
+
+            console.log(recommendPc, recommendMobile);
+
+        }
+
+    }).catch(error => {
+        console.error(error);
+    });
+}
+
+
+function groupArray(array: any, groupSize: number) {
+    const result = [];
+    for (let i = 0; i < array.length; i += groupSize) {
+        result.push(array.slice(i, i + groupSize));
+    }
+    return result;
+}
+
+
+// 判断是pc 微信浏览器 还是手机微信浏览器
+function isMobile() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const mobileKeywords = ['android', 'iphone', 'ipad', 'windows phone'];
+  
+  for (let keyword of mobileKeywords) {
+    if (userAgent.includes(keyword)) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 
 // 加载聊天列表
@@ -393,7 +494,7 @@ const loadChatList = async () => {
     await getList({
         "page_size": 20,
         "page": page.value,
-    }).then(res => {
+    }).then((res:any) => {
         loading.value = false
         // console.log(res)
         if (res.data) {
@@ -460,6 +561,7 @@ const loadData = async (postData: any) => {
         messageData.push({
             id: Math.random.toString(),
             chat_id: Math.random.toString(),
+            chat_type: 'chat',
             who: "bot",
             content: data.value,
             created_time: StandardTime() // 给个当前时间
@@ -484,7 +586,7 @@ const loadData = async (postData: any) => {
         while (true) {
             const { done, value } = await reader.read()
             if (done) {
-                // setLoading(false)
+                checkExpire(dataValue)
                 break
             }
             dataValue = new TextDecoder().decode(value)
@@ -499,6 +601,18 @@ const loadData = async (postData: any) => {
 
     } catch {
         console.log('请求失败')
+    }
+}
+
+
+const checkExpire = (jsonStr: string) => {
+    try {
+        let obj = JSON.parse(jsonStr)
+        if (typeof obj === 'object' && obj.code == 2020) {
+            props.openUpgradePop()
+        }
+    } catch {
+
     }
 }
 
@@ -534,6 +648,7 @@ const handleEnterKey = async (event: KeyboardEvent) => {
                 chat_id: chatId,
                 who: "user",
                 content: message.value,
+                chat_type: 'chat',
                 created_time: StandardTime() // 给个当前时间
             })
             loadData({
@@ -550,16 +665,25 @@ const handleEnterKey = async (event: KeyboardEvent) => {
         curModelName.value = modelName(model.value)
         await createChat({
             "model": model.value,
+            "chat_type": 'chat',
             "content": message.value,
             "slider_random": sliderRandom.value,
             "slider_fresh": sliderFresh.value,
             "slider_repeat": sliderRepeat.value,
             "slider_limit": sliderLimit.value,
-        }).then(res => {
+        }).then((res:any) => {
+            // 如果没有额度或到期了则弹出充值界面
+            if (res.code == 2020) {
+                props.openUpgradePop()
+                return
+            }
+
+
             chatId = res.data?.chat_id
             messageData.push({
                 id: chatId,
                 chat_id: chatId,
+                chat_type: 'chat',
                 who: "user",
                 content: message.value,
                 created_time: StandardTime(res.data?.created_at)
@@ -639,7 +763,7 @@ const newChat = () => {
 const chatDelete = async (d: string) => {
     await delChat({
         "id": d,
-    }).then(res => {
+    }).then((res:any) => {
 
         removeById(chatList, d)
         console.log(res, chatList)
@@ -662,16 +786,17 @@ const chatShow = async (id: string) => {
     message.value = ''
     await getChatLog({
         "chat_id": id,
-    }).then(res => {
+    }).then((res:any) => {
         if (res.data) {
             let data = res.data
             // 给当前chatId赋值, 可以继续在这个会话下聊天
             chatId = id
 
-            data.forEach((item: { _id: any; chat_id: any; who: string; content: string; created_at: string | undefined; }) => {
+            data.forEach((item: any) => {
                 messageData.push({
                     id: item._id,
                     chat_id: item.chat_id,
+                    chat_type: item.chat_type,
                     who: item.who,
                     content: item.who == 'bot' ? mdi.render(item.content) : item.content,
                     created_time: StandardTime(item.created_at)
@@ -707,7 +832,7 @@ const getModelNameById = (obj: any, id: string) => {
 }
 
 
-const modelName=(model_name:string)=>{
+const modelName = (model_name: string) => {
     if (model_name == "gpt-4") {
         return "GPT-4"
     } else if (model_name == "gpt-3.5-turbo") {
@@ -763,8 +888,27 @@ defineExpose({
         .el-select {
             width: 100%;
         }
+
+        .app-item .app-item-div {
+            display: inline-block;
+            width: 60px;
+            cursor: pointer;
+        }
+
+        .app-item .app-name {
+            font-size: 12px;
+        }
     }
 
+}
+
+
+.el-carousel__item h3 {
+    color: #475669;
+    opacity: 0.75;
+    line-height: 100px;
+    margin: 0;
+    text-align: center;
 }
 
 
@@ -929,13 +1073,72 @@ defineExpose({
 
 .el-main {
     height: calc(100vh - 140px);
-    background-color: var(--el-bg-color);
+    background-color: var(--el-bg-chat-color);
     padding: 0 0 20px 0;
 }
 
+
+.app-item {
+    margin-top: 20px;
+}
+
+.app-item h4 {
+    font-size: 14px;
+    font-weight: normal;
+    text-align: center;
+    color: var(--el-color-info-dark-2);
+}
+
+.app-item h4 span {
+    border-radius: 15px;
+    padding: 5px 15px;
+    background-color: var(--el-msg-item-bot-color);
+    font-size: 12px;
+}
+
+.app-item ul {
+    margin: 0;
+    padding: 0;
+}
+
+.app-item ul li {
+    list-style: none;
+    display: inline-block;
+    text-align: center;
+    padding: 15px;
+    margin-right: 15px;
+}
+
+
+.app-item .el-image {
+    display: block;
+    background-color: var(--el-apps-bg-color);
+    border-radius: 15px;
+
+}
+
+.app-item .app-name {
+    height: 40px;
+    line-height: 40px;
+    display: block;
+    font-size: 14px;
+    color: var(--el-text-color-regular);
+}
+
+.app-item .app-item-div {
+    display: inline-block;
+    width: 100px;
+    cursor: pointer;
+}
+
+.el-container ::v-deep .el-carousel__indicator {
+    display: none;
+}
+
+
 .el-footer {
     height: 80px;
-    background-color: var(--el-bg-color);
+    background-color: var(--el-bg-chat-color);
     // border-top: 1px solid var(--el-border-color);
 }
 
@@ -1044,7 +1247,7 @@ button.reset-btn {
 }
 
 .el-main .main-center {
-    margin-top: 55px;
+    margin-top: 25px;
 }
 
 .el-main .main-center .el-card {
@@ -1073,9 +1276,12 @@ button.reset-btn {
 
 }
 
-
+.padding-top-50 {
+    padding-top: 60px !important;
+}
 .aside-show {
     display: block !important;
     position: absolute;
     z-index: 2;
-}</style>
+}
+</style>

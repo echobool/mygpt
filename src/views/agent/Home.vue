@@ -1,5 +1,5 @@
 <template>
-    <div class="el-container" style="max-width: 998px; margin: 0 auto;">
+    <div class="el-container main" style="max-width: 998px; margin: 0 auto;">
 
         <el-card class="box-card" shadow="never" style="margin: 30px 15px 15px 15px; max-width: calc(100vw - 30px);">
             <template #header>
@@ -205,7 +205,7 @@ const sendCode = async (formEl: FormInstance | undefined) => {
 
             sendPhoneCode({
                 phone: ruleForm.phone
-            }).then(res => {
+            }).then((res:any) => {
                 if (res.code == 0) {
                     let sec = 60
                     const timer = setInterval(() => {
@@ -235,7 +235,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (valid) {
-            postExtractApply(ruleForm).then(res => {
+            postExtractApply(ruleForm).then((res:any) => {
                 if (res.code == 0) {
                     openExtractDialog.value = false
                 }
@@ -295,7 +295,7 @@ const viewReason = () =>{
 
 
 const loadAgent = async () => {
-    await getAgentData().then(res => {
+    await getAgentData().then((res:any) => {
 
         if (res.data) {
             let data: any = res.data
@@ -307,6 +307,8 @@ const loadAgent = async () => {
             agentData.status = data.status
             agentData.bank_name = data.bank_name
             agentData.card_no = data.card_no
+            agentData.wechat_no = data.wechat_no
+            agentData.alipay_no = data.alipay_no
             agentData.card_id = data.card_id
             agentData.card_id_front = data.card_id_front
             agentData.card_id_back = data.card_id_back
@@ -348,6 +350,12 @@ defineExpose({
 @media only screen and (max-width: 576px) {
     .el-container ::v-deep .header-card {
         margin: 20px 5px;
+    }
+
+    .el-container .main {
+        height: calc(100vh - 60px);
+        overflow: scroll;
+        background-color: var(--el-color-info-light-9);
     }
 }
 

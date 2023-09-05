@@ -53,7 +53,7 @@ const getExtractList = async () => {
     await extractListApi({
         'page': page.value,
         'page_size': pageSize.value
-    }).then(res => {
+    }).then((res:any) => {
         if (res.data) {
 
             dataTotal.value = res.ext.count

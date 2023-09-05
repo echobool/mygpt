@@ -7,7 +7,7 @@
         </template>
 
 
-        <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm"
+        <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="100" class="demo-ruleForm"
             :size="formSize">
             <el-alert type="info" show-icon :closable="false">
                 注意：
@@ -29,6 +29,12 @@
             
             <el-form-item label="银行卡号" prop="card_no">
                 <el-input v-model="ruleForm.card_no" size="large" />
+            </el-form-item>
+            <el-form-item label="微信号" prop="wechat_no">
+                <el-input v-model="ruleForm.wechat_no" size="large" />
+            </el-form-item>
+            <el-form-item label="支付宝账号" prop="alipay_no">
+                <el-input v-model="ruleForm.alipay_no" size="large" />
             </el-form-item>
             
             <el-form-item>
@@ -62,6 +68,8 @@ const ruleForm = reactive({
     card_id: '',
     bank_name: '',
     card_no: '',
+    wechat_no: '',
+    alipay_no: '',
     real_name: '',
 })
 
@@ -75,6 +83,8 @@ onMounted(() => {
     ruleForm.bank_name = curAgent.value.bank_name
     ruleForm.card_no = curAgent.value.card_no
     ruleForm.real_name = curAgent.value.real_name
+    ruleForm.wechat_no = curAgent.value.wechat_no
+    ruleForm.alipay_no = curAgent.value.alipay_no
 });
 
 const rules = reactive<FormRules>({
@@ -101,7 +111,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid, fields) => {
         if (valid) {
 
-            postExtractSetting(ruleForm).then(res => {
+            postExtractSetting(ruleForm).then((res:any) => {
                 console.log(res)
                 router.replace({name:'revenue'})
             }).catch(err => {
@@ -113,9 +123,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         }
     })
 }
-
-
-
 
 
 </script>

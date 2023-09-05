@@ -1,6 +1,7 @@
 html.dark {
     /* 自定义深色背景颜色 */
-    --el-bg-color: #343541;
+    --el-bg-chat-color: #343541;
+    --el-bg-ai-color: #1e272e;
     --el-prompt-item-color: #3e3f4b;
     --el-textarea-inner-color: #40414f;
     --el-msg-item-bot-color: #444654;
@@ -10,11 +11,12 @@ html.dark {
     --el-menu-item-hover-fill-bg: #343541;
     --el-menu-item-hover-color: #eeeeee;
     --el-border-aside-color: #202121;
-
+    --el-border-tab-pane-color: #484e76;
+    --el-apps-bg-color: #8e90a9;
   }
 
 html{
-
+    --el-bg-chat-color: #ffffff ;
     --el-prompt-item-color: #f7f7f7;
 
     --el-msg-item-bot-color: #f7f7f7;
@@ -25,4 +27,7 @@ html{
     --el-menu-item-hover-fill-bg: #d5d5d5;
     --el-menu-item-hover-color: #535353;
     --el-border-aside-color: #e5e5e5;
+
+    --el-border-tab-pane-color: #dbddec;
+    --el-apps-bg-color: #eaebf6;
 }
