@@ -109,7 +109,7 @@
                 style="margin:0 10px; --el-switch-on-color: #aaa; --el-switch-off-color: #444" inline-prompt
                 :active-icon="Sunny" :inactive-icon="Moon" /></div>
             <div class="hidden-xs-only" style="margin: 5px 10px 0 10px;  cursor: pointer;">
-              <a href="https://github.com/echobool/mygpt" target="_blank">
+              <a href="https://github.com/echobool/mygpt" target="_blank" alt="项目地址" title="项目地址">
                 <i class="el-icon" style="font-size:25px;" data-v-6c8d2bba=""><svg preserveAspectRatio="xMidYMid meet"
                     viewBox="0 0 24 24" width="1.2em" height="1.2em" data-v-6c8d2bba="">
                     <path fill="currentColor"
