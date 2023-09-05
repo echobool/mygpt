@@ -1,18 +1,48 @@
-# Vue 3 + TypeScript + Vite
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+# ByteAi.Chat
 
-## Recommended IDE Setup
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+字节点点AI系统利用GPT接口实现本地化的AI服务，支持超过100个应用场景，如教育和大健康。该系统能够与多种AI模型对接，并提供模型参数个性化设置。它采纳了二级分销模式并鼓励用户分享，拥有二级域名的泛域支持，并能进行自动审核。此外，系统具备自动分账功能，并能统计用户付费和代理业绩。
 
-## Type Support For `.vue` Imports in TS
+###适合对象：
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+企业、教育行业、自媒体从业者。
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+###软件架构
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+系统采用golang 作为后台开发语言，mysql 数据库用作主要业务数据、Mongodb数据库用作聊天数据存储、redis 用作缓存数据。rabbitmq用作系统事件处理。
+对接微信公众号作为移动端展示。
+对接微信支付用作主要支付方式。
+支持docker独立部署。支持nginx 反向代理负载均衡。
+前端采用 VUE3+ ElementPlus 构建。
+主要功能
+
+### AI技术与接口
+
+GPT接口接入：字节点点AI系统采用了GPT接口，这使得系统能够实现本地化的AI智能服务，确保数据安全并提供快速的响应时间。
+
+广泛的应用场景：系统提供超过100个AI应用场景，成功覆盖了多个业态，包括但不限于：教育、大健康、自媒体和白领市场等。
+
+高度兼容性：系统可与多个AI模型进行对接，支持多种对话模式。这为用户带来了极大的灵活性，满足不同应用需求。
+
+个性化设置：用户可以根据需要进行模型参数的个性化设置。此外，系统还允许挂接本地知识库，增强AI的答复质量。为进一步满足开放性需求，系统还可以对接各种开源AI模型。
+
+### 分销与用户激励
+
+二级分销模式：字节点点AI系统引入了二级分销模式，使得代理和用户均可从分享和推广中受益。
+
+用户分享与激励：系统为个人用户提供了分享功能，同时引入了用户激励机制，鼓励用户更加积极地推广和使用。
+
+### 泛域名管理
+
+泛域名支持：系统支持二级域名的泛域功能，允许用户轻松地管理其子域名。
+
+自动泛域名开通审核：用户提交的泛域名开通申请可以通过系统自动审核，大大缩短了开通时间，提高了效率。
+
+### 财务分析管理
+
+自动分账功能：为确保资金流的透明与高效，系统实现了自动分账功能。
+
+财务统计：系统可以自动统计用户付费情况，同时，为代理提供了业绩统计功能，使得资金管理更加透明和方便。
+
+###体验网址：https://ai.byteai.chat 公众号“字节点点AI”
