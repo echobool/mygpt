@@ -1,14 +1,14 @@
 <center><img src="/public/logo/ailogo.svg" width="100" height="100" /></center>
-#<center> ByteAi</center>
+<center><h1>ByteAi</h1></center>
 
 
 字节点点AI系统利用GPT接口实现本地化的AI服务，支持超过100个应用场景，如教育和大健康。该系统能够与多种AI模型对接，并提供模型参数个性化设置。它采纳了二级分销模式并鼓励用户分享，拥有二级域名的泛域支持，并能进行自动审核。此外，系统具备自动分账功能，并能统计用户付费和代理业绩。
 
-###适合对象：
+### 适合对象：
 
 企业、教育行业、自媒体从业者。
 
-###软件架构
+### 软件架构
 
 系统采用golang 作为后台开发语言，mysql 数据库用作主要业务数据、Mongodb数据库用作聊天数据存储、redis 用作缓存数据。rabbitmq用作系统事件处理。
 对接微信公众号作为移动端展示。
@@ -45,8 +45,8 @@ GPT接口接入：字节点点AI系统采用了GPT接口，这使得系统能够
 
 财务统计：系统可以自动统计用户付费情况，同时，为代理提供了业绩统计功能，使得资金管理更加透明和方便。
 
-###体验网址：https://ai.byteai.chat  
-###公众号 “字节点点AI” 
+### 体验网址：https://ai.byteai.chat  
+### 公众号 “字节点点AI” 
 <center><img src="/public/intro/officaqrcode.jpg" width="300" height="300" />
 
 扫码体验公众号版本</center>
