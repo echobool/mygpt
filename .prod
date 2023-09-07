@@ -1,0 +1,8 @@
+NODE_ENV = "production"
+APP_BASE_URL = "https://aiapi.byteai.chat/v1"
+APP_SUB_DOMAIN = ".byteai.chat"
+APP_AGENT_DOMAIN_PRE = "ai"
+APP_DEFAULT_LOGO = "/logo/ailogo.svg"
+APP_SITE_NAME = "字节点点 AI"
+APP_SHARE_TXT = "有美版ChatGPT4可以使用，3.5不限量，体验各种人工智能AI超级应用，帮你做：写文章、写评价、写总结、做PPT等…；解决你遇到的各种问题，成为你的24小时超级助手！"
+APP_SERVICE = '{"status":"close"}'
