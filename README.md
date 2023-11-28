@@ -1,10 +1,9 @@
-<center><img src="/public/logo/ailogo.svg" width="100" height="100" /></center>
-<center><h1>ByteAi</h1></center>
-
+<div style="text-align:center"><img src="/public/logo/ailogo.svg" width="100" height="100" /></div>
+<h1 style="text-align:center">ByteAi</h1>
 
 字节点点AI系统利用GPT接口实现本地化的AI服务，支持超过100个应用场景，如教育和大健康。该系统能够与多种AI模型对接，并提供模型参数个性化设置。它采纳了二级分销模式并鼓励用户分享，拥有二级域名的泛域支持，并能进行自动审核。此外，系统具备自动分账功能，并能统计用户付费和代理业绩。
 
-### 适合对象：
+### 适合对象
 
 企业、教育行业、自媒体从业者。
 
@@ -15,7 +14,8 @@
 对接微信支付用作主要支付方式。
 支持docker独立部署。支持nginx 反向代理负载均衡。
 前端采用 VUE3+ ElementPlus 构建。
-主要功能
+
+## 主要功能
 
 ### AI技术与接口
 
@@ -45,11 +45,10 @@ GPT接口接入：字节点点AI系统采用了GPT接口，这使得系统能够
 
 财务统计：系统可以自动统计用户付费情况，同时，为代理提供了业绩统计功能，使得资金管理更加透明和方便。
 
-### 体验网址：https://ai.byteai.chat  
-### 公众号 “字节点点AI” 
-<center><img src="/public/intro/officaqrcode.jpg" width="300" height="300" />
+### 体验网址：<https://go.qianniugohome.com/>  
 
-扫码体验公众号版本</center>
+### 公众号 “ChatGPT4.0”
 
+<div style="text-align:center"><img src="/public/intro/wechatIMG128.jpeg" width="300" />
 
-
+扫码体验公众号版本</div>
